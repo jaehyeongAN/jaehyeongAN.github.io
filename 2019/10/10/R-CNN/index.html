@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head><meta name="generator" content="Hexo 3.9.0">
+
+  <!-- Minima -->
+  <!-- Hexo theme created by @adisaktijrs -->
+
+  <!-- Basic Page Needs
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta charset="utf-8">
+
+  
+  <title>R-CNN(Regions with CNN features) 논문 리뷰</title>
+  
+  <link rel="sitemap" href="https://jaehyeongan.github.iositemap.xml">
+  
+  <link rel="canonical" href="https://jaehyeongan.github.io/2019/10/10/R-CNN/">
+  
+  <meta name="description" content="Intro 오늘은 초기 Object Detection 발전에 가장 많은 영향을 미친 논문인 Ross Girshick의 Rich feature hierarchies for accurate object detection and semantic segmentation 즉, ">
+  
+  
+  <meta name="author" content>
+  
+  <meta property="og:image" content="https://jaehyeongan.github.ioundefined">
+  
+  <meta property="og:site_name" content="jaehyeong&#39;s ds">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="R-CNN(Regions with CNN features) 논문 리뷰">
+  
+  <meta property="og:description" content="Intro 오늘은 초기 Object Detection 발전에 가장 많은 영향을 미친 논문인 Ross Girshick의 Rich feature hierarchies for accurate object detection and semantic segmentation 즉, ">
+  
+  <meta property="og:url" content="https://jaehyeongan.github.io/2019/10/10/R-CNN/">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="R-CNN(Regions with CNN features) 논문 리뷰">
+  
+  <meta name="twitter:description" content="Intro 오늘은 초기 Object Detection 발전에 가장 많은 영향을 미친 논문인 Ross Girshick의 Rich feature hierarchies for accurate object detection and semantic segmentation 즉, ">
+  
+  
+  <meta name="twitter:image" content="https://jaehyeongan.github.ioundefined">
+  
+  <meta name="twitter:url" content="https://jaehyeongan.github.io/2019/10/10/R-CNN/">
+
+  <!-- Mobile Specific Metas
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Preload fonts
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="preload" href="../fonts/dm-serif-display-v4-latin-regular.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="../fonts/inter-v2-latin-regular.woff2" as="font" type="font/woff2" crossorigin>
+
+  <!-- CSS
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="stylesheet" href="/css/normalize.css">
+  <link rel="stylesheet" href="/css/skeleton.css">
+  <link rel="stylesheet" href="/css/custom.css">
+  <link rel="stylesheet" href="/css/prism-dark.css">
+  <link rel="stylesheet" href="/css/prism-line-numbers.css">
+  <!-- User css -->
+  
+  <link rel="stylesheet" href="/css/user.css">
+  
+
+  <!-- Favicon
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="icon" type="image/png" href="/images/astronaut.png">
+
+  <!-- Custom Theme Color Style
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <style>
+  a:not(.icon) {
+    text-decoration-color: #0FA0CE;
+    background-image: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0) 50%,
+      #0FA0CE 50%
+    );
+  }
+  blockquote {
+    border-left: 8px solid #0FA0CE;
+  }
+  .nanobar .bar {
+    background: #0FA0CE;
+  }
+  .button.button-primary:hover,
+  button.button-primary:hover,
+  input[type="submit"].button-primary:hover,
+  input[type="reset"].button-primary:hover,
+  input[type="button"].button-primary:hover,
+  .button.button-primary:focus,
+  button.button-primary:focus,
+  input[type="submit"].button-primary:focus,
+  input[type="reset"].button-primary:focus,
+  input[type="button"].button-primary:focus {
+    background-color: #0FA0CE;
+    border-color: #0FA0CE;
+  }
+  input[type="email"]:focus,
+  input[type="number"]:focus,
+  input[type="search"]:focus,
+  input[type="text"]:focus,
+  input[type="tel"]:focus,
+  input[type="url"]:focus,
+  input[type="password"]:focus,
+  textarea:focus,
+  select:focus {
+    border: 1px solid #0FA0CE;
+  }
+</style>
+
+  <!-- Google Analytics (With Privacy Settings On)
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  
+
+</head>
+
+<body>
+  <div class="container">
+    <div class="row">
+      <div>
+
+        <div class="row">
+  <div class="two columns" style="max-width: 50px">
+    <h1 class="mt-2 mode">
+      <div onclick="setDarkMode(true)" id="darkBtn">🌑</div>
+      <div onclick="setDarkMode(false)" id="lightBtn" class="hidden">☀️</div>
+      <script>
+        if (localStorage.getItem('preferredTheme') == 'dark') {
+          setDarkMode(true)
+        }
+        function setDarkMode(isDark) {
+          var darkBtn = document.getElementById('darkBtn')
+          var lightBtn = document.getElementById('lightBtn')
+          if (isDark) {
+            lightBtn.style.display = "block"
+            darkBtn.style.display = "none"
+            localStorage.setItem('preferredTheme', 'dark');
+          } else {
+            lightBtn.style.display = "none"
+            darkBtn.style.display = "block"
+            localStorage.removeItem('preferredTheme');
+          }
+          document.body.classList.toggle("darkmode");
+        }
+      </script>
+    </h1>
+  </div>
+
+  <div class="six columns ml-1">
+    <h1 class="mt-2">
+      ⬅ Click this.
+    </h1>
+  </div>
+
+  <div class="twelve columns">
+    <div class="row">
+      <div class="nine columns left">
+        <a href="/">Home</a>
+        
+          
+          <a href="/about" class="ml">About</a>
+          
+        
+        
+          
+            <a href="mailto:nonamed000000@gmail.com" target="_blank" class="ml">Email</a>
+          
+        
+      </div>
+    </div>
+    <hr style="margin-bottom: 2.6rem">
+  </div>
+</div>
+
+        <div class="trans">
+            <h2>R-CNN(Regions with CNN features) 논문 리뷰</h2>
+
+  <h2 id="Intro"><a href="#Intro" class="headerlink" title="Intro "></a>Intro </h2><p>오늘은 초기 Object Detection 발전에 가장 많은 영향을 미친 논문인 Ross Girshick의 <a href="https://arxiv.org/abs/1311.2524" target="_blank" rel="noopener">Rich feature hierarchies for accurate object detection and semantic segmentation</a> 즉, <strong>R-CNN</strong>에 대한 논문 리뷰를 간단히 하고자 한다.</p>
+<p>우선 Obejct Detection이란 이미지가 무엇인지 판단하는 Classification과 이미지 내의 물체의 위치 정보를 찾는 Localization을 수행하는 것을 말한다. 이를 통해 영상 내의 객체가 사람인지 동물인지 물건인지 등을 구별하여 각 객체가 어디에 위치하는지 표시하는 것이 가능하다. </p>
+<hr>
+<h2 id="Abstract"><a href="#Abstract" class="headerlink" title="Abstract"></a>Abstract</h2><p>지난 몇 년 동안 <em>PASCAL VOC</em> 데이터셋에서 Object Detection의 가장 좋은 성능을 내는 것은 high-level context의 복잡한 앙상블 모델이었다. 하지만 이 논문에서는 VOC 2012 데이터를 기준으로 이전 모델에 비해 mAP(mean average precision)가 30%이상 향상된 더 간단하고 확장 가능한 detection 알고리즘을 소개하였다.<br>이 알고리즘은 크게 두 가지 핵심 인사이트를 가지고 있는데 다음과 같다.</p>
+<blockquote>
+<ol>
+<li>객체를 localize 및 segment하기 위해 bottom-up방식의 region proposal(지역 제안)에  Convolutional Neural Network를 적용</li>
+<li>domain-specific fine-tuning을 통한 supervised pre-training을 적용</li>
+</ol>
+</blockquote>
+<p>저자는 해당 모델을 R-CNN(Regions with CNN features)이라고 명시하였으며, 그 이유는 CNN과 Region proposal이 결합되었기 때문이라고 한다. </p>
+<h2 id="1-Introduction"><a href="#1-Introduction" class="headerlink" title="1. Introduction"></a>1. Introduction</h2><p>지난 10년간 다양한 visual recognition 작업에서는 주로 <em>SIFT와 HOG(gradient 기반의 특징점 추출 알고리즘)</em>가 가장 많이 사용되었는데, 이는 2010 ~ 2012년의 PASCAL VOC obeject detection에서 일반적으로 인정되는 방법이었다. 하지만 이후 back-propagation이 가능한 SGD(Stochastic Gradient Descent)기반의 CNN(Convolutional Neural Networks)이 등장하기 시작하였고 SIFT와 HOG와 같은 알고리즘과 비교하여 PASCAL VOC object detection에서 굉장한 성능을 보이게 되었다.<br>Image Classification과 다르게 detection은 이미지내에서 객체를 localizing하는 것이 요구되는데 이를 위해, 논문의 모델은 sliding-window 방식을 적용하였고, 높은 공간 해상도(high spartial resolution)을 유지하기 위해 5개의 Convolutional 레이어를 적용하였다.<br>우선 간단하게 R-CNN은 아래와 같은 프로세스로 작동한다.<br><img src="/image/rcnn.JPG" width="800" height="200"></p>
+<blockquote>
+<p><strong>R-CNN 프로세스</strong></p>
+<ol>
+<li>Input 이미지로부터 2,000개의 독립적인 region proposal을 생성</li>
+<li>CNN을 통해 각 proposal 마다 고정된 길이의 feature vector를 추출(CNN 적용 시 서로 다른 region shape에 영향을 받지 않기 위해 fixed-size로 이미지를 변경)</li>
+<li>이후, 각 region 마다 category-specific linear SVM을 적용하여 classification을 수행</li>
+</ol>
+</blockquote>
+<p><br></p>
+<h2 id="2-Object-detection-with-R-CNN"><a href="#2-Object-detection-with-R-CNN" class="headerlink" title="2. Object detection with R-CNN"></a>2. Object detection with R-CNN</h2><p>이 논문의 object detection은 크게 3가지 모듈로 구성되어 있다.</p>
+<p><strong>1. category-independent한 region proposals를 생성</strong><br><strong>2. 각 region으로부터 feature vector를 추출하기 위한 large CNN</strong><br><strong>3. classification을 위한 linear SVMs</strong><br>이제 아래에서 본격적으로 각 모듈에 대해 설명하고 PASCAL VOC2010-12에 대한 결과를 소개한다.<br><br></p>
+<h3 id="Region-proposals"><a href="#Region-proposals" class="headerlink" title="Region proposals"></a>Region proposals</h3><p>카테고리 독립적인 region proposal을 생성하기 위한 방법은 여러가지가 있는데 해당 논문에서는 이전 detection 작업들과 비교하기 위하여 <strong>Selective Search</strong>라는 최적의 region proposal를 제안하는 기법을 사용하여 독립적인 region proposal을 추출하였다. selective search는 아래와 같은 프로세스로 이루어진다.</p>
+<blockquote>
+<p><strong>Selective Search</strong></p>
+<ol>
+<li>이미지의 초기 세그먼트를 정하여, 수많은 region 영역을 생성</li>
+<li>greedy 알고리즘을 이용하여 각 region을 기준으로 주변의 유사한 영역을 결합</li>
+<li>결합되어 커진 region을 최종 region proposal로 제안 </li>
+</ol>
+</blockquote>
+<p><br></p>
+<h3 id="Feature-extraction"><a href="#Feature-extraction" class="headerlink" title="Feature extraction"></a>Feature extraction</h3><p>우선 위에서 언급한 Selective Search를 통해 도출 된 각 region proposal로부터 CNN을 사용하여 4096차원의 feature vector를 추출한다. 이후, feature들은 5개의 convolutional layer와 2개의 fully connected layer로 전파되는데, 이때 CNN의 입력으로 사용되기 위해 각 region은 227x227 RGB의 고정된 사이즈로 변환되게 된다.</p>
+<p><img src="/image/rcnn2.JPG" width="600" height="200"><br><br></p>
+<h3 id="Training"><a href="#Training" class="headerlink" title="Training"></a>Training</h3><p>학습에 사용되는 CNN 모델의 경우 ILSVRC 2012 데이터 셋으로 미리 학습된 <strong>pre-trained CNN(AlexNet)</strong>모델을 사용한다.<br><br></p>
+<h3 id="Domain-specific-fine-tuning"><a href="#Domain-specific-fine-tuning" class="headerlink" title="Domain-specific fine-tuning"></a>Domain-specific fine-tuning</h3><p>Classification에 최적화된 CNN 모델을 새로운 Detection 작업 그리고 VOC 데이터셋에 적용하기 위해 오직 VOC의 region proposals를 통해 SGD(stochastic gradient descent)방식으로 CNN 파라미터를 업데이트 한다. 이후 CNN을 통해 나온 feature map은 SVM을 통해 classification 및 bounding regreesion이 진행되게 되는데, 여기서 SVM 학습을 위해 NMS(non-maximum suppresion)과 IoU(inter-section-over-union)이라는 개념이 활용된다. </p>
+<p>IoU는 Area of Overlap(교집합) / Area of Union(합집합)으로 계산되며, 간단히 말해 전체 bounding box 영역 중 겹치는 부분의 비율을 나타내는데 NMS 알고리즘이 이 IoU 점수를 활용하여 겹치는 박스를 모두 제거하고 가장 적합한 박스만 남기게 된다. NMS의 과정을 간단히 살펴보면 아래와 같은 프로세로 진행된다.</p>
+<blockquote>
+<p><strong>NMS(Non-maximum suppresion)</strong></p>
+<ol>
+<li>예측한 bounding box들의 예측 점수를 내림차순으로 정렬</li>
+<li>높은 점수의 박스부터 시작하여 나머지 박스들 간의 IoU를 계산</li>
+<li>IoU값이 지정한 threhold보다 높은 박스를 제거</li>
+<li>최적의 박스만 남을 떄까지 위 과정을 반복</li>
+</ol>
+</blockquote>
+<p>해당 논문에서는 SVM 학습을 위한 라벨로서 IoU를 활용하였고 IoU 가 0.5이상인 것들을 positive 객체로 보고 나머지는 negative로 분류하여 학습하게 된다. 각 SGD iteration마다 32개의 positive window와 96개의 backgroud window 총 128개의 배치로 학습이 진행된다.</p>
+<p><img src="/image/rcnn3.png" width="450" height="200"></p>
+<p><br></p>
+<h2 id="3-Results-on-PASCAL-VOC-2010-12"><a href="#3-Results-on-PASCAL-VOC-2010-12" class="headerlink" title="3. Results on PASCAL VOC 2010-12"></a>3. Results on PASCAL VOC 2010-12</h2><p><img src="/image/rcnn4.JPG" width="1000" height="200"></p>
+<p>위 테이블은 VOC 2010 테스트 데이터에 대한 각 모델별 결과이다. 맨 오른쪽에서 mAP를 확인할 수 있는데, 논문에서는 결과를 비교하는데 같은 region proposal 알고리즘을 적용한 UVA모델과 mAP를 비교한다.<br>위 표를 보면 UVA 모델의 mAP는 35.1%이고, R-CNN의 mAP는 <strong>53.7%</strong>인 것을 확인할 수 있으며 이것은 높은 증가율이라고 저자는 말한다. 또한 VOC 2011/12 데이터 셋 또한 53.3% mAP 높은 성능을 나타냈다.<br><br></p>
+<h2 id="4-Problems"><a href="#4-Problems" class="headerlink" title="4. Problems"></a>4. Problems</h2><p>R-CNN의 가장 큰 문제는 복잡한 프로세스로 인한 과도한 연상량에 있다. 최근에는 고성능 GPU가 많이 보급 되었기 때문에 deep한 neural net이라도 GPU연산을 통해 빠른 처리가 가능하다. 하지만 R-CNN은  selective search 알고리즘를 통한 region proposal 작업 그리고 NMS 알고리즘 작업 등은 CPU 연산에 의해 이루어 지기 때문에 굉장히 많은 연산량 및 시간이 소모된다.<br>또한  SVM  예측 시 region에 대한 classification  및 bounding box에 대한 regression 작업이 함께 작동하다 보니 모델 예측 부분에서도 연산 및 시간이 많이 소모되어 real-time 분석이 어렵다는 단점이 있다. </p>
+<p>R-CNN의 이러한 한계들로 인해, 추후 프로세스 및 연산 측면에서 보완된 모델이 나오게 되는데 그것이 바로 <a href="https://arxiv.org/abs/1504.08083" target="_blank" rel="noopener">Fast R-CNN</a>과 <a href="https://arxiv.org/abs/1506.01497" target="_blank" rel="noopener">Faster R-CNN</a>이다. </p>
+<p><img src="/image/rcnn_time.png" width="600" height="200"></p>
+<p>위 그림은 R-CNN, SPP-Net, Fast R-CNN, Faster R-CNN의 실행 속도 차이를 나타내는데 Faster R-CNN이 이전 모델보다 비교가 안될 정도로 훠얼씬 빠르다는 것을 알 수 있다. (성능도 더 좋아졌다.)<br>아래에서 Fast R-CNN과 Faster R-CNN에 대해 간단하게 집고 넘어가 보도록 한다.</p>
+<p><br></p>
+<h2 id="5-Fast-R-CNN-amp-Faster-R-CNN"><a href="#5-Fast-R-CNN-amp-Faster-R-CNN" class="headerlink" title="5. Fast R-CNN &amp; Faster R-CNN"></a>5. Fast R-CNN &amp; Faster R-CNN</h2><h3 id="Fast-R-CNN"><a href="#Fast-R-CNN" class="headerlink" title="Fast R-CNN"></a>Fast R-CNN</h3><p><img src="/image/fastrcnn.JPG" width="600" height="200"><br>Fast R-CNN의 R-CNN의 문제를 해결하기 위해 나온 모델이다.<br>동작 방식은 R-CNN과 유사하게 region proposal이 작동하지만, RCNN과 다르게 <strong>Fast R-CNN은 먼저 전체 이미지가 ConvNet의 input으로 입력이 된다.</strong> 이미지는 ConvNet을 통과하며 feature map을 추출하게 되고, 이 feature map은 selectice search 기반의 region proposal을 통해 RoI(Regions of Interest)를 뽑아낸다. </p>
+<p>이후 선택 된 Region들은 RoI Pooling layer를 거치게 되는데, 이 과정은 추후 예측을 위해 region들을 다운 사이즈하여 모두 같은 고정된 크기로 변환해주는 역할을 한다. 마지막 과정으로  fully connected layer를 거치며 Softmax Classification과 Bounding Box Regression이 수행된다. </p>
+<p>위의 과정은 하나의 ConvNet모델에 의해 동시에 수행이 되기 때문에 RCNN에 비하여 훨씬 빠르게 작동하는 장점이 있다. 하지만 결국 Fast RCNN 또한 많은 연산을 필요로 하는 Selective Search 기법이 작동을 하므로 큰 데이터 셋에 적용하는데는 한계가 있다.</p>
+<p><br></p>
+<h3 id="Faster-R-CNN"><a href="#Faster-R-CNN" class="headerlink" title="Faster R-CNN"></a>Faster R-CNN</h3><p><img src="/image/fasterrcnn.JPG" width="500" height="200"><br>Faster R-CNN은 R-CNN과 Fast R-CNN이 region proposal로 인한 과도한 연산 문제를 해결하기 위해 나온 모델이다. 기존 region proposal에 사용되었던 selective search는 연산량을 늘리고 시간을 많이 소모하는 주요 원인이었다. 그래서 Faster R-CNN에서는 selective search 알고리즘을 없애고 <strong>Region Proposal Networks(RPN)</strong>라는 뉴럴 네트워크를 추가하여 region proposal을 예측하도록 했다.  </p>
+<p>그 후, 예측된 region proposal은 Fast R-CNN과 유사하게 RoI Pooling layer를 거치며 모든 region을 같은 크기로 고정 후, Classification 및 Bounding Box Regreesion이 수행된다.</p>
+<p><br></p>
+<hr>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><p>paper</p>
+<ul>
+<li>R-Rich feature hierarchies for accurate object detection and semantic segmentation(<a href="https://arxiv.org/abs/1311.2524" target="_blank" rel="noopener">https://arxiv.org/abs/1311.2524</a>)</li>
+<li>Fast R-CNN(<a href="https://arxiv.org/abs/1504.08083" target="_blank" rel="noopener">https://arxiv.org/abs/1504.08083</a>)</li>
+<li>Faster R-CNN(<a href="https://arxiv.org/abs/1506.01497" target="_blank" rel="noopener">https://arxiv.org/abs/1506.01497</a>)</li>
+</ul>
+<p>blog</p>
+<ul>
+<li><a href="https://reniew.github.io/10/" target="_blank" rel="noopener">https://reniew.github.io/10/</a></li>
+<li><a href="https://towardsdatascience.com/r-cnn-fast-r-cnn-faster-r-cnn-yolo-object-detection-algorithms-36d53571365e" target="_blank" rel="noopener">https://towardsdatascience.com/r-cnn-fast-r-cnn-faster-r-cnn-yolo-object-detection-algorithms-36d53571365e</a><br><a href="https://blog.lunit.io/2017/06/01/r-cnns-tutorial/" target="_blank" rel="noopener">https://blog.lunit.io/2017/06/01/r-cnns-tutorial/</a></li>
+</ul>
+
+  <p><a class="classtest-link" href="/tags/fasterrcnn/">fasterrcnn</a>, <a class="classtest-link" href="/tags/fastrcnn/">fastrcnn</a>, <a class="classtest-link" href="/tags/iou/">iou</a>, <a class="classtest-link" href="/tags/nms/">nms</a>, <a class="classtest-link" href="/tags/rcnn/">rcnn</a>, <a class="classtest-link" href="/tags/regionproposals/">regionproposals</a>, <a class="classtest-link" href="/tags/selectivesearch/">selectivesearch</a>, <a class="classtest-link" href="/tags/voc/">voc</a> — Oct 10, 2019</p>
+  
+  <hr>
+<section id="comments" class="mt-2 mb-3">
+
+  <div id="disqus_thread">
+    <a href="#" class="button button-primary" onclick="loadDisqus();return false;">View / Make Comments</a>
+  </div>
+
+  <script>
+    var disqus_config = function() {
+      this.page.url = 'https://jaehyeongan.github.io/2019/10/10/R-CNN/index.html';
+      this.page.identifier = '2019/10/10/R-CNN/index.html';
+      this.page.title = 'R-CNN(Regions with CNN features) 논문 리뷰';
+    };
+
+    var is_disqus_loaded = false;
+
+    function loadDisqus() {
+      if (!is_disqus_loaded) {
+        is_disqus_loaded = true;
+
+        var d = document,
+          s = d.createElement('script');
+        s.src = 'https://jaehyeongan.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+      }
+    }
+
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</section>
+
+
+
+          <div class="row mt-2">
+  
+    <div class="eight columns">
+      <p id="madewith">Made with ❤ and
+        <a class="footer-link icon" href="https://hexo.io" target="_blank" style="text-decoration: none;" rel="noreferrer" aria-label="Hexo.io">
+        <svg class="hexo svg-hov" width="14" role="img" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24"><title>Hexo.js</title><path d="M12 .007L1.57 6.056V18.05L12 23.995l10.43-6.049V5.952L12 .007zm4.798 17.105l-.939.521-.939-.521V12.94H9.08v4.172l-.94.521-.938-.521V6.89l.939-.521.939.521v4.172h5.84V6.89l.94-.521.938.521v10.222z"/></svg>
+        </a>
+        
+        at <a href="https://en.wikipedia.org/wiki/Earth" target="_blank" rel="noreferrer">Earth</a>.</p>
+        
+    </div>
+
+    <!-- Sepcial thanks to https://simpleicons.org/ for the icons -->
+    <div class="four columns mb-3 posisi">
+      
+      <a class="ml-0 footer-link icon" href="https://github.com/jaehyeongAN" target="_blank" style="text-decoration: none" rel="noreferrer" aria-label="GitHub">
+        <svg class="github svg-hov" width="18" role="img" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>GitHub</title><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+      </a>
+      
+
+      
+      <a class="ml-0 footer-link icon" href="https://www.linkedin.com/in/jaehyeong-an-005603160/" target="_blank" style="text-decoration: none" rel="noreferrer" aria-label="LinkedIn">
+        <svg class="linkedin svg-hov" width="18" role="img" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>LinkedIn</title><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+      </a>
+      
+
+      
+
+      
+      <a class="ml-0 footer-link icon" href="https://www.instagram.com/an_jh.ds/" target="_blank" style="text-decoration: none" rel="noreferrer" aria-label="Instagram">
+        <svg class="instagram svg-hov" width="18" role="img" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>Instagram</title><path d="M12 0C8.74 0 8.333.015 7.053.072 5.775.132 4.905.333 4.14.63c-.789.306-1.459.717-2.126 1.384S.935 3.35.63 4.14C.333 4.905.131 5.775.072 7.053.012 8.333 0 8.74 0 12s.015 3.667.072 4.947c.06 1.277.261 2.148.558 2.913.306.788.717 1.459 1.384 2.126.667.666 1.336 1.079 2.126 1.384.766.296 1.636.499 2.913.558C8.333 23.988 8.74 24 12 24s3.667-.015 4.947-.072c1.277-.06 2.148-.262 2.913-.558.788-.306 1.459-.718 2.126-1.384.666-.667 1.079-1.335 1.384-2.126.296-.765.499-1.636.558-2.913.06-1.28.072-1.687.072-4.947s-.015-3.667-.072-4.947c-.06-1.277-.262-2.149-.558-2.913-.306-.789-.718-1.459-1.384-2.126C21.319 1.347 20.651.935 19.86.63c-.765-.297-1.636-.499-2.913-.558C15.667.012 15.26 0 12 0zm0 2.16c3.203 0 3.585.016 4.85.071 1.17.055 1.805.249 2.227.415.562.217.96.477 1.382.896.419.42.679.819.896 1.381.164.422.36 1.057.413 2.227.057 1.266.07 1.646.07 4.85s-.015 3.585-.074 4.85c-.061 1.17-.256 1.805-.421 2.227-.224.562-.479.96-.899 1.382-.419.419-.824.679-1.38.896-.42.164-1.065.36-2.235.413-1.274.057-1.649.07-4.859.07-3.211 0-3.586-.015-4.859-.074-1.171-.061-1.816-.256-2.236-.421-.569-.224-.96-.479-1.379-.899-.421-.419-.69-.824-.9-1.38-.165-.42-.359-1.065-.42-2.235-.045-1.26-.061-1.649-.061-4.844 0-3.196.016-3.586.061-4.861.061-1.17.255-1.814.42-2.234.21-.57.479-.96.9-1.381.419-.419.81-.689 1.379-.898.42-.166 1.051-.361 2.221-.421 1.275-.045 1.65-.06 4.859-.06l.045.03zm0 3.678c-3.405 0-6.162 2.76-6.162 6.162 0 3.405 2.76 6.162 6.162 6.162 3.405 0 6.162-2.76 6.162-6.162 0-3.405-2.76-6.162-6.162-6.162zM12 16c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4zm7.846-10.405c0 .795-.646 1.44-1.44 1.44-.795 0-1.44-.646-1.44-1.44 0-.794.646-1.439 1.44-1.439.793-.001 1.44.645 1.44 1.439z"/></svg>
+      </a>
+      
+
+    </div>
+  
+</div>
+
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+  <script src="/js/nanobar.min.js"></script>
+  <script>
+    var options = {
+      classname: 'nanobar',
+      id: 'myNanobar'
+    };
+    var nanobar = new Nanobar(options);
+    nanobar.go(30);
+    nanobar.go(76);
+    nanobar.go(100);
+  </script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</body>
+
+</html>

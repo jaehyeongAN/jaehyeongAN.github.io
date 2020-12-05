@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head><meta name="generator" content="Hexo 3.9.0">
+
+  <!-- Minima -->
+  <!-- Hexo theme created by @adisaktijrs -->
+
+  <!-- Basic Page Needs
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta charset="utf-8">
+
+  
+  <title>[Kaggle challenge] 직소 악성 대화 분류(Jigsaw Unintended Bias in Toxicity Classification)</title>
+  
+  <link rel="sitemap" href="https://jaehyeongan.github.iositemap.xml">
+  
+  <link rel="canonical" href="https://jaehyeongan.github.io/2019/07/04/Kaggle-challenge-직소-악성-댓글-분류-Jigsaw-Unintended-Bias-in-Toxicity/">
+  
+  <meta name="description" content="Intro얼마 전 캐글에서 구글 Jigsaw/Conversation AI팀에 의해 ‘Jigsaw Unintended Bias in Toxicity Classification’라는 주제로 competition이 개최되어 호기심에 도전해보았다.  Jigsaw라는 곳을 처음">
+  
+  
+  <meta name="author" content>
+  
+  <meta property="og:image" content="https://jaehyeongan.github.ioundefined">
+  
+  <meta property="og:site_name" content="jaehyeong&#39;s ds">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="[Kaggle challenge] 직소 악성 대화 분류(Jigsaw Unintended Bias in Toxicity Classification)">
+  
+  <meta property="og:description" content="Intro얼마 전 캐글에서 구글 Jigsaw/Conversation AI팀에 의해 ‘Jigsaw Unintended Bias in Toxicity Classification’라는 주제로 competition이 개최되어 호기심에 도전해보았다.  Jigsaw라는 곳을 처음">
+  
+  <meta property="og:url" content="https://jaehyeongan.github.io/2019/07/04/Kaggle-challenge-직소-악성-댓글-분류-Jigsaw-Unintended-Bias-in-Toxicity/">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="[Kaggle challenge] 직소 악성 대화 분류(Jigsaw Unintended Bias in Toxicity Classification)">
+  
+  <meta name="twitter:description" content="Intro얼마 전 캐글에서 구글 Jigsaw/Conversation AI팀에 의해 ‘Jigsaw Unintended Bias in Toxicity Classification’라는 주제로 competition이 개최되어 호기심에 도전해보았다.  Jigsaw라는 곳을 처음">
+  
+  
+  <meta name="twitter:image" content="https://jaehyeongan.github.ioundefined">
+  
+  <meta name="twitter:url" content="https://jaehyeongan.github.io/2019/07/04/Kaggle-challenge-직소-악성-댓글-분류-Jigsaw-Unintended-Bias-in-Toxicity/">
+
+  <!-- Mobile Specific Metas
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Preload fonts
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="preload" href="../fonts/dm-serif-display-v4-latin-regular.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="../fonts/inter-v2-latin-regular.woff2" as="font" type="font/woff2" crossorigin>
+
+  <!-- CSS
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="stylesheet" href="/css/normalize.css">
+  <link rel="stylesheet" href="/css/skeleton.css">
+  <link rel="stylesheet" href="/css/custom.css">
+  <link rel="stylesheet" href="/css/prism-dark.css">
+  <link rel="stylesheet" href="/css/prism-line-numbers.css">
+  <!-- User css -->
+  
+  <link rel="stylesheet" href="/css/user.css">
+  
+
+  <!-- Favicon
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="icon" type="image/png" href="/images/astronaut.png">
+
+  <!-- Custom Theme Color Style
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <style>
+  a:not(.icon) {
+    text-decoration-color: #0FA0CE;
+    background-image: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0) 50%,
+      #0FA0CE 50%
+    );
+  }
+  blockquote {
+    border-left: 8px solid #0FA0CE;
+  }
+  .nanobar .bar {
+    background: #0FA0CE;
+  }
+  .button.button-primary:hover,
+  button.button-primary:hover,
+  input[type="submit"].button-primary:hover,
+  input[type="reset"].button-primary:hover,
+  input[type="button"].button-primary:hover,
+  .button.button-primary:focus,
+  button.button-primary:focus,
+  input[type="submit"].button-primary:focus,
+  input[type="reset"].button-primary:focus,
+  input[type="button"].button-primary:focus {
+    background-color: #0FA0CE;
+    border-color: #0FA0CE;
+  }
+  input[type="email"]:focus,
+  input[type="number"]:focus,
+  input[type="search"]:focus,
+  input[type="text"]:focus,
+  input[type="tel"]:focus,
+  input[type="url"]:focus,
+  input[type="password"]:focus,
+  textarea:focus,
+  select:focus {
+    border: 1px solid #0FA0CE;
+  }
+</style>
+
+  <!-- Google Analytics (With Privacy Settings On)
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  
+
+</head>
+
+<body>
+  <div class="container">
+    <div class="row">
+      <div>
+
+        <div class="row">
+  <div class="two columns" style="max-width: 50px">
+    <h1 class="mt-2 mode">
+      <div onclick="setDarkMode(true)" id="darkBtn">🌑</div>
+      <div onclick="setDarkMode(false)" id="lightBtn" class="hidden">☀️</div>
+      <script>
+        if (localStorage.getItem('preferredTheme') == 'dark') {
+          setDarkMode(true)
+        }
+        function setDarkMode(isDark) {
+          var darkBtn = document.getElementById('darkBtn')
+          var lightBtn = document.getElementById('lightBtn')
+          if (isDark) {
+            lightBtn.style.display = "block"
+            darkBtn.style.display = "none"
+            localStorage.setItem('preferredTheme', 'dark');
+          } else {
+            lightBtn.style.display = "none"
+            darkBtn.style.display = "block"
+            localStorage.removeItem('preferredTheme');
+          }
+          document.body.classList.toggle("darkmode");
+        }
+      </script>
+    </h1>
+  </div>
+
+  <div class="six columns ml-1">
+    <h1 class="mt-2">
+      ⬅ Click this.
+    </h1>
+  </div>
+
+  <div class="twelve columns">
+    <div class="row">
+      <div class="nine columns left">
+        <a href="/">Home</a>
+        
+          
+          <a href="/about" class="ml">About</a>
+          
+        
+        
+          
+            <a href="mailto:nonamed000000@gmail.com" target="_blank" class="ml">Email</a>
+          
+        
+      </div>
+    </div>
+    <hr style="margin-bottom: 2.6rem">
+  </div>
+</div>
+
+        <div class="trans">
+            <h2>[Kaggle challenge] 직소 악성 대화 분류(Jigsaw Unintended Bias in Toxicity Classification)</h2>
+
+  <h2 id="Intro"><a href="#Intro" class="headerlink" title="Intro"></a>Intro</h2><p>얼마 전 캐글에서 구글 Jigsaw/Conversation AI팀에 의해 <a href="https://www.kaggle.com/c/jigsaw-unintended-bias-in-toxicity-classification" target="_blank" rel="noopener">‘Jigsaw Unintended Bias in Toxicity Classification’</a>라는 주제로 competition이 개최되어 호기심에 도전해보았다.<br><img src="/image/jigsaw_competition.JPG" width="700" height="400"> </p>
+<p>Jigsaw라는 곳을 처음 들어봤는데 알아보니 구글의 자회사로 온라인 상의 욕설이나 선동적, 폭력적 대화를 잡아내는 기술을 연구하는 곳이었고,<br>Description상에 의한 이 Competition의 주요문제는 다음과 같았다. </p>
+<blockquote>
+<p><strong>현재 Jigsaw의 Conversation AI팀은 Perspective라는 제품을 통해 온라인 상의 악성 대화(위협, 외설, 모욕 등)를 잡아내고 있는데, 모델을 좀 더 정교하게 하여 낮은 에러율의 다양한 악성 대화를 잡아내는 모델을 만드는 것.</strong></p>
+</blockquote>
+<p>데이터의 경우 train데이터와 test데이터를 따로 제공하며, train 데이터의 경우 180만건 정도 되는데 텍스트 데이터 위주로 되어있다보니 사이즈가 상당히 컸다.<br>해당 competition의 결과 제출은 Kernels에 의해서만 가능한데, 데이터 사이즈가 크다보니 모델에 의한 학습도 굉장히 오래걸리고 kaggle내에서도 kernel 학습시간에 제한을 두기 때문에 모델을 정교하게 학습시키는 것이 쉽지 않았다.</p>
+<p>코드 작성은 Jupyter notebook을 이용하였으며, 아래 작성된 코드는 ipynb파일을 markdown으로 변환하여 업로드하였다.</p>
+<hr>
+<h2 id="Import-Library"><a href="#Import-Library" class="headerlink" title="Import Library"></a>Import Library</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">import</span> os </span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"><span class="keyword">from</span> collections <span class="keyword">import</span> Counter</span><br><span class="line"><span class="keyword">import</span> nltk</span><br><span class="line">nltk.download(<span class="string">'stopwords'</span>)</span><br><span class="line">nltk.download(<span class="string">'punkt'</span>)</span><br><span class="line"><span class="keyword">from</span> nltk.corpus <span class="keyword">import</span> stopwords </span><br><span class="line"><span class="keyword">from</span> nltk.tokenize <span class="keyword">import</span> word_tokenize </span><br><span class="line">stop_words = set(stopwords.words(<span class="string">'english'</span>)) </span><br><span class="line"><span class="keyword">import</span> tensorflow <span class="keyword">as</span> tf</span><br><span class="line"><span class="keyword">from</span> sklearn.metrics <span class="keyword">import</span> roc_auc_score</span><br><span class="line"><span class="keyword">from</span> keras <span class="keyword">import</span> models, layers, Model</span><br><span class="line"><span class="keyword">from</span> keras.preprocessing <span class="keyword">import</span> text, sequence</span><br><span class="line"><span class="keyword">from</span> keras.callbacks <span class="keyword">import</span> EarlyStopping, ModelCheckpoint, ReduceLROnPlateau</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line">print(os.listdir(<span class="string">"./input"</span>))</span><br></pre></td></tr></table></figure>
+<pre><code>[&#39;test.csv&#39;, &#39;train.csv&#39;]
+</code></pre><h2 id="1-Load-Data"><a href="#1-Load-Data" class="headerlink" title="1. Load Data"></a>1. Load Data</h2><ul>
+<li>데이터는 <strong>train 데이터가 180만건, test 데이터가 9만7천건 정도</strong>로 이루어져 있다.</li>
+<li>train 데이터는 id, target, comment_text를 포함하여 총 45개의 칼럼으로 이루어져 있지만, test 데이터의 경우 id, target, comment_text 총 3개의 칼럼으로만 이루어져 있다.</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">## load data</span></span><br><span class="line">train_data = pd.read_csv(<span class="string">'./input/train.csv'</span>)</span><br><span class="line">test_data = pd.read_csv(<span class="string">'./input/test.csv'</span>)</span><br><span class="line">print(train_data.shape)</span><br><span class="line">print(test_data.shape)</span><br></pre></td></tr></table></figure>
+<pre><code>(1804874, 45)
+(97320, 2)
+</code></pre><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">train_data.head()</span><br></pre></td></tr></table></figure>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>target</th>
+      <th>comment_text</th>
+      <th>severe_toxicity</th>
+      <th>obscene</th>
+      <th>identity_attack</th>
+      <th>insult</th>
+      <th>threat</th>
+      <th>asian</th>
+      <th>atheist</th>
+      <th>...</th>
+      <th>article_id</th>
+      <th>rating</th>
+      <th>funny</th>
+      <th>wow</th>
+      <th>sad</th>
+      <th>likes</th>
+      <th>disagree</th>
+      <th>sexual_explicit</th>
+      <th>identity_annotator_count</th>
+      <th>toxicity_annotator_count</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>59848</td>
+      <td>0.000000</td>
+      <td>This is so cool. It's like, 'would you want yo...</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.00000</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>...</td>
+      <td>2006</td>
+      <td>rejected</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>59849</td>
+      <td>0.000000</td>
+      <td>Thank you!! This would make my life a lot less...</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.00000</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>...</td>
+      <td>2006</td>
+      <td>rejected</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>59852</td>
+      <td>0.000000</td>
+      <td>This is such an urgent design problem; kudos t...</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.00000</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>...</td>
+      <td>2006</td>
+      <td>rejected</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>59855</td>
+      <td>0.000000</td>
+      <td>Is this something I'll be able to install on m...</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.00000</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>...</td>
+      <td>2006</td>
+      <td>rejected</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>59856</td>
+      <td>0.893617</td>
+      <td>haha you guys are a bunch of losers.</td>
+      <td>0.021277</td>
+      <td>0.0</td>
+      <td>0.021277</td>
+      <td>0.87234</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>2006</td>
+      <td>rejected</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>4</td>
+      <td>47</td>
+    </tr>
+  </tbody>
+</table>
+<p>5 rows × 45 columns</p>
+</div>
+
+<p><br></p>
+<h2 id="2-Set-index-amp-target-label"><a href="#2-Set-index-amp-target-label" class="headerlink" title="2. Set index &amp; target label"></a>2. Set index &amp; target label</h2><ul>
+<li>다른 커널을 보니 train 데이터의 다양한 칼럼을 활용하는 것 같던데 여기선 텍스트 데이터와 타겟 값만을 이용하여 학습 및 예측을 수행하였다.</li>
+<li>id 값은 index로 지정해두었으며, target값의 경우 <a href="https://www.kaggle.com/c/jigsaw-unintended-bias-in-toxicity-classification/data" target="_blank" rel="noopener">Data Description</a>의 설명에 따라 0.5이상은 positive 0.5미만은 negative 라벨로 분류하였다.</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">train_df = train_data[[<span class="string">'id'</span>,<span class="string">'comment_text'</span>,<span class="string">'target'</span>]]</span><br><span class="line">test_df = test_data.copy()</span><br><span class="line"></span><br><span class="line"><span class="comment"># set index</span></span><br><span class="line">train_df.set_index(<span class="string">'id'</span>, inplace=<span class="keyword">True</span>)</span><br><span class="line">test_df.set_index(<span class="string">'id'</span>, inplace=<span class="keyword">True</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># y_label</span></span><br><span class="line">train_y_label = np.where(train_df[<span class="string">'target'</span>] &gt;= <span class="number">0.5</span>, <span class="number">1</span>, <span class="number">0</span>) <span class="comment"># Label 1 &gt;= 0.5 / Label 0 &lt; 0.5</span></span><br><span class="line">train_df.drop([<span class="string">'target'</span>], axis=<span class="number">1</span>, inplace=<span class="keyword">True</span>)</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ratio by Class</span></span><br><span class="line">Counter(train_y_label)</span><br></pre></td></tr></table></figure>
+<pre><code>Counter({0: 1660540, 1: 144334})
+</code></pre><p><br></p>
+<h2 id="3-View-text-data"><a href="#3-View-text-data" class="headerlink" title="3. View text data"></a>3. View text data</h2><ul>
+<li>comment_text 칼럼을 출력해보면 아래와 같이 다양한 주제의 대화 내용을 확인할 수 있다.</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">train_data[<span class="string">'comment_text'</span>].head(<span class="number">20</span>)</span><br></pre></td></tr></table></figure>
+<pre><code>0     This is so cool. It&#39;s like, &#39;would you want yo...
+1     Thank you!! This would make my life a lot less...
+2     This is such an urgent design problem; kudos t...
+3     Is this something I&#39;ll be able to install on m...
+4                  haha you guys are a bunch of losers.
+5                                  ur a sh*tty comment.
+6                           hahahahahahahahhha suck it.
+7                                   FFFFUUUUUUUUUUUUUUU
+8     The ranchers seem motivated by mostly by greed...
+9     It was a great show. Not a combo I&#39;d of expect...
+10                              Wow, that sounds great.
+11    This is a great story. Man. I wonder if the pe...
+12       This seems like a step in the right direction.
+13    It&#39;s ridiculous that these guys are being call...
+14    This story gets more ridiculous by the hour! A...
+15    I agree; I don&#39;t want to grant them the legiti...
+16    Interesting. I&#39;ll be curious to see how this w...
+17                      Awesome! I love Civil Comments!
+18    I&#39;m glad you&#39;re working on this, and I look fo...
+19    Angry trolls, misogynists and Racists&quot;, oh my....
+Name: comment_text, dtype: object
+</code></pre><p><br></p>
+<h2 id="4-Remove-Punctuation-amp-Stopword"><a href="#4-Remove-Punctuation-amp-Stopword" class="headerlink" title="4. Remove Punctuation &amp; Stopword"></a>4. Remove Punctuation &amp; Stopword</h2><ul>
+<li>가장 기본적인 텍스트 전처리를 위하여 간단히 텍스트 내의 <strong>punctuation</strong>과 <strong>stopwords</strong>를 제거하는 함수를 정의하였다.</li>
+<li>워낙 데이터가 커서 함수 호출 시 처리 속도가 오래 걸린다. 그래서 속도를 위해 <strong>list comprehension</strong>과 <strong>lambda</strong>로 처리하였는데 그래도 처리까지 시간이 꽤 걸렸다.</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">## Clean Punctuation &amp; Stopwords</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">clean_text</span>:</span></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, text)</span>:</span></span><br><span class="line">		self.text = text</span><br><span class="line">	</span><br><span class="line">	<span class="comment"># Remove Punctuation</span></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">rm_punct</span><span class="params">(text)</span>:</span></span><br><span class="line">		punct = set([p <span class="keyword">for</span> p <span class="keyword">in</span> <span class="string">"/-'?!.,#$%\'()*+-/:;&lt;=&gt;@[\\]^_`&#123;|&#125;~`"</span> + <span class="string">'""“”’'</span> + <span class="string">'∞θ÷α•à−β∅³π‘₹´°£€\×™√²—–&amp;'</span>])</span><br><span class="line">		text = [t <span class="keyword">for</span> t <span class="keyword">in</span> text <span class="keyword">if</span> t <span class="keyword">not</span> <span class="keyword">in</span> punct]</span><br><span class="line">			</span><br><span class="line">		<span class="keyword">return</span> <span class="string">""</span>.join(text)</span><br><span class="line"></span><br><span class="line">	<span class="comment"># Remove Stopwords</span></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">rm_stopwords</span><span class="params">(text)</span>:</span></span><br><span class="line">		word_tokens = word_tokenize(text)   </span><br><span class="line">		result = [w <span class="keyword">for</span> w <span class="keyword">in</span> word_tokens <span class="keyword">if</span> w <span class="keyword">not</span> <span class="keyword">in</span> stop_words]</span><br><span class="line">				</span><br><span class="line">		<span class="keyword">return</span> <span class="string">" "</span>.join(result)</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># remove punctuation </span></span><br><span class="line">train_df[<span class="string">'comment_text'</span>] = train_df[<span class="string">'comment_text'</span>].apply(<span class="keyword">lambda</span> x: clean_text.rm_punct(x))</span><br><span class="line">test_df[<span class="string">'comment_text'</span>] = test_df[<span class="string">'comment_text'</span>].apply(<span class="keyword">lambda</span> x: clean_text.rm_punct(x))</span><br><span class="line"></span><br><span class="line"><span class="comment"># remove stopwords</span></span><br><span class="line">X_train = train_df[<span class="string">'comment_text'</span>].apply(<span class="keyword">lambda</span> x: clean_text.rm_stopwords(x))</span><br><span class="line">X_test = test_df[<span class="string">'comment_text'</span>].apply(<span class="keyword">lambda</span> x: clean_text.rm_stopwords(x))</span><br></pre></td></tr></table></figure>
+<p><br></p>
+<h2 id="5-Tokenize"><a href="#5-Tokenize" class="headerlink" title="5. Tokenize"></a>5. Tokenize</h2><ul>
+<li>전처리된 데이터를 keras.Tokenizer를 이용하여 sequences 데이터로 변환한다.</li>
+<li>Tokenizer의 처리 순서는 아래와 같다.<br>— Tokenizer 객체를 통해 데이터를 토큰화시킨 후 각 토큰에 고유 index를 부여하여 word index 생성<br>— texts_to_sequences()를 통해 word index를 기반으로 시퀀스 데이터 생성<br>— pad_sequences()를 통해 padding 추가 </li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">## tokenize</span></span><br><span class="line">max_words = <span class="number">100000</span></span><br><span class="line">tokenizer = text.Tokenizer(num_words=max_words) <span class="comment"># Tokenizer 객체생성</span></span><br><span class="line">tokenizer.fit_on_texts(X_train)	<span class="comment"># 토큰 별 word index 생성</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># texts_to_sequences</span></span><br><span class="line">sequences_text_train = tokenizer.texts_to_sequences(X_train)</span><br><span class="line">sequences_text_test = tokenizer.texts_to_sequences(X_test)</span><br><span class="line"></span><br><span class="line">print(sequences_text_train[:<span class="number">5</span>])</span><br></pre></td></tr></table></figure>
+<pre><code>[[21, 2188, 39, 6, 3, 32, 1115, 116, 48, 91, 277, 26, 138],
+ [323, 21, 3, 25, 107, 142, 144, 105, 7, 159, 125, 9, 28],
+ [21, 9494, 2834, 94, 4342, 340, 1102, 4913],
+ [241, 90, 384, 316, 5764, 1027, 164, 6388],
+ [5230, 586, 998, 2593]]
+</code></pre><p><strong>texts_to_sequences()</strong>함수를 이용하면 토큰화 된 문자들이 위와 같이 고유 index 번호로 바뀐 채 sequnce 형태로 출력된다.<br><br></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># add padding</span></span><br><span class="line">max_len = max(len(l) <span class="keyword">for</span> l <span class="keyword">in</span> sequences_text_train)</span><br><span class="line">pad_train = sequence.pad_sequences(sequences_text_train, maxlen=max_len)</span><br><span class="line">pad_test = sequence.pad_sequences(sequences_text_test, maxlen=max_len)</span><br><span class="line"></span><br><span class="line">print(pad_train[:<span class="number">5</span>])</span><br></pre></td></tr></table></figure>
+<pre><code>array([[   0,    0,    0, ...,  277,   26,  138],
+       [   0,    0,    0, ...,  125,    9,   28],
+       [   0,    0,    0, ...,  340, 1102, 4913],
+       [   0,    0,    0, ..., 1027,  164, 6388],
+       [   0,    0,    0, ...,  586,  998, 2593]])
+</code></pre><p>max_len 값은 방금 위에서 sequence로 변환한 데이터 중 가장 많은 word 수를 가지는 데이터의 길이를 받은 것이고,<br>모든 데이터를 그 길이 만큼 맞춰주기 위하여 <strong>pad_seqences()</strong>함수를 통해 0값을 채워주게 된다.<br><br></p>
+<h2 id="6-Embedding-LSTM-model"><a href="#6-Embedding-LSTM-model" class="headerlink" title="6. Embedding + LSTM model"></a>6. Embedding + LSTM model</h2><p><img src="/image/embedding_lstm.png" width="850" height="400"> </p>
+<ul>
+<li>예측을 위해서 embedding 레이어와 lstm 레이어를 연결하여 딥러닝 모델을 구축하였다.</li>
+<li><strong>Embedding 레이어</strong>는 텍스트 데이터의 단어 사이의 의미관계를 학습하는데 효과적이므로 텍스트 데이터 학습시 많이 사용되며,</li>
+<li>LSTM 모델은 <strong>양방향 LSTM(Bidirectional LSTM)</strong>으로 구축하여 시간적 의미와 상관없이 단어들 사이의 양방향적으로 의미 순서를 학습하도록 하였다.</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">Embedding_CuDNNLSTM_model</span><span class="params">(max_words, max_len)</span>:</span></span><br><span class="line">	sequence_input = layers.Input(shape=(<span class="keyword">None</span>, ))</span><br><span class="line">	x = layers.Embedding(max_words, <span class="number">128</span>, input_length=max_len)(sequence_input)</span><br><span class="line">	x = layers.SpatialDropout1D(<span class="number">0.3</span>)(x)</span><br><span class="line">	x = layers.Bidirectional(layers.CuDNNLSTM(<span class="number">64</span>, return_sequences=<span class="keyword">True</span>))(x)</span><br><span class="line">	x = layers.Bidirectional(layers.CuDNNLSTM(<span class="number">64</span>, return_sequences=<span class="keyword">True</span>))(x)</span><br><span class="line">	</span><br><span class="line">	avg_pool1d = layers.GlobalAveragePooling1D()(x)</span><br><span class="line">	max_pool1d = layers.GlobalMaxPool1D()(x)</span><br><span class="line">	</span><br><span class="line">	x = layers.concatenate([avg_pool1d, max_pool1d])</span><br><span class="line">	x = layers.Dense(<span class="number">32</span>, activation=<span class="string">'relu'</span>)(x)</span><br><span class="line">	x = layers.BatchNormalization()(x)</span><br><span class="line">	output = layers.Dense(<span class="number">1</span>, activation=<span class="string">'sigmoid'</span>)(x)</span><br><span class="line">	</span><br><span class="line">	model = models.Model(sequence_input, output)</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">return</span> model</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">## embedding_lstm models </span></span><br><span class="line">model = Embedding_CuDNNLSTM_model(max_words, max_len)</span><br><span class="line"></span><br><span class="line"><span class="comment"># model compile</span></span><br><span class="line">model.compile(optimizer=<span class="string">'adam'</span>,</span><br><span class="line">			 loss=<span class="string">'binary_crossentropy'</span>, metrics=[<span class="string">'acc'</span>, auroc])</span><br><span class="line">model.summary()</span><br></pre></td></tr></table></figure>
+<pre><code>__________________________________________________________________________________________________
+Layer (type)                    Output Shape         Param #     Connected to                     
+==================================================================================================
+input_1 (InputLayer)            (None, None)         0                                            
+__________________________________________________________________________________________________
+embedding_1 (Embedding)         (None, 306, 128)     12800000    input_1[0][0]                    
+__________________________________________________________________________________________________
+spatial_dropout1d_1 (SpatialDro (None, 306, 128)     0           embedding_1[0][0]                
+__________________________________________________________________________________________________
+bidirectional_1 (Bidirectional) (None, 306, 128)     99328       spatial_dropout1d_1[0][0]        
+__________________________________________________________________________________________________
+bidirectional_2 (Bidirectional) (None, 306, 128)     99328       bidirectional_1[0][0]            
+__________________________________________________________________________________________________
+global_average_pooling1d_1 (Glo (None, 128)          0           bidirectional_2[0][0]            
+__________________________________________________________________________________________________
+global_max_pooling1d_1 (GlobalM (None, 128)          0           bidirectional_2[0][0]            
+__________________________________________________________________________________________________
+concatenate_1 (Concatenate)     (None, 256)          0           global_average_pooling1d_1[0][0] 
+                                                                 global_max_pooling1d_1[0][0]     
+__________________________________________________________________________________________________
+dense_1 (Dense)                 (None, 32)           8224        concatenate_1[0][0]              
+__________________________________________________________________________________________________
+batch_normalization_1 (BatchNor (None, 32)           128         dense_1[0][0]                    
+__________________________________________________________________________________________________
+dense_2 (Dense)                 (None, 1)            33          batch_normalization_1[0][0]      
+==================================================================================================
+Total params: 13,007,041
+Trainable params: 13,006,977
+Non-trainable params: 64
+__________________________________________________________________________________________________
+</code></pre><h4 id="Train-model"><a href="#Train-model" class="headerlink" title="Train model"></a>Train model</h4><ul>
+<li>callback함수는 아래와 같이 사용<br>— ReduceLROnPlateau() : 초기에 학습률을 높게 지정한 후 일정 epoch동안 성능이 향상되지 않을 시 점차 learning rate를 줄여나감<br>— EarlyStopping() : 일정 epoch동안 성능 향상이 없을 시 학습을 조기 종료함.<br>— ModelCheckPoint() : epoch마다 학습 된 모델을 저장, save_best_only=True를 지정하여 성능이 가장 좋은 모델만 지정할 수 있음</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">auroc</span><span class="params">(y_true, y_pred)</span>:</span></span><br><span class="line">	<span class="keyword">return</span> tf.py_func(roc_auc_score, (y_true, y_pred), tf.double)</span><br></pre></td></tr></table></figure>
+<p>해당 competition의 평가 모델의 경우 ROC-AUC를 사용하기 때문에 해당 평가지표로 검증하기 위해 acroc라는 함수를 정의.<br><br></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># keras.callbacks</span></span><br><span class="line">callbacks_list = [</span><br><span class="line">		ReduceLROnPlateau(</span><br><span class="line">			monitor=<span class="string">'val_auroc'</span>, patience=<span class="number">2</span>, factor=<span class="number">0.1</span>, mode=<span class="string">'max'</span>),	<span class="comment"># val_loss가 patience동안 향상되지 않으면 학습률을 0.1만큼 감소 (new_lr = lr * factor)</span></span><br><span class="line">		EarlyStopping(</span><br><span class="line">			patience=<span class="number">5</span>, monitor=<span class="string">'val_auroc'</span>, mode=<span class="string">'max'</span>, restore_best_weights=<span class="keyword">True</span>),</span><br><span class="line">		ModelCheckpoint(</span><br><span class="line">			filepath=<span class="string">'./input/best_embedding_lstm_model.h5'</span>, monitor=<span class="string">'val_auroc'</span>, mode=<span class="string">'max'</span>, save_best_only=<span class="keyword">True</span>)</span><br><span class="line">]</span><br><span class="line"></span><br><span class="line"><span class="comment"># model fit &amp; save</span></span><br><span class="line">model_path = <span class="string">'./input/best_embedding_lstm_model.h5'</span></span><br><span class="line"><span class="keyword">if</span> os.path.exists(model_path):</span><br><span class="line">	model.load_weights(model_path)</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">	history = model.fit(pad_train, train_y_label,</span><br><span class="line">						epochs=<span class="number">7</span>, batch_size=<span class="number">1024</span>,</span><br><span class="line">						callbacks=callbacks_list, </span><br><span class="line">						validation_split=<span class="number">0.3</span>, verbose=<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+<pre><code>Train on 1263411 samples, validate on 541463 samples
+Epoch 1/7
+1263411/1263411 [==============================] - 579s 458us/step - loss: 0.1831 - acc: 0.9398 - auroc: 0.9263 - val_loss: 0.2086 - val_acc: 0.9169 - val_auroc: 0.9479
+Epoch 2/7
+1263411/1263411 [==============================] - 577s 457us/step - loss: 0.1187 - acc: 0.9540 - auroc: 0.9600 - val_loss: 0.1792 - val_acc: 0.9356 - val_auroc: 0.9479
+Epoch 3/7
+1263411/1263411 [==============================] - 577s 456us/step - loss: 0.1017 - acc: 0.9606 - auroc: 0.9717 - val_loss: 0.2070 - val_acc: 0.9359 - val_auroc: 0.9424
+Epoch 4/7
+1263411/1263411 [==============================] - 576s 456us/step - loss: 0.0707 - acc: 0.9739 - auroc: 0.9866 - val_loss: 0.1806 - val_acc: 0.9386 - val_auroc: 0.9227
+Epoch 5/7
+1263411/1263411 [==============================] - 576s 456us/step - loss: 0.0639 - acc: 0.9762 - auroc: 0.9890 - val_loss: 0.1942 - val_acc: 0.9345 - val_auroc: 0.9218
+Epoch 6/7
+1263411/1263411 [==============================] - 577s 457us/step - loss: 0.0584 - acc: 0.9785 - auroc: 0.9908 - val_loss: 0.1988 - val_acc: 0.9374 - val_auroc: 0.9190
+</code></pre><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># plot score by epochs</span></span><br><span class="line">auroc = history.history[<span class="string">'auroc'</span>]</span><br><span class="line">val_auroc = history.history[<span class="string">'val_auroc'</span>]</span><br><span class="line">epochs = range(<span class="number">1</span>, len(auroc)+<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">plt.figure(figsize=(<span class="number">7</span>,<span class="number">3</span>))</span><br><span class="line">plt.plot(epochs, auroc, <span class="string">'b'</span>, label=<span class="string">'auroc'</span>)</span><br><span class="line">plt.plot(epochs, val_auroc, <span class="string">'r'</span>, label=<span class="string">'validation auroc'</span>)</span><br></pre></td></tr></table></figure>
+<pre><code>[&lt;matplotlib.lines.Line2D at 0x1176f6fdba8&gt;]
+</code></pre><p><img src="/image/output_22_1.png" width="500" height="500"></p>
+<p>결과를 보니검증 성능이 epoch이 증가할 수록 떨어지는 것으로 보아 모델이 <strong>과대적합</strong> 된 듯 함. dropout 비율을 더 높이거나, 레이어 수를 줄여야 할 것 같음.</p>
+<h4 id="Predict-test-set"><a href="#Predict-test-set" class="headerlink" title="Predict test set"></a>Predict test set</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">## predict test_set</span></span><br><span class="line">test_pred = model.predict(pad_test)</span><br></pre></td></tr></table></figure>
+<h2 id="7-submit-submission-csv"><a href="#7-submit-submission-csv" class="headerlink" title="7. submit submission.csv"></a>7. submit submission.csv</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">sample_result = pd.DataFrame()</span><br><span class="line">sample_result[<span class="string">'id'</span>] = test_df.index</span><br><span class="line">sample_result[<span class="string">'prediction'</span>] = test_pred</span><br><span class="line"></span><br><span class="line"><span class="comment">## submit sample_submission.csv</span></span><br><span class="line">sample_result.to_csv(<span class="string">'submission.csv'</span>, index=<span class="keyword">False</span>)</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="Outro"><a href="#Outro" class="headerlink" title="Outro"></a>Outro</h2><p>최종 제출 결과 91.1% 라는 검증 결과가 나와 상위 84%…. 문제를 제대로 이해를 안하고 시작해서 그런지 모델 수정으로는 이 이상 성능 향상이 되지 않았다. 다른 상위 커널을 살펴보니 대부분 <strong>feature engineering부분에서 텍스트 처리</strong>에 많은 노력을 기울인 것 같다.<br>더 수정해서 해보려고 했는데, 제출 기간이 아쉽게 종료가 되어 더 진행해보지는 않았다. </p>
+<p>최근 <strong>정권우님이 쓰신 ‘머신러닝 탐구생활’</strong>이라는 책을 구매하였는데, 다양한 kaggle문제를 어떻게 접근해야 하는지, 또 최근 kaggle내에서 어떤 모델이 주로 사용되는지 트렌드를 살펴볼 수 있을 것 같아 열심히 읽어보는 중이다. 완독 후 다시 다른 캐글 문제에 도전해봐야겠다!</p>
+
+  <p><a class="classtest-link" href="/tags/bidirectionallstm/">bidirectionallstm</a>, <a class="classtest-link" href="/tags/classification/">classification</a>, <a class="classtest-link" href="/tags/competition/">competition</a>, <a class="classtest-link" href="/tags/deeplearning/">deeplearning</a>, <a class="classtest-link" href="/tags/embedding/">embedding</a>, <a class="classtest-link" href="/tags/google/">google</a>, <a class="classtest-link" href="/tags/jigsaw/">jigsaw</a>, <a class="classtest-link" href="/tags/kaggle/">kaggle</a>, <a class="classtest-link" href="/tags/lstm/">lstm</a>, <a class="classtest-link" href="/tags/toxicity/">toxicity</a> — Jul 4, 2019</p>
+  
+  <hr>
+<section id="comments" class="mt-2 mb-3">
+
+  <div id="disqus_thread">
+    <a href="#" class="button button-primary" onclick="loadDisqus();return false;">View / Make Comments</a>
+  </div>
+
+  <script>
+    var disqus_config = function() {
+      this.page.url = 'https://jaehyeongan.github.io/2019/07/04/Kaggle-challenge-직소-악성-댓글-분류-Jigsaw-Unintended-Bias-in-Toxicity/index.html';
+      this.page.identifier = '2019/07/04/Kaggle-challenge-직소-악성-댓글-분류-Jigsaw-Unintended-Bias-in-Toxicity/index.html';
+      this.page.title = '[Kaggle challenge] 직소 악성 대화 분류(Jigsaw Unintended Bias in Toxicity Classification)';
+    };
+
+    var is_disqus_loaded = false;
+
+    function loadDisqus() {
+      if (!is_disqus_loaded) {
+        is_disqus_loaded = true;
+
+        var d = document,
+          s = d.createElement('script');
+        s.src = 'https://jaehyeongan.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+      }
+    }
+
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</section>
+
+
+
+          <div class="row mt-2">
+  
+    <div class="eight columns">
+      <p id="madewith">Made with ❤ and
+        <a class="footer-link icon" href="https://hexo.io" target="_blank" style="text-decoration: none;" rel="noreferrer" aria-label="Hexo.io">
+        <svg class="hexo svg-hov" width="14" role="img" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24"><title>Hexo.js</title><path d="M12 .007L1.57 6.056V18.05L12 23.995l10.43-6.049V5.952L12 .007zm4.798 17.105l-.939.521-.939-.521V12.94H9.08v4.172l-.94.521-.938-.521V6.89l.939-.521.939.521v4.172h5.84V6.89l.94-.521.938.521v10.222z"/></svg>
+        </a>
+        
+        at <a href="https://en.wikipedia.org/wiki/Earth" target="_blank" rel="noreferrer">Earth</a>.</p>
+        
+    </div>
+
+    <!-- Sepcial thanks to https://simpleicons.org/ for the icons -->
+    <div class="four columns mb-3 posisi">
+      
+      <a class="ml-0 footer-link icon" href="https://github.com/jaehyeongAN" target="_blank" style="text-decoration: none" rel="noreferrer" aria-label="GitHub">
+        <svg class="github svg-hov" width="18" role="img" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>GitHub</title><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+      </a>
+      
+
+      
+      <a class="ml-0 footer-link icon" href="https://www.linkedin.com/in/jaehyeong-an-005603160/" target="_blank" style="text-decoration: none" rel="noreferrer" aria-label="LinkedIn">
+        <svg class="linkedin svg-hov" width="18" role="img" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>LinkedIn</title><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+      </a>
+      
+
+      
+
+      
+      <a class="ml-0 footer-link icon" href="https://www.instagram.com/an_jh.ds/" target="_blank" style="text-decoration: none" rel="noreferrer" aria-label="Instagram">
+        <svg class="instagram svg-hov" width="18" role="img" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>Instagram</title><path d="M12 0C8.74 0 8.333.015 7.053.072 5.775.132 4.905.333 4.14.63c-.789.306-1.459.717-2.126 1.384S.935 3.35.63 4.14C.333 4.905.131 5.775.072 7.053.012 8.333 0 8.74 0 12s.015 3.667.072 4.947c.06 1.277.261 2.148.558 2.913.306.788.717 1.459 1.384 2.126.667.666 1.336 1.079 2.126 1.384.766.296 1.636.499 2.913.558C8.333 23.988 8.74 24 12 24s3.667-.015 4.947-.072c1.277-.06 2.148-.262 2.913-.558.788-.306 1.459-.718 2.126-1.384.666-.667 1.079-1.335 1.384-2.126.296-.765.499-1.636.558-2.913.06-1.28.072-1.687.072-4.947s-.015-3.667-.072-4.947c-.06-1.277-.262-2.149-.558-2.913-.306-.789-.718-1.459-1.384-2.126C21.319 1.347 20.651.935 19.86.63c-.765-.297-1.636-.499-2.913-.558C15.667.012 15.26 0 12 0zm0 2.16c3.203 0 3.585.016 4.85.071 1.17.055 1.805.249 2.227.415.562.217.96.477 1.382.896.419.42.679.819.896 1.381.164.422.36 1.057.413 2.227.057 1.266.07 1.646.07 4.85s-.015 3.585-.074 4.85c-.061 1.17-.256 1.805-.421 2.227-.224.562-.479.96-.899 1.382-.419.419-.824.679-1.38.896-.42.164-1.065.36-2.235.413-1.274.057-1.649.07-4.859.07-3.211 0-3.586-.015-4.859-.074-1.171-.061-1.816-.256-2.236-.421-.569-.224-.96-.479-1.379-.899-.421-.419-.69-.824-.9-1.38-.165-.42-.359-1.065-.42-2.235-.045-1.26-.061-1.649-.061-4.844 0-3.196.016-3.586.061-4.861.061-1.17.255-1.814.42-2.234.21-.57.479-.96.9-1.381.419-.419.81-.689 1.379-.898.42-.166 1.051-.361 2.221-.421 1.275-.045 1.65-.06 4.859-.06l.045.03zm0 3.678c-3.405 0-6.162 2.76-6.162 6.162 0 3.405 2.76 6.162 6.162 6.162 3.405 0 6.162-2.76 6.162-6.162 0-3.405-2.76-6.162-6.162-6.162zM12 16c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4zm7.846-10.405c0 .795-.646 1.44-1.44 1.44-.795 0-1.44-.646-1.44-1.44 0-.794.646-1.439 1.44-1.439.793-.001 1.44.645 1.44 1.439z"/></svg>
+      </a>
+      
+
+    </div>
+  
+</div>
+
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+  <script src="/js/nanobar.min.js"></script>
+  <script>
+    var options = {
+      classname: 'nanobar',
+      id: 'myNanobar'
+    };
+    var nanobar = new Nanobar(options);
+    nanobar.go(30);
+    nanobar.go(76);
+    nanobar.go(100);
+  </script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</body>
+
+</html>

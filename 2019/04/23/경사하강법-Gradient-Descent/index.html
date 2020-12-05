@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head><meta name="generator" content="Hexo 3.9.0">
+
+  <!-- Minima -->
+  <!-- Hexo theme created by @adisaktijrs -->
+
+  <!-- Basic Page Needs
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta charset="utf-8">
+
+  
+  <title>경사하강법(Gradient Descent)</title>
+  
+  <link rel="sitemap" href="https://jaehyeongan.github.iositemap.xml">
+  
+  <link rel="canonical" href="https://jaehyeongan.github.io/2019/04/23/경사하강법-Gradient-Descent/">
+  
+  <meta name="description" content="Intro최적의 예측 모델을 만들기 위해서는 실제값(true)과 예측값(predict)과의 Error(cost function)가 최소가 되는 모델을 찾는 것이다. 하지만 분석자가 직접 모델의 Cost function을 최소화시키는 파라미터 값을 찾기 위해서는 수십 번">
+  
+  
+  <meta name="author" content>
+  
+  <meta property="og:image" content="https://jaehyeongan.github.ioundefined">
+  
+  <meta property="og:site_name" content="jaehyeong&#39;s ds">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="경사하강법(Gradient Descent)">
+  
+  <meta property="og:description" content="Intro최적의 예측 모델을 만들기 위해서는 실제값(true)과 예측값(predict)과의 Error(cost function)가 최소가 되는 모델을 찾는 것이다. 하지만 분석자가 직접 모델의 Cost function을 최소화시키는 파라미터 값을 찾기 위해서는 수십 번">
+  
+  <meta property="og:url" content="https://jaehyeongan.github.io/2019/04/23/경사하강법-Gradient-Descent/">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="경사하강법(Gradient Descent)">
+  
+  <meta name="twitter:description" content="Intro최적의 예측 모델을 만들기 위해서는 실제값(true)과 예측값(predict)과의 Error(cost function)가 최소가 되는 모델을 찾는 것이다. 하지만 분석자가 직접 모델의 Cost function을 최소화시키는 파라미터 값을 찾기 위해서는 수십 번">
+  
+  
+  <meta name="twitter:image" content="https://jaehyeongan.github.ioundefined">
+  
+  <meta name="twitter:url" content="https://jaehyeongan.github.io/2019/04/23/경사하강법-Gradient-Descent/">
+
+  <!-- Mobile Specific Metas
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Preload fonts
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="preload" href="../fonts/dm-serif-display-v4-latin-regular.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="../fonts/inter-v2-latin-regular.woff2" as="font" type="font/woff2" crossorigin>
+
+  <!-- CSS
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="stylesheet" href="/css/normalize.css">
+  <link rel="stylesheet" href="/css/skeleton.css">
+  <link rel="stylesheet" href="/css/custom.css">
+  <link rel="stylesheet" href="/css/prism-dark.css">
+  <link rel="stylesheet" href="/css/prism-line-numbers.css">
+  <!-- User css -->
+  
+  <link rel="stylesheet" href="/css/user.css">
+  
+
+  <!-- Favicon
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="icon" type="image/png" href="/images/astronaut.png">
+
+  <!-- Custom Theme Color Style
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <style>
+  a:not(.icon) {
+    text-decoration-color: #0FA0CE;
+    background-image: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0) 50%,
+      #0FA0CE 50%
+    );
+  }
+  blockquote {
+    border-left: 8px solid #0FA0CE;
+  }
+  .nanobar .bar {
+    background: #0FA0CE;
+  }
+  .button.button-primary:hover,
+  button.button-primary:hover,
+  input[type="submit"].button-primary:hover,
+  input[type="reset"].button-primary:hover,
+  input[type="button"].button-primary:hover,
+  .button.button-primary:focus,
+  button.button-primary:focus,
+  input[type="submit"].button-primary:focus,
+  input[type="reset"].button-primary:focus,
+  input[type="button"].button-primary:focus {
+    background-color: #0FA0CE;
+    border-color: #0FA0CE;
+  }
+  input[type="email"]:focus,
+  input[type="number"]:focus,
+  input[type="search"]:focus,
+  input[type="text"]:focus,
+  input[type="tel"]:focus,
+  input[type="url"]:focus,
+  input[type="password"]:focus,
+  textarea:focus,
+  select:focus {
+    border: 1px solid #0FA0CE;
+  }
+</style>
+
+  <!-- Google Analytics (With Privacy Settings On)
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  
+
+</head>
+
+<body>
+  <div class="container">
+    <div class="row">
+      <div>
+
+        <div class="row">
+  <div class="two columns" style="max-width: 50px">
+    <h1 class="mt-2 mode">
+      <div onclick="setDarkMode(true)" id="darkBtn">🌑</div>
+      <div onclick="setDarkMode(false)" id="lightBtn" class="hidden">☀️</div>
+      <script>
+        if (localStorage.getItem('preferredTheme') == 'dark') {
+          setDarkMode(true)
+        }
+        function setDarkMode(isDark) {
+          var darkBtn = document.getElementById('darkBtn')
+          var lightBtn = document.getElementById('lightBtn')
+          if (isDark) {
+            lightBtn.style.display = "block"
+            darkBtn.style.display = "none"
+            localStorage.setItem('preferredTheme', 'dark');
+          } else {
+            lightBtn.style.display = "none"
+            darkBtn.style.display = "block"
+            localStorage.removeItem('preferredTheme');
+          }
+          document.body.classList.toggle("darkmode");
+        }
+      </script>
+    </h1>
+  </div>
+
+  <div class="six columns ml-1">
+    <h1 class="mt-2">
+      ⬅ Click this.
+    </h1>
+  </div>
+
+  <div class="twelve columns">
+    <div class="row">
+      <div class="nine columns left">
+        <a href="/">Home</a>
+        
+          
+          <a href="/about" class="ml">About</a>
+          
+        
+        
+          
+            <a href="mailto:nonamed000000@gmail.com" target="_blank" class="ml">Email</a>
+          
+        
+      </div>
+    </div>
+    <hr style="margin-bottom: 2.6rem">
+  </div>
+</div>
+
+        <div class="trans">
+            <h2>경사하강법(Gradient Descent)</h2>
+
+  <h2 id="Intro"><a href="#Intro" class="headerlink" title="Intro"></a>Intro</h2><p>최적의 예측 모델을 만들기 위해서는 실제값(true)과 예측값(predict)과의 Error(cost function)가 최소가 되는 모델을 찾는 것이다. 하지만 분석자가 직접 모델의 Cost function을 최소화시키는 파라미터 값을 찾기 위해서는 수십 번의 파라미터 변경이 필요하기 때문에 모델이 학습과정에서 스스로 cost function이 최소가 되도록 파라미터를 조정해나가는 경사하강법(Gradient Decent)이 사용된다.  </p>
+<hr>
+<h2 id="Gradient-Descent"><a href="#Gradient-Descent" class="headerlink" title="Gradient Descent"></a>Gradient Descent</h2><h4 id="경사하강법-Gradient-Descent"><a href="#경사하강법-Gradient-Descent" class="headerlink" title="경사하강법(Gradient Descent)"></a>경사하강법(Gradient Descent)</h4><p><img src="/image/gradient_descent.png" width="500" height="400"></p>
+<p>경사하강법이란 비용함수(Cost Function)을 최소화하기 위하여 반복적해서 파라미터를 조정해나가는 것을 말한다.<br>만약 한 밤 중에 산에서 길을 잃었을 때, 산 밑으로 내려가는 가장 좋은 방법은 무엇일까? 바로 가장 가파른 길을 따라 산 아래로 내려가는 것이다. 이와 같이 최적의 값에 도달하기 위해 가장 빠른 길을 찾는 과정을 경사 하강법의 기본원리라고 할 수 있다.<br>— 파라미터 벡터 theta()에 대해 cost function의 현재 gradient를 계산<br>— theta()의 경우 임의의 값으로 시작해서(random initialization) 조금씩 cost function이 감소되는 방향으로 진행 </p>
+<h4 id="학습률-learning-rate"><a href="#학습률-learning-rate" class="headerlink" title="학습률(learning rate)"></a>학습률(learning rate)</h4><p>경사 하강법에서 중요한 파라미터로서 학습 시 스템(step)의 크기</p>
+<ul>
+<li><p>학습률이 너무 작을 경우<br>— 알고리즘이 수렴하기 위해 반복을 많이 진행해야 하므로 학습 시간이 오래걸림<br>— 지역 최솟값(local minimum)에 수렴할 수 있음 </p>
+</li>
+<li><p>학습률이 너무 클 경우<br>— 학습 시간이 적게 걸리나<br>— 스텝이 너무 커 전역 최솟값(global minimum)을 가로질러 반대편으로 건너뛰어 최솟값에서 멀어질 수 있음</p>
+</li>
+</ul>
+<p><img src="/image/learning_rate_sl.png" width="500" height="400"></p>
+<h4 id="경사하강법의-문제점"><a href="#경사하강법의-문제점" class="headerlink" title="경사하강법의 문제점"></a>경사하강법의 문제점</h4><p>— 무작위 초기화(random initialization)으로 인해 알고리즘이 전역 최솟값이 아닌 지역 최솟값에 수렴할 수 있음<br>— 평탄한 지역을 지나기 위해선 시간이 오래 걸리고 일찍 멈추게 되어 전역 최솟값에 도달하지 못할 수 있음<br>— 하지만 선형 회귀(Linear Regression)를 위한 MSE(Mean Squared Error) cost function은 어떤 두점을 선택해 어디에서 선을 그어도 곡선을 가로지르지 않는 볼록 함수(convex function)임<br>— 이는 지역 최솟값이 없고 하나의 전역 최솟값만을 가지는 것을 뜻하며, 연속된 함수이고 기울기가 갑자기 변하지 않음<br><img src="/image/convex_nonconvex.jpg" width="500" height="400"></p>
+<p></p>
+<p></p>
+
+<h2 id="Batch-Gradient-Descent"><a href="#Batch-Gradient-Descent" class="headerlink" title="Batch Gradient Descent"></a>Batch Gradient Descent</h2><p>— 경사하강법을 구현하려면 각 모델 파라미터 theta()에 대해 비용 함수의 그래디언트를 계산해야 함.<br>— 즉, theta()가 조금 변경될 때 비용함수가 얼마나 변하는지 계산해야 하는데 이를 편도 함수(partial derivative)라고 함.<br><img src="/image/partial_derivative.JPG" width="400" height="300"><br>— 매 gradient descent step에서 훈련 데이터 전체를 사용<br>— 그렇기 때문에 매우 큰 training set에서는 학습이 매우 느림 </p>
+<p></p>
+<p></p>
+
+<h2 id="Stochastic-Gradient-Descent-SGD"><a href="#Stochastic-Gradient-Descent-SGD" class="headerlink" title="Stochastic Gradient Descent(SGD)"></a>Stochastic Gradient Descent(SGD)</h2><p><img src="/image/sgd.png" width="550" height="500"></p>
+<p>— 매 step에서 딱 한 개의 샘플을 무작위로 선택하고 그 하나의 샘플에 대한 gradient를 계산<br>— 매우 적은 데이터를 처리 하기 때문에 학습 속도가 빠르고, 하나의 샘풀만 메모리에 있으면 되므로 매우 큰 training set도 훈련이 가능<br>— cost function이 매우 불규칙할 경우 알고리즘이 local minimum을 건너뛰도록 도와주므로 global minimum을 찾을 가능성이 높음<br>— 하지만 샘플 선택이 확률적(Stochastic)이기 때문에 배치 경사 하강법에 비해 불안정<br>— cost function이 local minimum에 다다를 때까지 부드럽게 감소하지 않고  위아래로 요동치면서 평균적으로 감소</p>
+<p></p>
+<p></p>
+
+<h2 id="Mini-batch-Gradient-Descent"><a href="#Mini-batch-Gradient-Descent" class="headerlink" title="Mini-batch Gradient Descent"></a>Mini-batch Gradient Descent</h2><p>— mini-batch라 불리는 임의의 작은 샘플 세트에 대해 gradient를 계산<br>— SGD에 비해 matrix 연산에 최적화되어 있으며, 파라미터 공간에서 덜 불규칙하게 학습<br>— 하지만, local minimum에 빠지면 빠져나오기 힘듬</p>
+<hr>
+<h2 id="Outro"><a href="#Outro" class="headerlink" title="Outro"></a>Outro</h2><p>아래는 batch, mini-bath, stochastic gradient descent의 경사 하강법 진로를 살펴본 그림이다.<br><img src="/image/sgd_mini_batch.png" width="550" height="500"><br>(출처 : 핸즈온 머신러닝)</p>
+<p>모두 최솟값 근처에 도달했지만 배치 경사 하강법의 경로가 실제로 최솟값에서 멈춘 반면 확률적 경사 하강법 및 미니배치 경사하강법은 근처에서 맴돌고 있다. 그렇지만 배치 경사 하강법에는 매 스텝에서 많은 시간이 소요되고, 확률적 경사 하강법과 미니배치 경사 하강법도 적절한 학습 스케쥴(learning schedule)을 사용하면 최솟값에 도달할 수 있다.</p>
+
+  <p><a class="classtest-link" href="/tags/batchgd/">batchgd</a>, <a class="classtest-link" href="/tags/deeplearning/">deeplearning</a>, <a class="classtest-link" href="/tags/gradientdescent/">gradientdescent</a>, <a class="classtest-link" href="/tags/learningrate/">learningrate</a>, <a class="classtest-link" href="/tags/machinelearning/">machinelearning</a>, <a class="classtest-link" href="/tags/meansquarederror/">meansquarederror</a>, <a class="classtest-link" href="/tags/minibatchgd/">minibatchgd</a>, <a class="classtest-link" href="/tags/sgd/">sgd</a> — Apr 23, 2019</p>
+  
+  <hr>
+<section id="comments" class="mt-2 mb-3">
+
+  <div id="disqus_thread">
+    <a href="#" class="button button-primary" onclick="loadDisqus();return false;">View / Make Comments</a>
+  </div>
+
+  <script>
+    var disqus_config = function() {
+      this.page.url = 'https://jaehyeongan.github.io/2019/04/23/경사하강법-Gradient-Descent/index.html';
+      this.page.identifier = '2019/04/23/경사하강법-Gradient-Descent/index.html';
+      this.page.title = '경사하강법(Gradient Descent)';
+    };
+
+    var is_disqus_loaded = false;
+
+    function loadDisqus() {
+      if (!is_disqus_loaded) {
+        is_disqus_loaded = true;
+
+        var d = document,
+          s = d.createElement('script');
+        s.src = 'https://jaehyeongan.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+      }
+    }
+
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</section>
+
+
+
+          <div class="row mt-2">
+  
+    <div class="eight columns">
+      <p id="madewith">Made with ❤ and
+        <a class="footer-link icon" href="https://hexo.io" target="_blank" style="text-decoration: none;" rel="noreferrer" aria-label="Hexo.io">
+        <svg class="hexo svg-hov" width="14" role="img" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24"><title>Hexo.js</title><path d="M12 .007L1.57 6.056V18.05L12 23.995l10.43-6.049V5.952L12 .007zm4.798 17.105l-.939.521-.939-.521V12.94H9.08v4.172l-.94.521-.938-.521V6.89l.939-.521.939.521v4.172h5.84V6.89l.94-.521.938.521v10.222z"/></svg>
+        </a>
+        
+        at <a href="https://en.wikipedia.org/wiki/Earth" target="_blank" rel="noreferrer">Earth</a>.</p>
+        
+    </div>
+
+    <!-- Sepcial thanks to https://simpleicons.org/ for the icons -->
+    <div class="four columns mb-3 posisi">
+      
+      <a class="ml-0 footer-link icon" href="https://github.com/jaehyeongAN" target="_blank" style="text-decoration: none" rel="noreferrer" aria-label="GitHub">
+        <svg class="github svg-hov" width="18" role="img" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>GitHub</title><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+      </a>
+      
+
+      
+      <a class="ml-0 footer-link icon" href="https://www.linkedin.com/in/jaehyeong-an-005603160/" target="_blank" style="text-decoration: none" rel="noreferrer" aria-label="LinkedIn">
+        <svg class="linkedin svg-hov" width="18" role="img" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>LinkedIn</title><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+      </a>
+      
+
+      
+
+      
+      <a class="ml-0 footer-link icon" href="https://www.instagram.com/an_jh.ds/" target="_blank" style="text-decoration: none" rel="noreferrer" aria-label="Instagram">
+        <svg class="instagram svg-hov" width="18" role="img" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>Instagram</title><path d="M12 0C8.74 0 8.333.015 7.053.072 5.775.132 4.905.333 4.14.63c-.789.306-1.459.717-2.126 1.384S.935 3.35.63 4.14C.333 4.905.131 5.775.072 7.053.012 8.333 0 8.74 0 12s.015 3.667.072 4.947c.06 1.277.261 2.148.558 2.913.306.788.717 1.459 1.384 2.126.667.666 1.336 1.079 2.126 1.384.766.296 1.636.499 2.913.558C8.333 23.988 8.74 24 12 24s3.667-.015 4.947-.072c1.277-.06 2.148-.262 2.913-.558.788-.306 1.459-.718 2.126-1.384.666-.667 1.079-1.335 1.384-2.126.296-.765.499-1.636.558-2.913.06-1.28.072-1.687.072-4.947s-.015-3.667-.072-4.947c-.06-1.277-.262-2.149-.558-2.913-.306-.789-.718-1.459-1.384-2.126C21.319 1.347 20.651.935 19.86.63c-.765-.297-1.636-.499-2.913-.558C15.667.012 15.26 0 12 0zm0 2.16c3.203 0 3.585.016 4.85.071 1.17.055 1.805.249 2.227.415.562.217.96.477 1.382.896.419.42.679.819.896 1.381.164.422.36 1.057.413 2.227.057 1.266.07 1.646.07 4.85s-.015 3.585-.074 4.85c-.061 1.17-.256 1.805-.421 2.227-.224.562-.479.96-.899 1.382-.419.419-.824.679-1.38.896-.42.164-1.065.36-2.235.413-1.274.057-1.649.07-4.859.07-3.211 0-3.586-.015-4.859-.074-1.171-.061-1.816-.256-2.236-.421-.569-.224-.96-.479-1.379-.899-.421-.419-.69-.824-.9-1.38-.165-.42-.359-1.065-.42-2.235-.045-1.26-.061-1.649-.061-4.844 0-3.196.016-3.586.061-4.861.061-1.17.255-1.814.42-2.234.21-.57.479-.96.9-1.381.419-.419.81-.689 1.379-.898.42-.166 1.051-.361 2.221-.421 1.275-.045 1.65-.06 4.859-.06l.045.03zm0 3.678c-3.405 0-6.162 2.76-6.162 6.162 0 3.405 2.76 6.162 6.162 6.162 3.405 0 6.162-2.76 6.162-6.162 0-3.405-2.76-6.162-6.162-6.162zM12 16c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4zm7.846-10.405c0 .795-.646 1.44-1.44 1.44-.795 0-1.44-.646-1.44-1.44 0-.794.646-1.439 1.44-1.439.793-.001 1.44.645 1.44 1.439z"/></svg>
+      </a>
+      
+
+    </div>
+  
+</div>
+
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+  <script src="/js/nanobar.min.js"></script>
+  <script>
+    var options = {
+      classname: 'nanobar',
+      id: 'myNanobar'
+    };
+    var nanobar = new Nanobar(options);
+    nanobar.go(30);
+    nanobar.go(76);
+    nanobar.go(100);
+  </script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</body>
+
+</html>

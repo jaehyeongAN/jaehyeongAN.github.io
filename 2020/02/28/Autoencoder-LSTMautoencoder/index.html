@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head><meta name="generator" content="Hexo 3.9.0">
+
+  <!-- Minima -->
+  <!-- Hexo theme created by @adisaktijrs -->
+
+  <!-- Basic Page Needs
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta charset="utf-8">
+
+  
+  <title>Autoencoder와 LSTM Autoencoder</title>
+  
+  <link rel="sitemap" href="https://jaehyeongan.github.iositemap.xml">
+  
+  <link rel="canonical" href="https://jaehyeongan.github.io/2020/02/28/Autoencoder-LSTMautoencoder/">
+  
+  <meta name="description" content="Intro대표적인 자기 지도 학습인 Autoencoder와 Autoencoder에 LSTM cell을 적용해 시퀀스 학습이 가능한 LSTM Autoencoder에 대해 소개한다. 이후 다음 포스팅에는 LSTM Autoencoder를 통해 미래에 발생 할 고장이나 이상신">
+  
+  
+  <meta name="author" content>
+  
+  <meta property="og:image" content="https://jaehyeongan.github.ioundefined">
+  
+  <meta property="og:site_name" content="jaehyeong&#39;s ds">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Autoencoder와 LSTM Autoencoder">
+  
+  <meta property="og:description" content="Intro대표적인 자기 지도 학습인 Autoencoder와 Autoencoder에 LSTM cell을 적용해 시퀀스 학습이 가능한 LSTM Autoencoder에 대해 소개한다. 이후 다음 포스팅에는 LSTM Autoencoder를 통해 미래에 발생 할 고장이나 이상신">
+  
+  <meta property="og:url" content="https://jaehyeongan.github.io/2020/02/28/Autoencoder-LSTMautoencoder/">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Autoencoder와 LSTM Autoencoder">
+  
+  <meta name="twitter:description" content="Intro대표적인 자기 지도 학습인 Autoencoder와 Autoencoder에 LSTM cell을 적용해 시퀀스 학습이 가능한 LSTM Autoencoder에 대해 소개한다. 이후 다음 포스팅에는 LSTM Autoencoder를 통해 미래에 발생 할 고장이나 이상신">
+  
+  
+  <meta name="twitter:image" content="https://jaehyeongan.github.ioundefined">
+  
+  <meta name="twitter:url" content="https://jaehyeongan.github.io/2020/02/28/Autoencoder-LSTMautoencoder/">
+
+  <!-- Mobile Specific Metas
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Preload fonts
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="preload" href="../fonts/dm-serif-display-v4-latin-regular.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="../fonts/inter-v2-latin-regular.woff2" as="font" type="font/woff2" crossorigin>
+
+  <!-- CSS
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="stylesheet" href="/css/normalize.css">
+  <link rel="stylesheet" href="/css/skeleton.css">
+  <link rel="stylesheet" href="/css/custom.css">
+  <link rel="stylesheet" href="/css/prism-dark.css">
+  <link rel="stylesheet" href="/css/prism-line-numbers.css">
+  <!-- User css -->
+  
+  <link rel="stylesheet" href="/css/user.css">
+  
+
+  <!-- Favicon
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="icon" type="image/png" href="/images/astronaut.png">
+
+  <!-- Custom Theme Color Style
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <style>
+  a:not(.icon) {
+    text-decoration-color: #0FA0CE;
+    background-image: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0) 50%,
+      #0FA0CE 50%
+    );
+  }
+  blockquote {
+    border-left: 8px solid #0FA0CE;
+  }
+  .nanobar .bar {
+    background: #0FA0CE;
+  }
+  .button.button-primary:hover,
+  button.button-primary:hover,
+  input[type="submit"].button-primary:hover,
+  input[type="reset"].button-primary:hover,
+  input[type="button"].button-primary:hover,
+  .button.button-primary:focus,
+  button.button-primary:focus,
+  input[type="submit"].button-primary:focus,
+  input[type="reset"].button-primary:focus,
+  input[type="button"].button-primary:focus {
+    background-color: #0FA0CE;
+    border-color: #0FA0CE;
+  }
+  input[type="email"]:focus,
+  input[type="number"]:focus,
+  input[type="search"]:focus,
+  input[type="text"]:focus,
+  input[type="tel"]:focus,
+  input[type="url"]:focus,
+  input[type="password"]:focus,
+  textarea:focus,
+  select:focus {
+    border: 1px solid #0FA0CE;
+  }
+</style>
+
+  <!-- Google Analytics (With Privacy Settings On)
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  
+
+</head>
+
+<body>
+  <div class="container">
+    <div class="row">
+      <div>
+
+        <div class="row">
+  <div class="two columns" style="max-width: 50px">
+    <h1 class="mt-2 mode">
+      <div onclick="setDarkMode(true)" id="darkBtn">🌑</div>
+      <div onclick="setDarkMode(false)" id="lightBtn" class="hidden">☀️</div>
+      <script>
+        if (localStorage.getItem('preferredTheme') == 'dark') {
+          setDarkMode(true)
+        }
+        function setDarkMode(isDark) {
+          var darkBtn = document.getElementById('darkBtn')
+          var lightBtn = document.getElementById('lightBtn')
+          if (isDark) {
+            lightBtn.style.display = "block"
+            darkBtn.style.display = "none"
+            localStorage.setItem('preferredTheme', 'dark');
+          } else {
+            lightBtn.style.display = "none"
+            darkBtn.style.display = "block"
+            localStorage.removeItem('preferredTheme');
+          }
+          document.body.classList.toggle("darkmode");
+        }
+      </script>
+    </h1>
+  </div>
+
+  <div class="six columns ml-1">
+    <h1 class="mt-2">
+      ⬅ Click this.
+    </h1>
+  </div>
+
+  <div class="twelve columns">
+    <div class="row">
+      <div class="nine columns left">
+        <a href="/">Home</a>
+        
+          
+          <a href="/about" class="ml">About</a>
+          
+        
+        
+          
+            <a href="mailto:nonamed000000@gmail.com" target="_blank" class="ml">Email</a>
+          
+        
+      </div>
+    </div>
+    <hr style="margin-bottom: 2.6rem">
+  </div>
+</div>
+
+        <div class="trans">
+            <h2>Autoencoder와 LSTM Autoencoder</h2>
+
+  <h2 id="Intro"><a href="#Intro" class="headerlink" title="Intro"></a>Intro</h2><p>대표적인 자기 지도 학습인 Autoencoder와 Autoencoder에 LSTM cell을 적용해 시퀀스 학습이 가능한 LSTM Autoencoder에 대해 소개한다. 이후 다음 포스팅에는 LSTM Autoencoder를 통해 미래에 발생 할 고장이나 이상신호를 조기 예측하기 위한 Anomaly Detection 방안에 대해 소개할 것이다. </p>
+<hr>
+<h2 id="1-Autoencoder"><a href="#1-Autoencoder" class="headerlink" title="1. Autoencoder?"></a>1. Autoencoder?</h2><p><strong>오토인코더는(autoencoder)는 라벨이 없는 훈련 데이터를 사용한 학습(즉, 지도 학습) 없이도 입력 데이터의 표현을 효율적으로 학습할 수 있는 인공신경망이다.</strong> 오토인코더는 아래 그림과 같이 input 레이어, hidden 레이어, output 레이어로 구성되어 있으며 일반적으로 Input 유닛보다 훨씬 낮은 차원의 hidden 유닛을 가지므로 주로 <strong>차원 축소(Dimensionality Reduction)</strong> 목적으로 사용된다. 또한 오토인코더는 강력한 feature extractor로 작동하기 때문에 비지도 사전훈련에 사용될 수 있고, 훈련 데이터와 매우 비슷한 새로운 데이터를 생성하는 <strong>생성 모델(generative model)</strong>로서 사용될 수 있다.<br><img src="/image/autoencoder-architecture.png" width="700px"></p>
+<p>오토인코더가 학습하는 것은 단순히 입력을 출력으로 복사하는 것이다. 하지만 그 과정에서 여러 방법의 제약(내부 표현 크기 제한, 입력 잡음 추가 등)을 통해 오토인코더가 단순히 입력을 바로 출력으로 복사하지 못하도록 막고, 데이터를 효율적으로 재표현(representation)하는 방법을 학습하도록 제어한다. 오토인코더는 인코더(encoder)와 디코더(decoder)로 구분된다.</p>
+<ul>
+<li><strong>인코더(encoder) : 인지 네트워크(recognition network)라고도 하며, 입력을 내부 표현으로 변환</strong></li>
+<li><strong>디코더(decoder) : 생성 네트워크(generative network)라고도 하며, 내부 표현을 출력으로 변환</strong><br><br></li>
+</ul>
+<blockquote>
+<p><img src="/image/autoencoder-reconstruction-error.PNG"></p>
+</blockquote>
+<p>오토인코더가 입력을 재구성하기 때문에 출력을 재구성(reconstruction)이라고 부르며, 입력과 재구성된 출력과의 차이를 계산하여 <strong>재구성 손실(reconstruction loss)</strong>이라고 한다. 여기서 파라미터 (θ,φ)는 encoder에 입력되는 original input (x)과 디코더를 통해 출력 된 reconstruced input (f(g(x))이 같아지도록 학습하며 업데이트 된다.<br><br></p>
+<h3 id="1-1-Stacked-Autoencoder"><a href="#1-1-Stacked-Autoencoder" class="headerlink" title="1.1. Stacked Autoencoder"></a>1.1. Stacked Autoencoder</h3><p>여러 개의 hidden 레이어를 가진 경우를 적층 오토인코더(stacked autoencoder)라고 한다. 아래 그림와 같이 레이어를 더 추가할 경우 오토인코더는 더 복작한 표현을 학습할 수 있게 되며 일반적으로 적층 오토인코더는 추가된 hideen 레이어를 기준으로 인코더와 디코더는 대칭 구조를 이룬다.<br><img src="/image/stacked-autoencoder.png" width="650px"></p>
+<p>위와 같이 오토인코더가 완벽하게 대칭 구조를 이룰 때는 일반적으로 인코더와 디코더의 가중치를 묶게 되는데 이렇게 할 경우 모델의 가중치 수를 절반으로 줄여 훈련속도를 높이고 overfitting 위험을 줄일 수 있다고 한다.</p>
+<p><br></p>
+<h3 id="1-2-Denoising-Autoencoder"><a href="#1-2-Denoising-Autoencoder" class="headerlink" title="1.2. Denoising Autoencoder"></a>1.2. Denoising Autoencoder</h3><p>위에서 살펴보았던 Stacked Autoencoder의 경우 다수의 hidden 레이어와 노드가 추가 될 경우 overfitting 자신에 대한 표현을 세밀하게 학습하게 되는 overfitting 문제에 직면할 수 있다. 이를 해결하기 위한 한 가지 방법으로 제안된 것이 <strong>Denoising Autoencoder</strong>(Vincent et al. 2008)이다. 이 모델은 말 그대로 모델에 학습되기 전 Input 데이터에 잡음(noise)을 주어 모델이 데이터 표현을 학습하기 힘들게 만든다.<br><img src="/image/denoising-autoencoder-architecture.png" width="700px"></p>
+<p>이렇게 하는 이유는 모델을 일반화하기 위한 목적이며, 노이즈 즉, 제약이 있는 상황에서도 데이터를 효울적으로 복원하기 위함이다. 이때 잡음을 주기 위한 방법은 여러가지가 있지만 해당 논문에서는 아래와 같이 데이터의 일부가 삭제된 input(x~) 를 넣어 이 x~가 출력 된 reconstruced input(x’)과 유사해지도록 학습하는 것이다.</p>
+<blockquote>
+<p><img src="/image/denoising-autoencoder-error.png"></p>
+</blockquote>
+<p><br></p>
+<h2 id="2-LSTM-Autoencoer"><a href="#2-LSTM-Autoencoer" class="headerlink" title="2. LSTM Autoencoer"></a>2. LSTM Autoencoer</h2><p>LSTM Autoencoder는 시퀀스(sequence) 데이터에 Encoder-Decoder LSTM 아키텍처를 적용하여 구현한 오토인코더이다. 아래 그림은 LSTM 오토인코더의 구조이며 입력 시퀀스가 순차적으로 들어오게 되고, 마지막 입력 시퀀스가 들어온 후 디코더는 입력 시퀀스를 재생성하거나 혹은 목표 시퀀스에 대한 예측을 출력한다. </p>
+<p><img src="/image/lstm-autoencoder-architecture.png" width="650px"><br><br></p>
+<h3 id="2-1-Reconstruction-LSTM-Autoencoder"><a href="#2-1-Reconstruction-LSTM-Autoencoder" class="headerlink" title="2.1 Reconstruction LSTM Autoencoder"></a>2.1 Reconstruction LSTM Autoencoder</h3><p>재구성(reconstruction)을 위한 LSTM Autoencoder 구조이다. 즉, input과 최대한 유사하게 output을 디코딩하며, LSTM 학습을 위해 데이터를 우선 (samples, timesteps, feature)와 같은 3d형태로 변환한다. input 레이어의 feature는 1차원으므로 output 레이어도 동일한 차원으로 구성하여 출력되도록 한다.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd </span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> tensorflow <span class="keyword">as</span> tf</span><br><span class="line"><span class="keyword">from</span> tensorflow.keras <span class="keyword">import</span> Model ,models, layers, optimizers, utils</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># define input sequence</span></span><br><span class="line">sequence = np.array([<span class="number">0.1</span>, <span class="number">0.2</span>, <span class="number">0.3</span>, <span class="number">0.4</span>, <span class="number">0.5</span>, <span class="number">0.6</span>, <span class="number">0.7</span>, <span class="number">0.8</span>, <span class="number">0.9</span>])</span><br><span class="line"></span><br><span class="line"><span class="comment"># reshape input into [samples, timesteps, features]</span></span><br><span class="line">n_in = len(sequence)</span><br><span class="line">sequence = sequence.reshape((<span class="number">1</span>, n_in, <span class="number">1</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment"># define model</span></span><br><span class="line">model = models.Sequential()</span><br><span class="line">model.add(layers.LSTM(<span class="number">100</span>, activation=<span class="string">'relu'</span>, input_shape=(n_in, <span class="number">1</span>)))</span><br><span class="line">model.add(layers.RepeatVector(n_in))</span><br><span class="line">model.add(layers.LSTM(<span class="number">100</span>, activation=<span class="string">'relu'</span>, return_sequences=<span class="keyword">True</span>))</span><br><span class="line">model.add(layers.TimeDistributed(layers.Dense(<span class="number">1</span>)))</span><br><span class="line">model.compile(optimizer=<span class="string">'adam'</span>, loss=<span class="string">'mse'</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># fit model</span></span><br><span class="line">model.fit(sequence, sequence, epochs=<span class="number">300</span>, verbose=<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># predict</span></span><br><span class="line">yhat = model.predict(sequence)</span><br><span class="line">yhat</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">array([[[0.10559099],</span><br><span class="line">        [0.20217314],</span><br><span class="line">        [0.30041453],</span><br><span class="line">        [0.39952287],</span><br><span class="line">        [0.49908453],</span><br><span class="line">        [0.5987617 ],</span><br><span class="line">        [0.69832975],</span><br><span class="line">        [0.7991052 ],</span><br><span class="line">        [0.9024458 ]]], dtype=float32)</span><br></pre></td></tr></table></figure>
+<p><br></p>
+<h3 id="2-2-Prediction-LSTM-Autoencoder"><a href="#2-2-Prediction-LSTM-Autoencoder" class="headerlink" title="2.2 Prediction LSTM Autoencoder"></a>2.2 Prediction LSTM Autoencoder</h3><p>시계열적 예측을 위한 LSTM 구조이며 input 시퀀스는 현재 시점(t) output 시점은 (t+1)로 두어 한 시점 앞을 학습하도록 데이터를 구성한다. 여기서 autoencoder는 학습 시 encoder에는 t 시점이 입력되지만 decoding 후에는 (t+1)시점과 reconstruction error를 계산하며 결국 t 시점이 t+1 시점을 학습하게 된다.<br>결과적으로 예측 결과는 1이 입력되면 2와 가까운 수를, 2가 입력되면 3과 가까운 수를 예측하게 된다.<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># define input sequence</span></span><br><span class="line">seq_in = np.array([<span class="number">0.1</span>, <span class="number">0.2</span>, <span class="number">0.3</span>, <span class="number">0.4</span>, <span class="number">0.5</span>, <span class="number">0.6</span>, <span class="number">0.7</span>, <span class="number">0.8</span>, <span class="number">0.9</span>])</span><br><span class="line"></span><br><span class="line"><span class="comment"># reshape input into [samples, timesteps, features]</span></span><br><span class="line">n_in = len(seq_in)</span><br><span class="line">seq_in = seq_in.reshape((<span class="number">1</span>, n_in, <span class="number">1</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment"># prepare output sequence</span></span><br><span class="line">seq_out = seq_in[:, <span class="number">1</span>:, :]</span><br><span class="line">n_out = n_in - <span class="number">1</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># define model </span></span><br><span class="line">model = models.Sequential()</span><br><span class="line">model.add(layers.LSTM(<span class="number">100</span>, activation=<span class="string">'relu'</span>, input_shape=(n_in, <span class="number">1</span>)))</span><br><span class="line">model.add(layers.RepeatVector(n_out))</span><br><span class="line">model.add(layers.LSTM(<span class="number">100</span>, activation=<span class="string">'relu'</span>, return_sequences=<span class="keyword">True</span>))</span><br><span class="line">model.add(layers.TimeDistributed(layers.Dense(<span class="number">1</span>)))</span><br><span class="line">model.compile(optimizer=<span class="string">'adam'</span>, loss=<span class="string">'mse'</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># fit model</span></span><br><span class="line">model.fit(seq_in, seq_out, epochs=<span class="number">300</span>, verbose=<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># predict</span></span><br><span class="line">yhat = model.predict(seq_in)</span><br><span class="line">yhat</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">array([[[0.16683361],</span><br><span class="line">        [0.2898971 ],</span><br><span class="line">        [0.403169  ],</span><br><span class="line">        [0.5089176 ],</span><br><span class="line">        [0.6094323 ],</span><br><span class="line">        [0.7060289 ],</span><br><span class="line">        [0.7997408 ],</span><br><span class="line">        [0.89148134]]], dtype=float32)</span><br></pre></td></tr></table></figure>
+<p><br></p>
+<h3 id="2-3-Composite-LSTM-Autoencoder"><a href="#2-3-Composite-LSTM-Autoencoder" class="headerlink" title="2.3 Composite LSTM Autoencoder"></a>2.3 Composite LSTM Autoencoder</h3><p>Reconstruction과 Prediction 모델을 통합한 모델이다. 모델의 통합을 위해 예제에서는 <a href="https://jaehyeongan.github.io/2019/03/26/KERAS-FUNCTIONAL-API-MULTI-INPUT-%EB%AA%A8%EB%8D%B8-%EA%B5%AC%EC%B6%95%ED%95%98%EA%B8%B0/">keras functional api</a>를 활용하였으며, 결과적으로 출력 시 reconstruction결과와 prediction결과가 함께 출력된다.<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># define input sequence</span></span><br><span class="line">seq_in = np.array([<span class="number">0.1</span>, <span class="number">0.2</span>, <span class="number">0.3</span>, <span class="number">0.4</span>, <span class="number">0.5</span>, <span class="number">0.6</span>, <span class="number">0.7</span>, <span class="number">0.8</span>, <span class="number">0.9</span>])</span><br><span class="line"></span><br><span class="line"><span class="comment"># reshape input into [samples, timesteps, features]</span></span><br><span class="line">n_in = len(seq_in)</span><br><span class="line">seq_in = seq_in.reshape((<span class="number">1</span>, n_in, <span class="number">1</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment"># prepare output sequence</span></span><br><span class="line">seq_out = seq_in[:, <span class="number">1</span>:, :]</span><br><span class="line">n_out = n_in - <span class="number">1</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># define encoder</span></span><br><span class="line">visible = layers.Input(shape=(n_in, <span class="number">1</span>))</span><br><span class="line">encoder = layers.LSTM(<span class="number">100</span>, activation=<span class="string">'relu'</span>)(visible)</span><br><span class="line"><span class="comment"># define reconstruct decoder</span></span><br><span class="line">decoder1 = layers.RepeatVector(n_in)(encoder)</span><br><span class="line">decoder1 = layers.LSTM(<span class="number">100</span>, activation=<span class="string">'relu'</span>, return_sequences=<span class="keyword">True</span>)(decoder1)</span><br><span class="line">decoder1 = layers.TimeDistributed(layers.Dense(<span class="number">1</span>))(decoder1)</span><br><span class="line"><span class="comment"># define predict decoder</span></span><br><span class="line">decoder2 = layers.RepeatVector(n_out)(encoder)</span><br><span class="line">decoder2 = layers.LSTM(<span class="number">100</span>, activation=<span class="string">'relu'</span>, return_sequences=<span class="keyword">True</span>)(decoder2)</span><br><span class="line">decoder2 = layers.TimeDistributed(layers.Dense(<span class="number">1</span>))(decoder2)</span><br><span class="line"><span class="comment"># concat model</span></span><br><span class="line">model = Model(inputs=visible, outputs=[decoder1, decoder2])</span><br><span class="line">model.compile(optimizer=<span class="string">'adam'</span>, loss=<span class="string">'mse'</span>)</span><br><span class="line"><span class="comment"># utils.plot_model(model, show_shapes=True, to_file='composite_lstm_autoencoder.png')</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># fit model </span></span><br><span class="line">model.fit(seq_in, [seq_in, seq_out], epochs=<span class="number">300</span>, verbose=<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># predict</span></span><br><span class="line">yhat = model.predict(seq_in)</span><br><span class="line">yhat</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">[array([[[0.10127164],</span><br><span class="line">         [0.19949059],</span><br><span class="line">         [0.29943317],</span><br><span class="line">         [0.39987874],</span><br><span class="line">         [0.50023794],</span><br><span class="line">         [0.60028654],</span><br><span class="line">         [0.7000689 ],</span><br><span class="line">         [0.79983366],</span><br><span class="line">         [0.89999163]]], dtype=float32), array([[[0.19868489],</span><br><span class="line"></span><br><span class="line">         [0.30206183],</span><br><span class="line">         [0.3981459 ],</span><br><span class="line">         [0.4989811 ],</span><br><span class="line">         [0.600592  ],</span><br><span class="line">         [0.7013527 ],</span><br><span class="line">         [0.80077535],</span><br><span class="line">         [0.8988221 ]]], dtype=float32)]</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ul>
+<li><a href="https://github.com/ageron/handson-ml" target="_blank" rel="noopener">Hands-On Machine Learning with Scikit-Learn and TensorFlow</a></li>
+<li><a href="https://arxiv.org/abs/1502.04681" target="_blank" rel="noopener">Unsupervised Learning of Video Representations using LSTMs</a></li>
+<li><a href="https://lilianweng.github.io/lil-log/2018/08/12/from-autoencoder-to-beta-vae.html" target="_blank" rel="noopener">https://lilianweng.github.io/lil-log/2018/08/12/from-autoencoder-to-beta-vae.html</a></li>
+<li><a href="https://machinelearningmastery.com/lstm-autoencoders/" target="_blank" rel="noopener">https://machinelearningmastery.com/lstm-autoencoders/</a></li>
+</ul>
+
+  <p><a class="classtest-link" href="/tags/autoencoder/">autoencoder</a>, <a class="classtest-link" href="/tags/decoder/">decoder</a>, <a class="classtest-link" href="/tags/encoder/">encoder</a>, <a class="classtest-link" href="/tags/lstm/">lstm</a>, <a class="classtest-link" href="/tags/reconstruction/">reconstruction</a>, <a class="classtest-link" href="/tags/rnn/">rnn</a> — Feb 28, 2020</p>
+  
+  <hr>
+<section id="comments" class="mt-2 mb-3">
+
+  <div id="disqus_thread">
+    <a href="#" class="button button-primary" onclick="loadDisqus();return false;">View / Make Comments</a>
+  </div>
+
+  <script>
+    var disqus_config = function() {
+      this.page.url = 'https://jaehyeongan.github.io/2020/02/28/Autoencoder-LSTMautoencoder/index.html';
+      this.page.identifier = '2020/02/28/Autoencoder-LSTMautoencoder/index.html';
+      this.page.title = 'Autoencoder와 LSTM Autoencoder';
+    };
+
+    var is_disqus_loaded = false;
+
+    function loadDisqus() {
+      if (!is_disqus_loaded) {
+        is_disqus_loaded = true;
+
+        var d = document,
+          s = d.createElement('script');
+        s.src = 'https://jaehyeongan.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+      }
+    }
+
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</section>
+
+
+
+          <div class="row mt-2">
+  
+    <div class="eight columns">
+      <p id="madewith">Made with ❤ and
+        <a class="footer-link icon" href="https://hexo.io" target="_blank" style="text-decoration: none;" rel="noreferrer" aria-label="Hexo.io">
+        <svg class="hexo svg-hov" width="14" role="img" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24"><title>Hexo.js</title><path d="M12 .007L1.57 6.056V18.05L12 23.995l10.43-6.049V5.952L12 .007zm4.798 17.105l-.939.521-.939-.521V12.94H9.08v4.172l-.94.521-.938-.521V6.89l.939-.521.939.521v4.172h5.84V6.89l.94-.521.938.521v10.222z"/></svg>
+        </a>
+        
+        at <a href="https://en.wikipedia.org/wiki/Earth" target="_blank" rel="noreferrer">Earth</a>.</p>
+        
+    </div>
+
+    <!-- Sepcial thanks to https://simpleicons.org/ for the icons -->
+    <div class="four columns mb-3 posisi">
+      
+      <a class="ml-0 footer-link icon" href="https://github.com/jaehyeongAN" target="_blank" style="text-decoration: none" rel="noreferrer" aria-label="GitHub">
+        <svg class="github svg-hov" width="18" role="img" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>GitHub</title><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+      </a>
+      
+
+      
+      <a class="ml-0 footer-link icon" href="https://www.linkedin.com/in/jaehyeong-an-005603160/" target="_blank" style="text-decoration: none" rel="noreferrer" aria-label="LinkedIn">
+        <svg class="linkedin svg-hov" width="18" role="img" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>LinkedIn</title><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+      </a>
+      
+
+      
+
+      
+      <a class="ml-0 footer-link icon" href="https://www.instagram.com/an_jh.ds/" target="_blank" style="text-decoration: none" rel="noreferrer" aria-label="Instagram">
+        <svg class="instagram svg-hov" width="18" role="img" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>Instagram</title><path d="M12 0C8.74 0 8.333.015 7.053.072 5.775.132 4.905.333 4.14.63c-.789.306-1.459.717-2.126 1.384S.935 3.35.63 4.14C.333 4.905.131 5.775.072 7.053.012 8.333 0 8.74 0 12s.015 3.667.072 4.947c.06 1.277.261 2.148.558 2.913.306.788.717 1.459 1.384 2.126.667.666 1.336 1.079 2.126 1.384.766.296 1.636.499 2.913.558C8.333 23.988 8.74 24 12 24s3.667-.015 4.947-.072c1.277-.06 2.148-.262 2.913-.558.788-.306 1.459-.718 2.126-1.384.666-.667 1.079-1.335 1.384-2.126.296-.765.499-1.636.558-2.913.06-1.28.072-1.687.072-4.947s-.015-3.667-.072-4.947c-.06-1.277-.262-2.149-.558-2.913-.306-.789-.718-1.459-1.384-2.126C21.319 1.347 20.651.935 19.86.63c-.765-.297-1.636-.499-2.913-.558C15.667.012 15.26 0 12 0zm0 2.16c3.203 0 3.585.016 4.85.071 1.17.055 1.805.249 2.227.415.562.217.96.477 1.382.896.419.42.679.819.896 1.381.164.422.36 1.057.413 2.227.057 1.266.07 1.646.07 4.85s-.015 3.585-.074 4.85c-.061 1.17-.256 1.805-.421 2.227-.224.562-.479.96-.899 1.382-.419.419-.824.679-1.38.896-.42.164-1.065.36-2.235.413-1.274.057-1.649.07-4.859.07-3.211 0-3.586-.015-4.859-.074-1.171-.061-1.816-.256-2.236-.421-.569-.224-.96-.479-1.379-.899-.421-.419-.69-.824-.9-1.38-.165-.42-.359-1.065-.42-2.235-.045-1.26-.061-1.649-.061-4.844 0-3.196.016-3.586.061-4.861.061-1.17.255-1.814.42-2.234.21-.57.479-.96.9-1.381.419-.419.81-.689 1.379-.898.42-.166 1.051-.361 2.221-.421 1.275-.045 1.65-.06 4.859-.06l.045.03zm0 3.678c-3.405 0-6.162 2.76-6.162 6.162 0 3.405 2.76 6.162 6.162 6.162 3.405 0 6.162-2.76 6.162-6.162 0-3.405-2.76-6.162-6.162-6.162zM12 16c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4zm7.846-10.405c0 .795-.646 1.44-1.44 1.44-.795 0-1.44-.646-1.44-1.44 0-.794.646-1.439 1.44-1.439.793-.001 1.44.645 1.44 1.439z"/></svg>
+      </a>
+      
+
+    </div>
+  
+</div>
+
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+  <script src="/js/nanobar.min.js"></script>
+  <script>
+    var options = {
+      classname: 'nanobar',
+      id: 'myNanobar'
+    };
+    var nanobar = new Nanobar(options);
+    nanobar.go(30);
+    nanobar.go(76);
+    nanobar.go(100);
+  </script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</body>
+
+</html>

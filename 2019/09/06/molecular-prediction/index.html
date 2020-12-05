@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head><meta name="generator" content="Hexo 3.9.0">
+
+  <!-- Minima -->
+  <!-- Hexo theme created by @adisaktijrs -->
+
+  <!-- Basic Page Needs
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta charset="utf-8">
+
+  
+  <title>[kaggle challenge] 분자 특성 예측(Predicting Molecular Properties)</title>
+  
+  <link rel="sitemap" href="https://jaehyeongan.github.iositemap.xml">
+  
+  <link rel="canonical" href="https://jaehyeongan.github.io/2019/09/06/molecular-prediction/">
+  
+  <meta name="description" content="Intro최근 kaggle에서 굉장히 눈에 띄는 competition이 있었으니 바로, Predicting Molecular Properties라는 이름의 대회였다. 해당 competition은 브리스톨 대학교, 카디프 대학교, 임페리얼 칼리지 및 리즈 대학교로 이루어">
+  
+  
+  <meta name="author" content>
+  
+  <meta property="og:image" content="https://jaehyeongan.github.ioundefined">
+  
+  <meta property="og:site_name" content="jaehyeong&#39;s ds">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="[kaggle challenge] 분자 특성 예측(Predicting Molecular Properties)">
+  
+  <meta property="og:description" content="Intro최근 kaggle에서 굉장히 눈에 띄는 competition이 있었으니 바로, Predicting Molecular Properties라는 이름의 대회였다. 해당 competition은 브리스톨 대학교, 카디프 대학교, 임페리얼 칼리지 및 리즈 대학교로 이루어">
+  
+  <meta property="og:url" content="https://jaehyeongan.github.io/2019/09/06/molecular-prediction/">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="[kaggle challenge] 분자 특성 예측(Predicting Molecular Properties)">
+  
+  <meta name="twitter:description" content="Intro최근 kaggle에서 굉장히 눈에 띄는 competition이 있었으니 바로, Predicting Molecular Properties라는 이름의 대회였다. 해당 competition은 브리스톨 대학교, 카디프 대학교, 임페리얼 칼리지 및 리즈 대학교로 이루어">
+  
+  
+  <meta name="twitter:image" content="https://jaehyeongan.github.ioundefined">
+  
+  <meta name="twitter:url" content="https://jaehyeongan.github.io/2019/09/06/molecular-prediction/">
+
+  <!-- Mobile Specific Metas
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Preload fonts
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="preload" href="../fonts/dm-serif-display-v4-latin-regular.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="../fonts/inter-v2-latin-regular.woff2" as="font" type="font/woff2" crossorigin>
+
+  <!-- CSS
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="stylesheet" href="/css/normalize.css">
+  <link rel="stylesheet" href="/css/skeleton.css">
+  <link rel="stylesheet" href="/css/custom.css">
+  <link rel="stylesheet" href="/css/prism-dark.css">
+  <link rel="stylesheet" href="/css/prism-line-numbers.css">
+  <!-- User css -->
+  
+  <link rel="stylesheet" href="/css/user.css">
+  
+
+  <!-- Favicon
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="icon" type="image/png" href="/images/astronaut.png">
+
+  <!-- Custom Theme Color Style
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <style>
+  a:not(.icon) {
+    text-decoration-color: #0FA0CE;
+    background-image: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0) 50%,
+      #0FA0CE 50%
+    );
+  }
+  blockquote {
+    border-left: 8px solid #0FA0CE;
+  }
+  .nanobar .bar {
+    background: #0FA0CE;
+  }
+  .button.button-primary:hover,
+  button.button-primary:hover,
+  input[type="submit"].button-primary:hover,
+  input[type="reset"].button-primary:hover,
+  input[type="button"].button-primary:hover,
+  .button.button-primary:focus,
+  button.button-primary:focus,
+  input[type="submit"].button-primary:focus,
+  input[type="reset"].button-primary:focus,
+  input[type="button"].button-primary:focus {
+    background-color: #0FA0CE;
+    border-color: #0FA0CE;
+  }
+  input[type="email"]:focus,
+  input[type="number"]:focus,
+  input[type="search"]:focus,
+  input[type="text"]:focus,
+  input[type="tel"]:focus,
+  input[type="url"]:focus,
+  input[type="password"]:focus,
+  textarea:focus,
+  select:focus {
+    border: 1px solid #0FA0CE;
+  }
+</style>
+
+  <!-- Google Analytics (With Privacy Settings On)
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  
+
+</head>
+
+<body>
+  <div class="container">
+    <div class="row">
+      <div>
+
+        <div class="row">
+  <div class="two columns" style="max-width: 50px">
+    <h1 class="mt-2 mode">
+      <div onclick="setDarkMode(true)" id="darkBtn">🌑</div>
+      <div onclick="setDarkMode(false)" id="lightBtn" class="hidden">☀️</div>
+      <script>
+        if (localStorage.getItem('preferredTheme') == 'dark') {
+          setDarkMode(true)
+        }
+        function setDarkMode(isDark) {
+          var darkBtn = document.getElementById('darkBtn')
+          var lightBtn = document.getElementById('lightBtn')
+          if (isDark) {
+            lightBtn.style.display = "block"
+            darkBtn.style.display = "none"
+            localStorage.setItem('preferredTheme', 'dark');
+          } else {
+            lightBtn.style.display = "none"
+            darkBtn.style.display = "block"
+            localStorage.removeItem('preferredTheme');
+          }
+          document.body.classList.toggle("darkmode");
+        }
+      </script>
+    </h1>
+  </div>
+
+  <div class="six columns ml-1">
+    <h1 class="mt-2">
+      ⬅ Click this.
+    </h1>
+  </div>
+
+  <div class="twelve columns">
+    <div class="row">
+      <div class="nine columns left">
+        <a href="/">Home</a>
+        
+          
+          <a href="/about" class="ml">About</a>
+          
+        
+        
+          
+            <a href="mailto:nonamed000000@gmail.com" target="_blank" class="ml">Email</a>
+          
+        
+      </div>
+    </div>
+    <hr style="margin-bottom: 2.6rem">
+  </div>
+</div>
+
+        <div class="trans">
+            <h2>[kaggle challenge] 분자 특성 예측(Predicting Molecular Properties)</h2>
+
+  <h2 id="Intro"><a href="#Intro" class="headerlink" title="Intro"></a>Intro</h2><p>최근 kaggle에서 굉장히 눈에 띄는 competition이 있었으니 바로, <a href="https://www.kaggle.com/c/champs-scalar-coupling" target="_blank" rel="noopener"><strong>Predicting Molecular Properties</strong></a>라는 이름의 대회였다. 해당 competition은 브리스톨 대학교, 카디프 대학교, 임페리얼 칼리지 및 리즈 대학교로 이루어진 <em>CHAMPS(CHemistry And Mathematics in Phase Space)</em> 에 의해 주최되었으며, 수상하는 팀에게는 대학 연구 프로그램과 협력할 수 있는 기회가 주어진다고 한다. </p>
+<p align="center"><img src="/image/kaggle_molecular.JPG" width="700" height="400"></p>
+
+<h4 id="예측-대상"><a href="#예측-대상" class="headerlink" title="예측 대상"></a>예측 대상</h4><p>우선 해당 대회의 도전과제는 소제목 및 Description을 통해 파악할 수 있다.</p>
+<blockquote>
+<p><strong><em>Can you measure the magnetic interactions between a pair of atoms?</em></strong><br><strong><em>In this competition, you will develop an algorithm that can predict the magnetic interaction between two atoms in a molecule</em></strong></p>
+</blockquote>
+<p>이번 대회를 통해 우리가 예측 해야 하는 것은 바로 분자 설계 시 한 쌍의 원자 간 결합으로 인해 발생하는 <strong>결합상수(Coupling Constant)</strong>를 예측하는 것이다.<br>결합 상수라는 것은 물리적 상호작용(여기서는 원자 간)의 세기를 나타내는 상수로서, 결합상수가 1일 때 완전결합이라고 한다. 아래에서 좀 더 자세히 살펴보겠지만, 제공되는 데이터에는 분자 및 원자에 대한 정보가 있으며 두 원자 간의 결합상수가 target value로 존재하고 있다. </p>
+<h4 id="학습-전략"><a href="#학습-전략" class="headerlink" title="학습 전략"></a>학습 전략</h4><p>처음 제공된 데이터를 보았을 때 train, test 외에 추가로 제공되는 데이터를 어떻게 활용해야 할지 난감했다. 그 이유는 structures 데이터를 제외하고는 모두 train 데이터에 대한 정보 밖에 없었기 떄문이다. 모델을 학습하고 예측할 때 당연히 train set과 test set의 차원의 크기가 같아야 했기 때문에 train에 대한 정보만 있는 데이터를 활용하는 것이 의미가 없다고 판단되었다. 그래서 최대한 활용할 수 있는 데이터만 사용하였으며 몇 가지 파생변수를 만들어 부족한 차원을 채워주었다.</p>
+<p>모델 학습을 위해서는 <strong><em>LightGBM</em></strong>이라는 최근 캐글에서 가장 인기 있는 Gradient Boosting 기반의 모델을 사용하였다. 해당 데이터에는 <em>type</em> 이라는 분자의 타입을 구분하는 칼럼이 존재하는데, 처음 모델을 만들 때는 type 구분 없이 전체를 학습시켰으나 성능이 기대만큼 잘 나오지 않았다. 그래서 feature를 늘려야 하나 고민하던 중 우연히 Nanashi라는 사람의 <a href="https://www.kaggle.com/jesucristo/single-lgbm-2-242-top54" target="_blank" rel="noopener">kernel</a>에서 전체 분자를 학습시키지 않고 분자의 type별로 따로 학습 및 예측을 진행하는 것을 보게 되었다. score를 보니 상당히 높은 score를 가지고 있었고 시도해볼 만 한 가치가 있다고 판단되어 이번 모델에 벤치마킹하여 적용하였다.</p>
+<h4 id="평가-방법"><a href="#평가-방법" class="headerlink" title="평가 방법"></a>평가 방법</h4><p>이번 대회에서는 Evaluation을 위해 평균절대오차(MAE, Mean Absolute Error)에 log값을 씌운 점수로 평가를 진행하게 된다. 공식 metric은 아래와 같으며, 완벽하게 예측했을 때 최종 점수는 -20.7232이다.</p>
+<blockquote>
+<p><img src="/image/molecular-metric.JPG" alt="png"></p>
+</blockquote>
+<hr>
+<p><em>!코드 작성은 Jupyter lab을 이용하였으며, 아래 작성된 코드는 ipynb파일을 markdown으로 변환 후 업로드한 것이다.</em><br><br></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">import</span> seaborn <span class="keyword">as</span> sns</span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"><span class="keyword">from</span> mpl_toolkits.mplot3d <span class="keyword">import</span> Axes3D</span><br><span class="line"><span class="keyword">from</span> sklearn.model_selection <span class="keyword">import</span> train_test_split</span><br><span class="line"><span class="keyword">from</span> sklearn.preprocessing <span class="keyword">import</span> LabelEncoder</span><br><span class="line"><span class="keyword">import</span> lightgbm <span class="keyword">as</span> lgb</span><br><span class="line"></span><br><span class="line"><span class="comment"># path</span></span><br><span class="line">path_dir = <span class="string">'C:/Users/USER/.kaggle/competitions/champs-scalar-coupling/'</span></span><br><span class="line">file_list = os.listdir(path_dir)</span><br><span class="line">file_list</span><br></pre></td></tr></table></figure>
+<p><em>[‘dipole_moments.csv’,<br> ‘magnetic_shielding_tensors.csv’,<br> ‘mulliken_charges.csv’,<br> ‘potential_energy.csv’,<br> ‘sample_submission.csv’,<br> ‘scalar_coupling_contributions.csv’,<br> ‘structures.csv’,<br> ‘structures.zip’,<br> ‘test.csv’,<br> ‘train.csv’]</em></p>
+<p><br></p>
+<h2 id="1-Load-Train-Test-Data"><a href="#1-Load-Train-Test-Data" class="headerlink" title="1. Load Train/Test Data"></a>1. Load Train/Test Data</h2><p><strong>Columns</strong></p>
+<ul>
+<li>molecule_name : 분자 이름 </li>
+<li>atom_index_0 / atom_index_1 : 원자 인덱스</li>
+<li>type</li>
+<li>Coupling Constant(결합상수) : 물리적 상호작용(여기서는 원자 간)의 세기를 나타내는 상수, 결합상수가 1일때 완전결합이라고 함</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">train_df = pd.read_csv(path_dir+<span class="string">'train.csv'</span>)</span><br><span class="line">test_df = pd.read_csv(path_dir+<span class="string">'test.csv'</span>)   <span class="comment"># target = 'scalar_coupling_constant'</span></span><br><span class="line"></span><br><span class="line">print(<span class="string">'Length of train set: &#123;&#125;'</span>.format(len(train_df)))</span><br><span class="line">print(<span class="string">'Length of test set: &#123;&#125;'</span>.format(len(test_df)))</span><br></pre></td></tr></table></figure>
+<p><em>Length of train set: 4658147</em><br><em>Length of test set: 2505542</em></p>
+<p><br></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">print(<span class="string">'Unique molecule of train set: &#123;&#125;'</span>.format(len(train_df[<span class="string">'molecule_name'</span>].unique())))</span><br><span class="line">train_df.head()</span><br></pre></td></tr></table></figure>
+<p><em>Unique molecule of train set: 85003</em><br><img src="/image/molecular-tb1.JPG" alt="png"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">print(<span class="string">'Unique molecule of test set: &#123;&#125;'</span>.format(len(test_df[<span class="string">'molecule_name'</span>].unique())))</span><br><span class="line">test_df.head()</span><br></pre></td></tr></table></figure>
+<p><em>Unique molecule of test set: 45772</em><br><img src="/image/molecular-tb2.JPG" alt="png"></p>
+<p><br></p>
+<h2 id="2-EDA"><a href="#2-EDA" class="headerlink" title="2. EDA"></a>2. EDA</h2><h4 id="2-1-Distribution-of-Target-‘scalar-coupling-constant’"><a href="#2-1-Distribution-of-Target-‘scalar-coupling-constant’" class="headerlink" title="2.1 Distribution of Target (‘scalar_coupling_constant’)"></a>2.1 Distribution of Target (‘scalar_coupling_constant’)</h4><ul>
+<li>Min Value : -36.2186</li>
+<li>Max Value : 204.88</li>
+<li>대부분이 -20 ~ +20 사이에 존재</li>
+<li>작은 분포로 80 ~ 100 사이에 존재</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Distribution of target</span></span><br><span class="line">print(<span class="string">'Min Value of Target : &#123;&#125;'</span>.format(train_df[<span class="string">'scalar_coupling_constant'</span>].min()))</span><br><span class="line">print(<span class="string">'Max Value of Target : &#123;&#125;'</span>.format(train_df[<span class="string">'scalar_coupling_constant'</span>].max()))</span><br><span class="line"></span><br><span class="line">plt.figure(figsize=(<span class="number">11</span>, <span class="number">5</span>))</span><br><span class="line">sns.distplot(train_df[<span class="string">'scalar_coupling_constant'</span>])</span><br><span class="line">plt.title(<span class="string">'Distribution of scalar_coupling_constant'</span>)</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
+<p><em>Min Value of Target : -36.2186</em><br><em>Max Value of Target : 204.88</em></p>
+<p><img src="/image/molecular_output_7_1.png" alt="png"></p>
+<h4 id="2-2-Distribution-of-‘scalar-coupling-constant’-by-type"><a href="#2-2-Distribution-of-‘scalar-coupling-constant’-by-type" class="headerlink" title="2.2 Distribution of ‘scalar_coupling_constant’ by type"></a>2.2 Distribution of ‘scalar_coupling_constant’ by type</h4><ul>
+<li>‘1JHC’ type이 상대적으로 높은 scalar coupling 범위에 분포(+66.6 ~ +204.8) </li>
+<li>‘2JHH’ type이 상대적으로 낮은 scalar coupling 범위에 분포(-35.1 ~ +11.8</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Distribution of 'scalar_coupling_constant' by type</span></span><br><span class="line">plt.figure(figsize=(<span class="number">14</span>, <span class="number">13</span>))</span><br><span class="line"><span class="keyword">for</span> i, t <span class="keyword">in</span> enumerate(train_df[<span class="string">'type'</span>].unique()):</span><br><span class="line">    plt.subplot(<span class="number">4</span>,<span class="number">2</span>, i+<span class="number">1</span>)</span><br><span class="line">    sns.distplot(train_df[train_df[<span class="string">'type'</span>] == t][<span class="string">'scalar_coupling_constant'</span>])</span><br><span class="line">    plt.title(<span class="string">'Distribution of coupling constant by type '</span>+ t)</span><br><span class="line">    plt.tight_layout()</span><br></pre></td></tr></table></figure>
+<p><img src="/image/molecular_output_9_0.png" alt="png"></p>
+<h4 id="2-3-Count-by-‘type’"><a href="#2-3-Count-by-‘type’" class="headerlink" title="2.3 Count by ‘type’"></a>2.3 Count by ‘type’</h4><ul>
+<li>3JHC, 2JHC, 1JHC, 3JHH, 2JHH, 3JHN, 2JHN, 1JHN 순서로 높음</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Count by 'type'</span></span><br><span class="line">type_index = train_df[<span class="string">'type'</span>].value_counts().index</span><br><span class="line">type_cnt = train_df[<span class="string">'type'</span>].value_counts()</span><br><span class="line"></span><br><span class="line">plt.figure(figsize=(<span class="number">11</span>, <span class="number">4</span>))</span><br><span class="line">sns.barplot(x=type_index, y=type_cnt)</span><br><span class="line">plt.xlabel(<span class="string">'type'</span>); plt.ylabel(<span class="string">'Count'</span>)</span><br><span class="line">plt.title(<span class="string">'Count by type'</span>)</span><br><span class="line">plt.tight_layout()</span><br></pre></td></tr></table></figure>
+<p><img src="/image/molecular_output_11_0.png" alt="png"></p>
+<h4 id="2-4-Count-by-atom-index-0-1"><a href="#2-4-Count-by-atom-index-0-1" class="headerlink" title="2.4 Count by atom index 0, 1"></a>2.4 Count by atom index 0, 1</h4><ul>
+<li>atom index 0의 경우 9 ~ 18번이 가장 많이 분포</li>
+<li>atom index 1의 경우 1 ~ 8번이 가장 많이 분포</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Count by atom index 0, 1</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> [<span class="number">0</span>, <span class="number">1</span>]:</span><br><span class="line">    atom_index = train_df[<span class="string">'atom_index_'</span>+str(i)].value_counts().index</span><br><span class="line">    atom_cnt = train_df[<span class="string">'atom_index_'</span>+str(i)].value_counts()</span><br><span class="line">    </span><br><span class="line">    plt.figure(figsize=(<span class="number">11</span>, <span class="number">4</span>))</span><br><span class="line">    sns.barplot(x=atom_index, y=atom_cnt)</span><br><span class="line">    plt.xlabel(<span class="string">'atom index '</span>+str(i)); plt.ylabel(<span class="string">'Count'</span>)</span><br><span class="line">    plt.title(<span class="string">'Count by atom index '</span>+str(i))</span><br><span class="line">    plt.tight_layout()</span><br></pre></td></tr></table></figure>
+<p><img src="/image/molecular_output_13_0.png" alt="png"></p>
+<p><img src="/image/molecular_output_13_1.png" alt="png"></p>
+<p><br></p>
+<h2 id="3-Load-Structures-Data"><a href="#3-Load-Structures-Data" class="headerlink" title="3. Load Structures Data"></a>3. Load Structures Data</h2><p><strong>Columns</strong></p>
+<ul>
+<li>molecule_name</li>
+<li>atom_index</li>
+<li>atom</li>
+<li>x, y, z axis of atom</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">structures_df = pd.read_csv(path_dir+<span class="string">'structures.csv'</span>)</span><br><span class="line"></span><br><span class="line">print(<span class="string">'Length of test set: &#123;&#125;'</span>.format(len(structures_df)))</span><br><span class="line">structures_df.head()</span><br></pre></td></tr></table></figure>
+<p><strong>Length of test set: 2358657</strong><br><img src="/image/molecular-tb3.JPG" alt="png"></p>
+<h4 id="3-1-3Dimension-plot-by-Molecule"><a href="#3-1-3Dimension-plot-by-Molecule" class="headerlink" title="3.1. 3Dimension plot by Molecule"></a>3.1. 3Dimension plot by Molecule</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> name <span class="keyword">in</span> structures_df[<span class="string">'molecule_name'</span>].unique()[:<span class="number">4</span>]:</span><br><span class="line">    structures_molecule =structures_df[structures_df[<span class="string">'molecule_name'</span>] == name]</span><br><span class="line"></span><br><span class="line">    fig = plt.figure(figsize=(<span class="number">8</span>, <span class="number">5</span>))</span><br><span class="line">    ax = fig.add_subplot(<span class="number">111</span>, projection=<span class="string">'3d'</span>)</span><br><span class="line">    ax.scatter(structures_molecule[<span class="string">'x'</span>], structures_molecule[<span class="string">'y'</span>], structures_molecule[<span class="string">'z'</span>], s=<span class="number">200</span>, edgecolors=<span class="string">'white'</span>)</span><br><span class="line">    ax.set_title(str(name)+ <span class="string">' 3D plot'</span>)</span><br><span class="line">    ax.set_xlabel(<span class="string">'x'</span>)</span><br><span class="line">    ax.set_ylabel(<span class="string">'y'</span>)</span><br><span class="line">    ax.set_zlabel(<span class="string">'z'</span>)</span><br><span class="line">    plt.show()</span><br></pre></td></tr></table></figure>
+<p><img src="/image/molecular_output_17_0.png" alt="png"></p>
+<p><img src="/image/molecular_output_17_1.png" alt="png"></p>
+<p><img src="/image/molecular_output_17_2.png" alt="png"></p>
+<p><img src="/image/molecular_output_17_3.png" alt="png"></p>
+<p><br></p>
+<h2 id="4-Preprocessing"><a href="#4-Preprocessing" class="headerlink" title="4. Preprocessing"></a>4. Preprocessing</h2><h4 id="4-1-Merge-Train-amp-Test-Structures-Data"><a href="#4-1-Merge-Train-amp-Test-Structures-Data" class="headerlink" title="4.1. Merge Train&amp;Test - Structures Data"></a>4.1. Merge Train&amp;Test - Structures Data</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">mapping_atom_index</span><span class="params">(df, atom_idx)</span>:</span></span><br><span class="line">    atom_idx = str(atom_idx)</span><br><span class="line">    df = pd.merge(df, structures_df,</span><br><span class="line">                  left_on  = [<span class="string">'molecule_name'</span>, <span class="string">'atom_index_'</span>+atom_idx],</span><br><span class="line">                  right_on = [<span class="string">'molecule_name'</span>,  <span class="string">'atom_index'</span>],</span><br><span class="line">                 how = <span class="string">'left'</span>)</span><br><span class="line">    </span><br><span class="line">    df = df.drop(<span class="string">'atom_index'</span>, axis=<span class="number">1</span>)</span><br><span class="line">    df = df.rename(columns=&#123;<span class="string">'atom'</span>: <span class="string">'atom_'</span>+atom_idx,</span><br><span class="line">                            <span class="string">'x'</span>: <span class="string">'x_'</span>+atom_idx,</span><br><span class="line">                            <span class="string">'y'</span>: <span class="string">'y_'</span>+atom_idx,</span><br><span class="line">                            <span class="string">'z'</span>: <span class="string">'z_'</span>+atom_idx&#125;)</span><br><span class="line">    <span class="keyword">return</span> df</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">train_merge = mapping_atom_index(train_df, <span class="number">0</span>)</span><br><span class="line">train_merge = mapping_atom_index(train_merge, <span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">test_merge = mapping_atom_index(test_df, <span class="number">0</span>)</span><br><span class="line">test_merge = mapping_atom_index(test_merge, <span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">train_tmp = train_merge[[<span class="string">'id'</span>,<span class="string">'molecule_name'</span>,<span class="string">'type'</span>]]</span><br><span class="line">test_tmp = test_merge[[<span class="string">'id'</span>,<span class="string">'molecule_name'</span>,<span class="string">'type'</span>]]</span><br><span class="line"></span><br><span class="line">train_merge.head()</span><br></pre></td></tr></table></figure>
+<p><img src="/image/molecular-tb4.JPG" alt="png"></p>
+<h4 id="4-2-Derived-variables-‘Distance’"><a href="#4-2-Derived-variables-‘Distance’" class="headerlink" title="4.2. Derived variables - ‘Distance’"></a>4.2. Derived variables - ‘Distance’</h4><ul>
+<li>distance between <em>x axis</em> of atom index</li>
+<li>distance between <em>y axis</em> of atom index</li>
+<li>distance between <em>z axis</em> of atom index</li>
+<li>distance between <em>atom</em></li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">dist_between_atom</span><span class="params">(df)</span>:</span></span><br><span class="line">    <span class="comment"># distance between axis of atom</span></span><br><span class="line">    df[<span class="string">'x_dist'</span>] = (df[<span class="string">'x_0'</span>] - df[<span class="string">'x_1'</span>])**<span class="number">2</span></span><br><span class="line">    df[<span class="string">'y_dist'</span>] = (df[<span class="string">'y_0'</span>] - df[<span class="string">'y_1'</span>])**<span class="number">2</span></span><br><span class="line">    df[<span class="string">'z_dist'</span>] = (df[<span class="string">'z_0'</span>] - df[<span class="string">'z_1'</span>])**<span class="number">2</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># distance between atom</span></span><br><span class="line">    df[<span class="string">'atom_dist'</span>] = (df[<span class="string">'x_dist'</span>]+df[<span class="string">'y_dist'</span>]+df[<span class="string">'z_dist'</span>])**<span class="number">0.5</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> df</span><br><span class="line">    </span><br><span class="line">train_dist = dist_between_atom(train_merge)</span><br><span class="line">test_dist = dist_between_atom(test_merge)</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">train_dist.head()</span><br></pre></td></tr></table></figure>
+<p><img src="/image/molecular-tb5.JPG" alt="png"></p>
+<h4 id="4-3-Label-encoding"><a href="#4-3-Label-encoding" class="headerlink" title="4.3. Label encoding"></a>4.3. Label encoding</h4><ul>
+<li>type, atom_0, atom_1</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Label encoding</span></span><br><span class="line">categorical_features = [<span class="string">'type'</span>, <span class="string">'atom_0'</span>, <span class="string">'atom_1'</span>]</span><br><span class="line"><span class="keyword">for</span> col <span class="keyword">in</span> categorical_features:</span><br><span class="line">    le = LabelEncoder()</span><br><span class="line">    le.fit(list(train_dist[col].values) + list(test_dist[col].values))</span><br><span class="line">    train_dist[col] = le.transform(list(train_dist[col].values))</span><br><span class="line">    test_dist[col] = le.transform(list(test_dist[col].values))</span><br><span class="line"></span><br><span class="line">train_le = train_dist.copy()</span><br><span class="line">test_le = test_dist.copy()</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">train_le.head()</span><br></pre></td></tr></table></figure>
+<p><img src="/image/molecular-tb6.JPG" alt="png"></p>
+<h4 id="4-4-Standardization"><a href="#4-4-Standardization" class="headerlink" title="4.4. Standardization"></a>4.4. Standardization</h4><ul>
+<li>z = (x - u) / s</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># train</span></span><br><span class="line">train_data = train_le.drop([<span class="string">'id'</span>,<span class="string">'molecule_name'</span>,<span class="string">'scalar_coupling_constant'</span>], axis=<span class="number">1</span>)</span><br><span class="line">train_target = train_le[<span class="string">'scalar_coupling_constant'</span>]</span><br><span class="line"><span class="comment"># test</span></span><br><span class="line">test_data = test_le.drop([<span class="string">'id'</span>,<span class="string">'molecule_name'</span>,], axis=<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># z-score standardization</span></span><br><span class="line">train_scale = (train_data - train_data.mean()) / train_data.std()</span><br><span class="line">train_scale = train_scale.fillna(<span class="number">0</span>)</span><br><span class="line">test_scale = (test_data - train_data.mean()) / train_data.std()</span><br></pre></td></tr></table></figure>
+<h4 id="4-5-Variable-Correlations"><a href="#4-5-Variable-Correlations" class="headerlink" title="4.5. Variable Correlations"></a>4.5. Variable Correlations</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">train_corr = train_scale.copy()</span><br><span class="line">train_corr[<span class="string">'scalar_coupling_constant'</span>] = train_target</span><br><span class="line">corrmat = train_corr.corr()</span><br><span class="line">top_corr_features = corrmat.index[abs(corrmat[<span class="string">'scalar_coupling_constant'</span>]) &gt;= <span class="number">0.1</span>]</span><br><span class="line"></span><br><span class="line">plt.figure(figsize=(<span class="number">10</span>,<span class="number">7</span>))</span><br><span class="line">sns.heatmap(train_corr[top_corr_features].corr(), annot=<span class="keyword">True</span>, cmap=<span class="string">"RdYlGn"</span>)</span><br><span class="line">plt.title(<span class="string">'Variable Correlations'</span>)</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
+<p><img src="/image/molecular_output_33_0.png" alt="png"></p>
+<h2 id="5-Training-Model"><a href="#5-Training-Model" class="headerlink" title="5. Training Model"></a>5. Training Model</h2><h4 id="5-1-Training-by-‘type’-through-LightGBM"><a href="#5-1-Training-by-‘type’-through-LightGBM" class="headerlink" title="5.1. Training by ‘type’ through LightGBM"></a>5.1. Training by ‘type’ through LightGBM</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">train_scale = train_scale.drop(<span class="string">'type'</span>, axis=<span class="number">1</span>)</span><br><span class="line">train_scale[<span class="string">'type'</span>] = train_tmp[<span class="string">'type'</span>]</span><br><span class="line">train_scale[<span class="string">'scalar_coupling_constant'</span>] = train_target</span><br><span class="line"></span><br><span class="line">test_scale = test_scale.drop(<span class="string">'type'</span>, axis=<span class="number">1</span>)</span><br><span class="line">test_scale[[<span class="string">'id'</span>, <span class="string">'type'</span>]] = test_tmp[[<span class="string">'id'</span>, <span class="string">'type'</span>]]</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line">score_by_type = []    <span class="comment"># List of Validation score by type </span></span><br><span class="line">feature_importance_df = []</span><br><span class="line">test_pred_df = pd.DataFrame(columns=[<span class="string">'id'</span>, <span class="string">'scalar_coupling_constant'</span>])   <span class="comment"># Dataframe for submission</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Extract data by type</span></span><br><span class="line">types = train_tmp[<span class="string">'type'</span>].unique()</span><br><span class="line"><span class="keyword">for</span> typ <span class="keyword">in</span> types:</span><br><span class="line">    </span><br><span class="line">    print(<span class="string">'---Type of '</span>+str(typ)+<span class="string">'---'</span>)</span><br><span class="line">    train = train_scale[train_scale[<span class="string">'type'</span>] == typ]</span><br><span class="line">    target = train[<span class="string">'scalar_coupling_constant'</span>]</span><br><span class="line">    train = train.drop([<span class="string">'type'</span>,<span class="string">'scalar_coupling_constant'</span>], axis=<span class="number">1</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># Split train set / valid set</span></span><br><span class="line">    x_train, x_val, y_train, y_val = train_test_split(train, target, random_state=<span class="number">42</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># LightGBM</span></span><br><span class="line">    categorical_features = [<span class="string">'atom_0'</span>,<span class="string">'atom_1'</span>]</span><br><span class="line">    lgb_train = lgb.Dataset(x_train, y_train, categorical_feature=categorical_features)</span><br><span class="line">    lgb_val = lgb.Dataset(x_val, y_val, categorical_feature=categorical_features)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># Parameters of LightGBM</span></span><br><span class="line">    params = &#123;<span class="string">'num_leaves'</span>: <span class="number">128</span>,</span><br><span class="line">              <span class="string">'min_child_samples'</span>: <span class="number">79</span>,</span><br><span class="line">              <span class="string">'objective'</span>: <span class="string">'regression'</span>,</span><br><span class="line">              <span class="string">'max_depth'</span>: <span class="number">9</span>,</span><br><span class="line">              <span class="string">'learning_rate'</span>: <span class="number">0.1</span>,</span><br><span class="line">              <span class="string">"boosting_type"</span>: <span class="string">"gbdt"</span>,</span><br><span class="line">              <span class="string">"subsample_freq"</span>: <span class="number">1</span>,</span><br><span class="line">              <span class="string">"subsample"</span>: <span class="number">0.9</span>,</span><br><span class="line">              <span class="string">"bagging_seed"</span>: <span class="number">11</span>,</span><br><span class="line">              <span class="string">"metric"</span>: <span class="string">'mae'</span>,</span><br><span class="line">              <span class="string">"verbosity"</span>: <span class="number">-1</span>,</span><br><span class="line">              <span class="string">'reg_alpha'</span>: <span class="number">0.13</span>,</span><br><span class="line">              <span class="string">'reg_lambda'</span>: <span class="number">0.36</span>,</span><br><span class="line">              <span class="string">'colsample_bytree'</span>: <span class="number">1.0</span></span><br><span class="line">             &#125;</span><br><span class="line">    <span class="comment"># Training</span></span><br><span class="line">    lgb_model = lgb.train(params, lgb_train, valid_sets=[lgb_train, lgb_val], </span><br><span class="line">                          num_boost_round=<span class="number">20000</span>,    <span class="comment"># Number of boosting iterations.</span></span><br><span class="line">                          early_stopping_rounds=<span class="number">500</span>,    <span class="comment"># early stopping for valid set</span></span><br><span class="line">                          verbose_eval=<span class="number">2500</span>)    <span class="comment"># eval metric on the valid set is printed at 1000 each boosting</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># Feature Importances</span></span><br><span class="line">    feature_importance = lgb_model.feature_importance()</span><br><span class="line">    df_fi = pd.DataFrame(&#123;<span class="string">'columns'</span>:x_train.columns, <span class="string">'importances'</span>:feature_importance&#125;)</span><br><span class="line">    df_fi = df_fi[df_fi[<span class="string">'importances'</span>] &gt; <span class="number">0</span>].sort_values(by=[<span class="string">'importances'</span>], ascending=<span class="keyword">False</span>)</span><br><span class="line">    feature_importance_df.append(df_fi)</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># Predict Validation set</span></span><br><span class="line">    score_by_type.append(list(lgb_model.best_score[<span class="string">'valid_1'</span>].values()))</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># Predict Test set</span></span><br><span class="line">    test = test_scale[test_scale[<span class="string">'type'</span>] == typ]</span><br><span class="line">    test_id = test[<span class="string">'id'</span>]</span><br><span class="line">    test = test.drop([<span class="string">'id'</span>,<span class="string">'type'</span>], axis=<span class="number">1</span>)</span><br><span class="line">    </span><br><span class="line">    test_preds = lgb_model.predict(test)</span><br><span class="line">    test_pred_df = pd.concat([test_pred_df, pd.DataFrame(&#123;<span class="string">'id'</span>:test_id, <span class="string">'scalar_coupling_constant'</span>:test_preds&#125;)], axis=<span class="number">0</span>)</span><br></pre></td></tr></table></figure>
+<p><em>—-Type of 1JHC—-<br>Training until validation scores don’t improve for 500 rounds.<br>[2500]    training’s l1: 2.77031    valid_1’s l1: 3.67976<br>[5000]    training’s l1: 2.19648    valid_1’s l1: 3.59536<br>[7500]    training’s l1: 1.81083    valid_1’s l1: 3.56509<br>[10000]    training’s l1: 1.52513    valid_1’s l1: 3.55207<br>[12500]    training’s l1: 1.30189    valid_1’s l1: 3.54733<br>Early stopping, best iteration is:<br>[12398]    training’s l1: 1.31009    valid_1’s l1: 3.54716<br>—-Type of 2JHH—-<br>Training until validation scores don’t improve for 500 rounds.<br>[2500]    training’s l1: 0.599486    valid_1’s l1: 0.930904<br>[5000]    training’s l1: 0.429952    valid_1’s l1: 0.920848<br>Early stopping, best iteration is:<br>[6444]    training’s l1: 0.363731    valid_1’s l1: 0.919744<br>—-Type of 1JHN—-<br>Training until validation scores don’t improve for 500 rounds.<br>[2500]    training’s l1: 0.574269    valid_1’s l1: 1.869<br>Early stopping, best iteration is:<br>[2790]    training’s l1: 0.51238    valid_1’s l1: 1.86748<br>—-Type of 2JHN—-<br>Training until validation scores don’t improve for 500 rounds.<br>[2500]    training’s l1: 0.493351    valid_1’s l1: 1.29156<br>[5000]    training’s l1: 0.245368    valid_1’s l1: 1.26562<br>[7500]    training’s l1: 0.136667    valid_1’s l1: 1.25931<br>[10000]    training’s l1: 0.0806357    valid_1’s l1: 1.25729<br>[12500]    training’s l1: 0.0501038    valid_1’s l1: 1.25649<br>[15000]    training’s l1: 0.0325061    valid_1’s l1: 1.25602<br>Early stopping, best iteration is:<br>[16603]    training’s l1: 0.025108    valid_1’s l1: 1.25588<br>—-Type of 2JHC—-<br>Training until validation scores don’t improve for 500 rounds.<br>[2500]    training’s l1: 1.45707    valid_1’s l1: 1.78894<br>[5000]    training’s l1: 1.22333    valid_1’s l1: 1.74951<br>[7500]    training’s l1: 1.0595    valid_1’s l1: 1.734<br>[10000]    training’s l1: 0.931867    valid_1’s l1: 1.72621<br>[12500]    training’s l1: 0.827693    valid_1’s l1: 1.7222<br>[15000]    training’s l1: 0.740337    valid_1’s l1: 1.72091<br>[17500]    training’s l1: 0.665914    valid_1’s l1: 1.7203<br>Early stopping, best iteration is:<br>[17624]    training’s l1: 0.662523    valid_1’s l1: 1.72024<br>—-Type of 3JHH—-<br>Training until validation scores don’t improve for 500 rounds.<br>[2500]    training’s l1: 0.750457    valid_1’s l1: 1.084<br>[5000]    training’s l1: 0.549578    valid_1’s l1: 1.04283<br>[7500]    training’s l1: 0.427516    valid_1’s l1: 1.02508<br>[10000]    training’s l1: 0.343351    valid_1’s l1: 1.01595<br>[12500]    training’s l1: 0.281535    valid_1’s l1: 1.01117<br>[15000]    training’s l1: 0.234395    valid_1’s l1: 1.00805<br>[17500]    training’s l1: 0.197292    valid_1’s l1: 1.00612<br>[20000]    training’s l1: 0.167506    valid_1’s l1: 1.00516<br>Did not meet early stopping. Best iteration is:<br>[20000]    training’s l1: 0.167506    valid_1’s l1: 1.00516<br>—-Type of 3JHC—-<br>Training until validation scores don’t improve for 500 rounds.<br>[2500]    training’s l1: 1.14564    valid_1’s l1: 1.35361<br>[5000]    training’s l1: 0.957949    valid_1’s l1: 1.28948<br>[7500]    training’s l1: 0.830959    valid_1’s l1: 1.2569<br>[10000]    training’s l1: 0.735763    valid_1’s l1: 1.23707<br>[12500]    training’s l1: 0.65866    valid_1’s l1: 1.22372<br>[15000]    training’s l1: 0.594712    valid_1’s l1: 1.2142<br>[17500]    training’s l1: 0.540621    valid_1’s l1: 1.2074<br>[20000]    training’s l1: 0.493743    valid_1’s l1: 1.20232<br>Did not meet early stopping. Best iteration is:<br>[20000]    training’s l1: 0.493743    valid_1’s l1: 1.20232<br>—-Type of 3JHN—-<br>Training until validation scores don’t improve for 500 rounds.<br>[2500]    training’s l1: 0.231975    valid_1’s l1: 0.513043<br>[5000]    training’s l1: 0.127354    valid_1’s l1: 0.502675<br>[7500]    training’s l1: 0.0764305    valid_1’s l1: 0.49964<br>[10000]    training’s l1: 0.0486108    valid_1’s l1: 0.498466<br>[12500]    training’s l1: 0.0325766    valid_1’s l1: 0.498049<br>[15000]    training’s l1: 0.0228697    valid_1’s l1: 0.497765<br>[17500]    training’s l1: 0.0167369    valid_1’s l1: 0.497581<br>[20000]    training’s l1: 0.0128106    valid_1’s l1: 0.497526<br>Did not meet early stopping. Best iteration is:<br>[20000]    training’s l1: 0.0128106    valid_1’s l1: 0.497526</em></p>
+<h4 id="5-2-Validation-MAE-by-type"><a href="#5-2-Validation-MAE-by-type" class="headerlink" title="5.2. Validation MAE by type"></a>5.2. Validation MAE by type</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> typ, score <span class="keyword">in</span> zip(types, score_by_type):</span><br><span class="line">    print(<span class="string">'Type &#123;&#125; valid MAE  : &#123;&#125;'</span>.format(str(typ), score))</span><br><span class="line"></span><br><span class="line">print(<span class="string">'\nAverage of valid MAE  : &#123;&#125;'</span>.format(np.mean(score_by_type)))</span><br></pre></td></tr></table></figure>
+<p><em>Type 1JHC valid MAE  : [3.5471584407190475]<br>Type 2JHH valid MAE  : [0.9197439377103146]<br>Type 1JHN valid MAE  : [1.8674786631630775]<br>Type 2JHN valid MAE  : [1.255876548899015]<br>Type 2JHC valid MAE  : [1.7202390170123096]<br>Type 3JHH valid MAE  : [1.0051635344922942]<br>Type 3JHC valid MAE  : [1.2023186835296467]<br>Type 3JHN valid MAE  : [0.4975260038664571]</em></p>
+<p><em>Average of valid MAE  : 1.5019381036740203</em><br><br>    </p>
+<h4 id="5-3-Feature-Importances-Plot-by-Type"><a href="#5-3-Feature-Importances-Plot-by-Type" class="headerlink" title="5.3. Feature Importances Plot by Type"></a>5.3. Feature Importances Plot by Type</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> typ, df_fi <span class="keyword">in</span> zip(types, feature_importance_df):</span><br><span class="line">    fig = plt.figure(figsize=(<span class="number">12</span>, <span class="number">6</span>))</span><br><span class="line">    ax = sns.barplot(df_fi[<span class="string">'columns'</span>], df_fi[<span class="string">'importances'</span>])</span><br><span class="line">    ax.set_xticklabels(df_fi[<span class="string">'columns'</span>], rotation=<span class="number">80</span>, fontsize=<span class="number">13</span>)</span><br><span class="line">    plt.title(<span class="string">'Type '</span>+str(typ)+<span class="string">' feature importance'</span>)</span><br><span class="line">    plt.tight_layout()</span><br><span class="line">    plt.show()</span><br></pre></td></tr></table></figure>
+<p><img src="/image/molecular_output_41_0.png" alt="png"></p>
+<p><img src="/image/molecular_output_41_1.png" alt="png"></p>
+<p><img src="/image/molecular_output_41_2.png" alt="png"></p>
+<p><img src="/image/molecular_output_41_3.png" alt="png"></p>
+<p><img src="/image/molecular_output_41_4.png" alt="png"></p>
+<p><img src="/image/molecular_output_41_5.png" alt="png"></p>
+<p><img src="/image/molecular_output_41_6.png" alt="png"></p>
+<p><img src="/image/molecular_output_41_7.png" alt="png"></p>
+<h4 id="5-4-Save-prediction-of-test-set-to-csv"><a href="#5-4-Save-prediction-of-test-set-to-csv" class="headerlink" title="5.4. Save prediction of test set to *.csv"></a>5.4. Save prediction of test set to *.csv</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">test_pred_df.head(<span class="number">10</span>)</span><br></pre></td></tr></table></figure>
+<p><img src="/image/molecular-tb7.JPG" alt="png"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">test_pred_df.to_csv(<span class="string">'lgb_submission.csv'</span>, index=<span class="keyword">False</span>)</span><br></pre></td></tr></table></figure>
+<p><br></p>
+<h4 id="References"><a href="#References" class="headerlink" title="References"></a>References</h4><p><em>kaggle kernels</em></p>
+<ul>
+<li><a href="https://www.kaggle.com/jesucristo/single-lgbm-2-242-top54" target="_blank" rel="noopener">https://www.kaggle.com/jesucristo/single-lgbm-2-242-top54</a></li>
+<li><a href="https://www.kaggle.com/super13579/simple-eda-and-lightgbm" target="_blank" rel="noopener">https://www.kaggle.com/super13579/simple-eda-and-lightgbm</a></li>
+<li><a href="https://www.kaggle.com/artgor/molecular-properties-eda-and-models" target="_blank" rel="noopener">https://www.kaggle.com/artgor/molecular-properties-eda-and-models</a></li>
+</ul>
+<p><em>blog/docs</em></p>
+<ul>
+<li><a href="https://gorakgarak.tistory.com/1285" target="_blank" rel="noopener">https://gorakgarak.tistory.com/1285</a></li>
+<li><a href="https://towardsdatascience.com/understanding-gradient-boosting-machines-using-xgboost-and-lightgbm-parameters-3af1f9db9700" target="_blank" rel="noopener">https://towardsdatascience.com/understanding-gradient-boosting-machines-using-xgboost-and-lightgbm-parameters-3af1f9db9700</a></li>
+<li><a href="https://lightgbm.readthedocs.io/en/latest/" target="_blank" rel="noopener">https://lightgbm.readthedocs.io/en/latest/</a></li>
+</ul>
+<hr>
+<h2 id="Outro"><a href="#Outro" class="headerlink" title="Outro"></a>Outro</h2><p>처음 예측 모델을 위해서 Neural Net을 이용하였었는데 default parameter의 Random Forest 알고리즘보다도 훨씬 낮은 성능을 보였다. 어느 글에서 말하길, 딥러닝이 항상 좋은 성능을 내지 않는다고 한다.<br>이런 Structured tabular 형태의 데이터에 neural net은 over-fitting 하는 경우가 많으며, 거의 대부분의 경우 <strong>xgboost</strong>나 <strong>lightgbm</strong>과 같은 gradient boosting 계열의 알고리즘이 잘 작동한다고 한다.(파라미터값을 잘 optimize 했을 때..)</p>
+<p>앞으로 gbm 계열의 알고리즘에 대해 좀더 공부해봐야할 것 같다.</p>
+
+  <p><a class="classtest-link" href="/tags/atom/">atom</a>, <a class="classtest-link" href="/tags/competitions/">competitions</a>, <a class="classtest-link" href="/tags/couplingconstant/">couplingconstant</a>, <a class="classtest-link" href="/tags/eda/">eda</a>, <a class="classtest-link" href="/tags/kaggle/">kaggle</a>, <a class="classtest-link" href="/tags/lightgbm/">lightgbm</a>, <a class="classtest-link" href="/tags/molecular/">molecular</a> — Sep 6, 2019</p>
+  
+  <hr>
+<section id="comments" class="mt-2 mb-3">
+
+  <div id="disqus_thread">
+    <a href="#" class="button button-primary" onclick="loadDisqus();return false;">View / Make Comments</a>
+  </div>
+
+  <script>
+    var disqus_config = function() {
+      this.page.url = 'https://jaehyeongan.github.io/2019/09/06/molecular-prediction/index.html';
+      this.page.identifier = '2019/09/06/molecular-prediction/index.html';
+      this.page.title = '[kaggle challenge] 분자 특성 예측(Predicting Molecular Properties)';
+    };
+
+    var is_disqus_loaded = false;
+
+    function loadDisqus() {
+      if (!is_disqus_loaded) {
+        is_disqus_loaded = true;
+
+        var d = document,
+          s = d.createElement('script');
+        s.src = 'https://jaehyeongan.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+      }
+    }
+
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</section>
+
+
+
+          <div class="row mt-2">
+  
+    <div class="eight columns">
+      <p id="madewith">Made with ❤ and
+        <a class="footer-link icon" href="https://hexo.io" target="_blank" style="text-decoration: none;" rel="noreferrer" aria-label="Hexo.io">
+        <svg class="hexo svg-hov" width="14" role="img" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24"><title>Hexo.js</title><path d="M12 .007L1.57 6.056V18.05L12 23.995l10.43-6.049V5.952L12 .007zm4.798 17.105l-.939.521-.939-.521V12.94H9.08v4.172l-.94.521-.938-.521V6.89l.939-.521.939.521v4.172h5.84V6.89l.94-.521.938.521v10.222z"/></svg>
+        </a>
+        
+        at <a href="https://en.wikipedia.org/wiki/Earth" target="_blank" rel="noreferrer">Earth</a>.</p>
+        
+    </div>
+
+    <!-- Sepcial thanks to https://simpleicons.org/ for the icons -->
+    <div class="four columns mb-3 posisi">
+      
+      <a class="ml-0 footer-link icon" href="https://github.com/jaehyeongAN" target="_blank" style="text-decoration: none" rel="noreferrer" aria-label="GitHub">
+        <svg class="github svg-hov" width="18" role="img" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>GitHub</title><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+      </a>
+      
+
+      
+      <a class="ml-0 footer-link icon" href="https://www.linkedin.com/in/jaehyeong-an-005603160/" target="_blank" style="text-decoration: none" rel="noreferrer" aria-label="LinkedIn">
+        <svg class="linkedin svg-hov" width="18" role="img" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>LinkedIn</title><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+      </a>
+      
+
+      
+
+      
+      <a class="ml-0 footer-link icon" href="https://www.instagram.com/an_jh.ds/" target="_blank" style="text-decoration: none" rel="noreferrer" aria-label="Instagram">
+        <svg class="instagram svg-hov" width="18" role="img" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>Instagram</title><path d="M12 0C8.74 0 8.333.015 7.053.072 5.775.132 4.905.333 4.14.63c-.789.306-1.459.717-2.126 1.384S.935 3.35.63 4.14C.333 4.905.131 5.775.072 7.053.012 8.333 0 8.74 0 12s.015 3.667.072 4.947c.06 1.277.261 2.148.558 2.913.306.788.717 1.459 1.384 2.126.667.666 1.336 1.079 2.126 1.384.766.296 1.636.499 2.913.558C8.333 23.988 8.74 24 12 24s3.667-.015 4.947-.072c1.277-.06 2.148-.262 2.913-.558.788-.306 1.459-.718 2.126-1.384.666-.667 1.079-1.335 1.384-2.126.296-.765.499-1.636.558-2.913.06-1.28.072-1.687.072-4.947s-.015-3.667-.072-4.947c-.06-1.277-.262-2.149-.558-2.913-.306-.789-.718-1.459-1.384-2.126C21.319 1.347 20.651.935 19.86.63c-.765-.297-1.636-.499-2.913-.558C15.667.012 15.26 0 12 0zm0 2.16c3.203 0 3.585.016 4.85.071 1.17.055 1.805.249 2.227.415.562.217.96.477 1.382.896.419.42.679.819.896 1.381.164.422.36 1.057.413 2.227.057 1.266.07 1.646.07 4.85s-.015 3.585-.074 4.85c-.061 1.17-.256 1.805-.421 2.227-.224.562-.479.96-.899 1.382-.419.419-.824.679-1.38.896-.42.164-1.065.36-2.235.413-1.274.057-1.649.07-4.859.07-3.211 0-3.586-.015-4.859-.074-1.171-.061-1.816-.256-2.236-.421-.569-.224-.96-.479-1.379-.899-.421-.419-.69-.824-.9-1.38-.165-.42-.359-1.065-.42-2.235-.045-1.26-.061-1.649-.061-4.844 0-3.196.016-3.586.061-4.861.061-1.17.255-1.814.42-2.234.21-.57.479-.96.9-1.381.419-.419.81-.689 1.379-.898.42-.166 1.051-.361 2.221-.421 1.275-.045 1.65-.06 4.859-.06l.045.03zm0 3.678c-3.405 0-6.162 2.76-6.162 6.162 0 3.405 2.76 6.162 6.162 6.162 3.405 0 6.162-2.76 6.162-6.162 0-3.405-2.76-6.162-6.162-6.162zM12 16c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4zm7.846-10.405c0 .795-.646 1.44-1.44 1.44-.795 0-1.44-.646-1.44-1.44 0-.794.646-1.439 1.44-1.439.793-.001 1.44.645 1.44 1.439z"/></svg>
+      </a>
+      
+
+    </div>
+  
+</div>
+
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+  <script src="/js/nanobar.min.js"></script>
+  <script>
+    var options = {
+      classname: 'nanobar',
+      id: 'myNanobar'
+    };
+    var nanobar = new Nanobar(options);
+    nanobar.go(30);
+    nanobar.go(76);
+    nanobar.go(100);
+  </script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</body>
+
+</html>

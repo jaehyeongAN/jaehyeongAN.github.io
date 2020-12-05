@@ -166,9 +166,9 @@
     
       <category term="python" scheme="https://jaehyeongan.github.io/tags/python/"/>
     
-      <category term="image" scheme="https://jaehyeongan.github.io/tags/image/"/>
-    
       <category term="opencv" scheme="https://jaehyeongan.github.io/tags/opencv/"/>
+    
+      <category term="image" scheme="https://jaehyeongan.github.io/tags/image/"/>
     
   </entry>
   
@@ -191,9 +191,9 @@
     </summary>
     
     
-      <category term="flask" scheme="https://jaehyeongan.github.io/tags/flask/"/>
-    
       <category term="python" scheme="https://jaehyeongan.github.io/tags/python/"/>
+    
+      <category term="flask" scheme="https://jaehyeongan.github.io/tags/flask/"/>
     
       <category term="web" scheme="https://jaehyeongan.github.io/tags/web/"/>
     
@@ -230,9 +230,9 @@
     
       <category term="deeplearning" scheme="https://jaehyeongan.github.io/tags/deeplearning/"/>
     
-      <category term="flask" scheme="https://jaehyeongan.github.io/tags/flask/"/>
-    
       <category term="python" scheme="https://jaehyeongan.github.io/tags/python/"/>
+    
+      <category term="flask" scheme="https://jaehyeongan.github.io/tags/flask/"/>
     
       <category term="webframework" scheme="https://jaehyeongan.github.io/tags/webframework/"/>
     
@@ -302,11 +302,11 @@
     
       <category term="cnn" scheme="https://jaehyeongan.github.io/tags/cnn/"/>
     
+      <category term="image" scheme="https://jaehyeongan.github.io/tags/image/"/>
+    
       <category term="deeplearing" scheme="https://jaehyeongan.github.io/tags/deeplearing/"/>
     
       <category term="convnet" scheme="https://jaehyeongan.github.io/tags/convnet/"/>
-    
-      <category term="image" scheme="https://jaehyeongan.github.io/tags/image/"/>
     
       <category term="convolutional" scheme="https://jaehyeongan.github.io/tags/convolutional/"/>
     
@@ -493,11 +493,11 @@
     
       <category term="neuralnetwork" scheme="https://jaehyeongan.github.io/tags/neuralnetwork/"/>
     
-      <category term="math" scheme="https://jaehyeongan.github.io/tags/math/"/>
-    
       <category term="derivative" scheme="https://jaehyeongan.github.io/tags/derivative/"/>
     
       <category term="partialderivative" scheme="https://jaehyeongan.github.io/tags/partialderivative/"/>
+    
+      <category term="math" scheme="https://jaehyeongan.github.io/tags/math/"/>
     
   </entry>
   
@@ -553,13 +553,13 @@
     
       <category term="deeplearning" scheme="https://jaehyeongan.github.io/tags/deeplearning/"/>
     
+      <category term="math" scheme="https://jaehyeongan.github.io/tags/math/"/>
+    
       <category term="sigma" scheme="https://jaehyeongan.github.io/tags/sigma/"/>
     
       <category term="vector" scheme="https://jaehyeongan.github.io/tags/vector/"/>
     
       <category term="matrix" scheme="https://jaehyeongan.github.io/tags/matrix/"/>
-    
-      <category term="math" scheme="https://jaehyeongan.github.io/tags/math/"/>
     
       <category term="sigmoid" scheme="https://jaehyeongan.github.io/tags/sigmoid/"/>
     
@@ -617,9 +617,9 @@
     </summary>
     
     
-      <category term="machinelearning" scheme="https://jaehyeongan.github.io/tags/machinelearning/"/>
-    
       <category term="pca" scheme="https://jaehyeongan.github.io/tags/pca/"/>
+    
+      <category term="machinelearning" scheme="https://jaehyeongan.github.io/tags/machinelearning/"/>
     
       <category term="dimensionality" scheme="https://jaehyeongan.github.io/tags/dimensionality/"/>
     
@@ -681,9 +681,9 @@
     
       <category term="machinelearning" scheme="https://jaehyeongan.github.io/tags/machinelearning/"/>
     
-      <category term="regression" scheme="https://jaehyeongan.github.io/tags/regression/"/>
-    
       <category term="classification" scheme="https://jaehyeongan.github.io/tags/classification/"/>
+    
+      <category term="regression" scheme="https://jaehyeongan.github.io/tags/regression/"/>
     
       <category term="python" scheme="https://jaehyeongan.github.io/tags/python/"/>
     

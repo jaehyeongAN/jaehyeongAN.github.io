@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head><meta name="generator" content="Hexo 3.9.0">
+
+  <!-- Minima -->
+  <!-- Hexo theme created by @adisaktijrs -->
+
+  <!-- Basic Page Needs
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta charset="utf-8">
+
+  
+  <title>LSTM Autoencoder for Anomaly Detection</title>
+  
+  <link rel="sitemap" href="https://jaehyeongan.github.iositemap.xml">
+  
+  <link rel="canonical" href="https://jaehyeongan.github.io/2020/02/29/LSTM-Autoencoder-for-Anomaly-Detection/">
+  
+  <meta name="description" content="Intro지난 포스팅(Autoencoder와 LSTM Autoencoder)에 이어 LSTM Autoencoder를 통해 Anomaly Detection하는 방안에 대해 소개하고자 한다. Autoencoder의 경우 보통 이미지의 생성이나 복원에 많이 사용되며 이러한 ">
+  
+  
+  <meta name="author" content>
+  
+  <meta property="og:image" content="https://jaehyeongan.github.ioundefined">
+  
+  <meta property="og:site_name" content="jaehyeong&#39;s ds">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="LSTM Autoencoder for Anomaly Detection">
+  
+  <meta property="og:description" content="Intro지난 포스팅(Autoencoder와 LSTM Autoencoder)에 이어 LSTM Autoencoder를 통해 Anomaly Detection하는 방안에 대해 소개하고자 한다. Autoencoder의 경우 보통 이미지의 생성이나 복원에 많이 사용되며 이러한 ">
+  
+  <meta property="og:url" content="https://jaehyeongan.github.io/2020/02/29/LSTM-Autoencoder-for-Anomaly-Detection/">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="LSTM Autoencoder for Anomaly Detection">
+  
+  <meta name="twitter:description" content="Intro지난 포스팅(Autoencoder와 LSTM Autoencoder)에 이어 LSTM Autoencoder를 통해 Anomaly Detection하는 방안에 대해 소개하고자 한다. Autoencoder의 경우 보통 이미지의 생성이나 복원에 많이 사용되며 이러한 ">
+  
+  
+  <meta name="twitter:image" content="https://jaehyeongan.github.ioundefined">
+  
+  <meta name="twitter:url" content="https://jaehyeongan.github.io/2020/02/29/LSTM-Autoencoder-for-Anomaly-Detection/">
+
+  <!-- Mobile Specific Metas
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Preload fonts
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="preload" href="../fonts/dm-serif-display-v4-latin-regular.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="../fonts/inter-v2-latin-regular.woff2" as="font" type="font/woff2" crossorigin>
+
+  <!-- CSS
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="stylesheet" href="/css/normalize.css">
+  <link rel="stylesheet" href="/css/skeleton.css">
+  <link rel="stylesheet" href="/css/custom.css">
+  <link rel="stylesheet" href="/css/prism-dark.css">
+  <link rel="stylesheet" href="/css/prism-line-numbers.css">
+  <!-- User css -->
+  
+  <link rel="stylesheet" href="/css/user.css">
+  
+
+  <!-- Favicon
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="icon" type="image/png" href="/images/astronaut.png">
+
+  <!-- Custom Theme Color Style
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <style>
+  a:not(.icon) {
+    text-decoration-color: #0FA0CE;
+    background-image: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0) 50%,
+      #0FA0CE 50%
+    );
+  }
+  blockquote {
+    border-left: 8px solid #0FA0CE;
+  }
+  .nanobar .bar {
+    background: #0FA0CE;
+  }
+  .button.button-primary:hover,
+  button.button-primary:hover,
+  input[type="submit"].button-primary:hover,
+  input[type="reset"].button-primary:hover,
+  input[type="button"].button-primary:hover,
+  .button.button-primary:focus,
+  button.button-primary:focus,
+  input[type="submit"].button-primary:focus,
+  input[type="reset"].button-primary:focus,
+  input[type="button"].button-primary:focus {
+    background-color: #0FA0CE;
+    border-color: #0FA0CE;
+  }
+  input[type="email"]:focus,
+  input[type="number"]:focus,
+  input[type="search"]:focus,
+  input[type="text"]:focus,
+  input[type="tel"]:focus,
+  input[type="url"]:focus,
+  input[type="password"]:focus,
+  textarea:focus,
+  select:focus {
+    border: 1px solid #0FA0CE;
+  }
+</style>
+
+  <!-- Google Analytics (With Privacy Settings On)
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  
+
+</head>
+
+<body>
+  <div class="container">
+    <div class="row">
+      <div>
+
+        <div class="row">
+  <div class="two columns" style="max-width: 50px">
+    <h1 class="mt-2 mode">
+      <div onclick="setDarkMode(true)" id="darkBtn">🌑</div>
+      <div onclick="setDarkMode(false)" id="lightBtn" class="hidden">☀️</div>
+      <script>
+        if (localStorage.getItem('preferredTheme') == 'dark') {
+          setDarkMode(true)
+        }
+        function setDarkMode(isDark) {
+          var darkBtn = document.getElementById('darkBtn')
+          var lightBtn = document.getElementById('lightBtn')
+          if (isDark) {
+            lightBtn.style.display = "block"
+            darkBtn.style.display = "none"
+            localStorage.setItem('preferredTheme', 'dark');
+          } else {
+            lightBtn.style.display = "none"
+            darkBtn.style.display = "block"
+            localStorage.removeItem('preferredTheme');
+          }
+          document.body.classList.toggle("darkmode");
+        }
+      </script>
+    </h1>
+  </div>
+
+  <div class="six columns ml-1">
+    <h1 class="mt-2">
+      ⬅ Click this.
+    </h1>
+  </div>
+
+  <div class="twelve columns">
+    <div class="row">
+      <div class="nine columns left">
+        <a href="/">Home</a>
+        
+          
+          <a href="/about" class="ml">About</a>
+          
+        
+        
+          
+            <a href="mailto:nonamed000000@gmail.com" target="_blank" class="ml">Email</a>
+          
+        
+      </div>
+    </div>
+    <hr style="margin-bottom: 2.6rem">
+  </div>
+</div>
+
+        <div class="trans">
+            <h2>LSTM Autoencoder for Anomaly Detection</h2>
+
+  <h2 id="Intro"><a href="#Intro" class="headerlink" title="Intro"></a>Intro</h2><p>지난 포스팅(<a href="https://jaehyeongan.github.io/2020/02/28/Autoencoder-LSTMautoencoder/">Autoencoder와 LSTM Autoencoder</a>)에 이어 <strong>LSTM Autoencoder를 통해 Anomaly Detection하는 방안</strong>에 대해 소개하고자 한다. Autoencoder의 경우 보통 이미지의 생성이나 복원에 많이 사용되며 이러한 구조를 이어받아 대표적인 딥러닝 생성 모델인 GAN(Generative Adversarial Network)으로 까지 이어졌는데 이러한 자기 학습 모델은 Anomaly Detection 분야에서도 널리 사용되고 있다.<br>대표적으로 이미지 분야에서도 정상적인 이미지로 모델 학습 후 비정상적인 이미지를 넣어 이를 디코딩 하게 되면 정상 이미지 특성과 디코딩 된 이미지 간의 차이인 재구성 손실(Reconstruction Error)를 계산하게 되는데 이 재구성 손실이 낮은 부분은 정상(normal), 재구성 손실이 높은 부분은 이상(Abnormal)로 판단할 수 있다. </p>
+<p>이러한 Anomaly Detection은 이미지 뿐만 아니라 이제부터 살펴보고자 하는 시계열 데이터에도 적용이 가능하다. 예를 들어 특정 설비의 센서를 통해 비정상 신호를 탐지하고자 한다면 Autoencoder를 LSTM 레이어로 구성한다면 이러한 시퀀스 학습이 가능하게 된다. 이를 통해 정상 신호만을 이용하여 모델을 학습시켜 추후 비정상 신호가 모델에 입력되면 높은 reconstruction error를 나타낼 것이므로 이를 비정상 신호로 판단할 수 있게 된다.</p>
+<hr>
+<h2 id="LSTM-Autoencoder"><a href="#LSTM-Autoencoder" class="headerlink" title="LSTM Autoencoder"></a>LSTM Autoencoder</h2><p><img src="/image/lstm-autoencoder-architecture2.png"></p>
+<p>LSTM Autoencoder는 시퀀스(sequence) 데이터에 Encoder-Decoder LSTM 아키텍처를 적용하여 구현한 오토인코더이다. 모델에 입력 시퀀스가 순차적으로 들어오게 되고, 마지막 입력 시퀀스가 들어온 후 디코더는 입력 시퀀스를 재생성하거나 혹은 목표 시퀀스에 대한 예측을 출력한다.<br>위에서 설명한 것과 마찬가지로 <strong>LSTM Autoencoder 학습 시에는 정상(normal) 신호의 데이터로만 모델을 학습시키게 된다.</strong> encoder와 decoder는 학습이 진행될 수 록 정상 신호를 더 정상 신호 답게 표현하는 방법을 학습하게 될 것이며 최종적으로 재구성 한 결과도 정상 신호와 매우 유사한 분포를 가지는 데이터일 것이다. 그렇기 때문에 이 모델에 비정상 신호를 입력으로 넣게 되면 정상 분포와 다른 특성의 분포를 나타낼 것이기 때문에 높은 reconstruction error를 보이게 될 것이다.<br><br></p>
+<h2 id="Curve-Shifting을-적용한-LSTM-Autoencoder"><a href="#Curve-Shifting을-적용한-LSTM-Autoencoder" class="headerlink" title="Curve Shifting을 적용한 LSTM Autoencoder"></a>Curve Shifting을 적용한 LSTM Autoencoder</h2><p><img src="/image/lstm-autoencoder-through-curveshifting.png" width="800px"></p>
+<p>전체 프로세스는 위 아키텍처와 같다. 먼저 Curve Shifting을 통해 데이터의 시점을 변환해주고 normal 데이터만을 통해 LSTM Autoencoder 모델을 학습시키게 된다. 그 후 재구성 손실을 계산 후 Precision Recall Curve를 통해 normal/abnormal을 구분하기 위한 threshold를 지정하게 되고 이 threshold를 기준으로 마지막으로 테스트 셋의 재구성 손실을 분류하여 t+n 시점을 예측하게 된다.<br>각 부분에 대해 아래에서 좀 더 상세히 살펴보자.</p>
+<h3 id="1-Curve-Shifting"><a href="#1-Curve-Shifting" class="headerlink" title="1. Curve Shifting"></a>1. Curve Shifting</h3><p>비정상 신호를 탐지하기 위해서는 비정상 신호가 들어오기 전에 즉, 뭔가 고장 혹은 결함이 발생하기 전에 미리 예측을 해야만 한다. 그렇기 때문에 단순히 현재 시점의 error를 계산하여 비정상 신호를 탐지하는 것은 이미 고장이 발생한 후 예측하는 것과 다름이 없기 때문에 <strong>데이터에 대한 시점 변환</strong>이 꼭 필요하다. </p>
+<p>이러한 future value 예측을 위해 다양한 방법이 있는데 여기서는 <strong>Curve Shifting</strong>이라는 기법을 적용할 것이다. </p>
+<p><img src="/image/curve-shifting.png" width="400px"></p>
+<p>Curve Shifting은 <strong>사전 예측 개념</strong>을 적용하기 위한 Shifting 방법이다. 예를 들어 위 그림과 같이 비정상 신호(1)를 2일 전에 조기 예측 하고자 한다면 단순히 Y값을 두 칸씩 내리는 것이 아니라 비정상 신호(1)가 있는 날짜로부터 2일 전까지의 데이터를 비정상 신호(1)로 바꾸어주는 것이다. 이는 비정상 신호가 발생하기 전 어떠한 조짐이 있을 것이며 이러한 조짐이 데이터 특성에 나타날 것이라는 가정을 가지고 학습하는 방법이다.<br>그리고 나서 본래 비정상 신호(1) 데이터를 제거해주는데 이렇게 하는 이유는 라벨을 바꿔주는 순간 이는 비정상 신호 예측 문제가 아닌 비정상 신호 조짐 예측 문제가 되는 것이 때문에 데이터의 학습 혼동을 없애주기 위해 제거하는 것이라 보면 될 것이다.<br><br></p>
+<h3 id="2-Threshold-by-Precision-Recall-Curve"><a href="#2-Threshold-by-Precision-Recall-Curve" class="headerlink" title="2. Threshold by Precision-Recall-Curve"></a>2. Threshold by Precision-Recall-Curve</h3><p>Autoencoder는 재구성 된 결과를 intput과 비교하여 재구성 손실(Reconstruction Error)를 계산한다고 말했다. 그리고 이 재구성 손실값을 통해 손실값이 낮으면 정상으로, 손실값이 높으면 이상으로 판단한다고 하였는데, 이 정상과 이상을 나누는 기준은 과연 무엇일까?<br>일반적으로 모델이 정상 데이터만으로 학습을 하여 정상 데이터를 재구성하였을 때 학습이 잘 되었다고 가정하면 손실값은 0에 가까울 것이고, 학습이 잘 안되었다고 하면 손실값은 1에 가까울 것이다. 보통 분류(Classification)문제에서는 예측 확률값(0% ~ 100%)을 통해 50%를 기준으로 분류를 하게 되는데, 이 recontruction error의 경우 그렇게 극단적으로 값이 튀기는 힘들기 때문에 정상과 이상을 분리하는 타당한 threshold값을 정하는 것이 필요하다. </p>
+<h4 id="Precision-Recall-Curve"><a href="#Precision-Recall-Curve" class="headerlink" title="Precision Recall Curve"></a>Precision Recall Curve</h4><p><img src="/image/precision-recall-curve.png" width="600px"></p>
+<p>위와 같은 문제의 적절한 threshold값을 적용하기 위한 방법 중 하나로 precision recall curve가 있다. 이는 Recall(재현율)과 Precision(정밀도)가 서로 Trade off 관계를 가지기 때문에 어느 한쪽에 치우지지 않는 최적의 threshold를 구하기 위한 방법이다.<br>추후 이 검증 기법을 적용하여 LSTM Autoencoder를 통해 재구성 된 정상 신호와 비정상 신호를 구분하기 위한 적절한 threshold를 찾아낼 것이다.<br><br></p>
+<h2 id="Implementation"><a href="#Implementation" class="headerlink" title="Implementation"></a>Implementation</h2><p>적용해 볼 데이터는 펄프 제지 공장의 Sheet breaks(종이 씹힘)에 관한 이진 라벨 데이터이다. 데이터 설명에 따르면 해당 공장에서 한번 sheet break가 발생하면 수천 달러의 손해가 발생한다고 하며, 이러한 사고가 적어도 매일 한 번 이상 발생한다고 한다.<br>해당 데이터는 15일치에 해당하는 18,268 rows를 가지고 있으며 이 중 sheet break에 해당하는 positive label의 비율은 124개로 전체 데이터의 0.6%를 차지하고 있다.<br>데이터는 <a href="https://docs.google.com/forms/d/e/1FAIpQLSdyUk3lfDl7I5KYK_pw285LCApc-_RcoC0Tf9cnDnZ_TWzPAw/viewform" target="_blank" rel="noopener">여기</a>에서 신청 후 받을 수 있다.</p>
+<h3 id="1-Import-Libraries"><a href="#1-Import-Libraries" class="headerlink" title="1. Import Libraries"></a>1. Import Libraries</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd </span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"><span class="keyword">import</span> seaborn <span class="keyword">as</span> sns</span><br><span class="line"><span class="keyword">from</span> pylab <span class="keyword">import</span> rcParams</span><br><span class="line"><span class="keyword">from</span> collections <span class="keyword">import</span> Counter</span><br><span class="line"><span class="keyword">import</span> tensorflow <span class="keyword">as</span> tf</span><br><span class="line"><span class="keyword">from</span> tensorflow.keras <span class="keyword">import</span> Model ,models, layers, optimizers, regularizers</span><br><span class="line"><span class="keyword">from</span> tensorflow.keras.callbacks <span class="keyword">import</span> ModelCheckpoint</span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> sklearn.preprocessing <span class="keyword">import</span> StandardScaler</span><br><span class="line"><span class="keyword">from</span> sklearn.model_selection <span class="keyword">import</span> train_test_split</span><br><span class="line"><span class="keyword">from</span> sklearn <span class="keyword">import</span> metrics</span><br></pre></td></tr></table></figure>
+<h3 id="2-Load-Data"><a href="#2-Load-Data" class="headerlink" title="2. Load Data"></a>2. Load Data</h3><p>time과 라벨 y값을 빼면 총 61개의 칼럼을 가지고 있다.<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">LABELS = [<span class="string">'Normal'</span>, <span class="string">'Break'</span>]</span><br><span class="line"></span><br><span class="line">df = pd.read_csv(<span class="string">'./data/processminer-rare-event-mts-csv.csv'</span>)</span><br><span class="line">df.head()</span><br></pre></td></tr></table></figure></p>
+<p><img src="/image/lstm-autoencoder-code1.PNG"></p>
+<p>normal(0)이 18,274건, break(1)가 124건으로 구성 되어있다.<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Counter(df[<span class="string">'y'</span>])  <span class="comment"># Counter(&#123;0: 18274, 1: 124&#125;)</span></span><br></pre></td></tr></table></figure></p>
+<h3 id="3-Curve-Shifting"><a href="#3-Curve-Shifting" class="headerlink" title="3. Curve Shifting"></a>3. Curve Shifting</h3><p>time 칼럼을 보면 2분 단위로 데이터가 나누어져 있는 것을 알 수 있다. 여기서의 목표는 break가 발생하기 4분 전에 조기 예측하는 것이다. 그러므로 4분 전까지의 데이터를 break 데이터로 만들기 위해서는 curve shifting을 2개의 row만큼만 적용하면 된다. 이후, 본래 break 데이터는 제거한다.<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">sign = <span class="keyword">lambda</span> x: (<span class="number">1</span>, <span class="number">-1</span>)[x &lt; <span class="number">0</span>]</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">curve_shift</span><span class="params">(df, shift_by)</span>:</span></span><br><span class="line">	vector = df[<span class="string">'y'</span>].copy()</span><br><span class="line">	<span class="keyword">for</span> s <span class="keyword">in</span> range(abs(shift_by)):</span><br><span class="line">		tmp = vector.shift(sign(shift_by))</span><br><span class="line">		tmp = tmp.fillna(<span class="number">0</span>)</span><br><span class="line">		vector += tmp</span><br><span class="line">	labelcol = <span class="string">'y'</span></span><br><span class="line">	<span class="comment"># Add vector to the df</span></span><br><span class="line">	df.insert(loc=<span class="number">0</span>, column=labelcol+<span class="string">'tmp'</span>, value=vector)</span><br><span class="line"></span><br><span class="line">	<span class="comment"># Remove the rows with labelcol == 1.</span></span><br><span class="line">	df = df.drop(df[df[labelcol] == <span class="number">1</span>].index)</span><br><span class="line"></span><br><span class="line">	<span class="comment"># Drop labelcol and rename the tmp col as labelcol</span></span><br><span class="line">	df = df.drop(labelcol, axis=<span class="number">1</span>)</span><br><span class="line">	df = df.rename(columns=&#123;labelcol+<span class="string">'tmp'</span>: labelcol&#125;)</span><br><span class="line"></span><br><span class="line">	<span class="comment"># Make the labelcol binary</span></span><br><span class="line">	df.loc[df[labelcol] &gt; <span class="number">0</span>, labelcol] = <span class="number">1</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> df</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># shift the response column y by 2 rows to do a 4-min ahead prediction</span></span><br><span class="line">shifted_df = curve_shift(df, shift_by=<span class="number">-5</span>)</span><br><span class="line">shifted_df.head()</span><br></pre></td></tr></table></figure>
+<p><img src="/image/lstm-autoencoder-code2.PNG"></p>
+<p>몇 가지 불필요한 데이터는 제거한 후, 데이터와 라벨을 분리해준다.<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># drop remove columns</span></span><br><span class="line">shifted_df = shifted_df.drop([<span class="string">'time'</span>,<span class="string">'x28'</span>,<span class="string">'x61'</span>], axis=<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># x, y</span></span><br><span class="line">input_x = shifted_df.drop(<span class="string">'y'</span>, axis=<span class="number">1</span>).values</span><br><span class="line">input_y = shifted_df[<span class="string">'y'</span>].values</span><br><span class="line"></span><br><span class="line">n_features = input_x.shape[<span class="number">1</span>]</span><br></pre></td></tr></table></figure></p>
+<h3 id="4-Transform-to-Series-Data"><a href="#4-Transform-to-Series-Data" class="headerlink" title="4. Transform to Series Data"></a>4. Transform to Series Data</h3><p>LSTM 모델은 (samples, timesteps, feature)에 해당하는 3d 차원의 shape을 가지므로, 데이터를 시퀀스 형태로 변환한다. timesteps은 5(즉, 10분)만큼 잡았다.<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">temporalize</span><span class="params">(X, y, timesteps)</span>:</span></span><br><span class="line">	output_X = []</span><br><span class="line">	output_y = []</span><br><span class="line">	<span class="keyword">for</span> i <span class="keyword">in</span> range(len(X) - timesteps - <span class="number">1</span>):</span><br><span class="line">		t = []</span><br><span class="line">		<span class="keyword">for</span> j <span class="keyword">in</span> range(<span class="number">1</span>, timesteps + <span class="number">1</span>):</span><br><span class="line">			<span class="comment"># Gather the past records upto the lookback period</span></span><br><span class="line">			t.append(X[[(i + j + <span class="number">1</span>)], :])</span><br><span class="line">		output_X.append(t)</span><br><span class="line">		output_y.append(y[i + timesteps + <span class="number">1</span>])</span><br><span class="line">	<span class="keyword">return</span> np.squeeze(np.array(output_X)), np.array(output_y)</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">timesteps = <span class="number">5</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Temporalize</span></span><br><span class="line">x, y = temporalize(input_x, input_y, timesteps)</span><br><span class="line">print(x.shape) <span class="comment"># (18268, 5, 59)</span></span><br></pre></td></tr></table></figure>
+<h3 id="5-Split-Train-Valid-Test"><a href="#5-Split-Train-Valid-Test" class="headerlink" title="5. Split Train / Valid / Test"></a>5. Split Train / Valid / Test</h3><p>이후, 훈련, 검증, 테스트 용 데이터로 분리한다. 각각 11,691, 2,923, 3,654개로 나누어주었다.<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Split into train, valid, and test </span></span><br><span class="line">x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=<span class="number">0.2</span>)</span><br><span class="line">x_train, x_valid, y_train, y_valid = train_test_split(x_train, y_train, test_size=<span class="number">0.2</span>)</span><br><span class="line"></span><br><span class="line">print(len(x_train))  <span class="comment"># 11691</span></span><br><span class="line">print(len(x_valid))  <span class="comment"># 2923</span></span><br><span class="line">print(len(x_test))   <span class="comment"># 3654</span></span><br></pre></td></tr></table></figure></p>
+<p>LSTM Autoencoder 학습 시에는 Normal(0) 데이터만으로 학습할 것이기 때문에 데이터로 부터 Normal(0)과 Break(1) 데이터를 분리한다.<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># For training the autoencoder, split 0 / 1</span></span><br><span class="line">x_train_y0 = x_train[y_train == <span class="number">0</span>]</span><br><span class="line">x_train_y1 = x_train[y_train == <span class="number">1</span>]</span><br><span class="line"></span><br><span class="line">x_valid_y0 = x_valid[y_valid == <span class="number">0</span>]</span><br><span class="line">x_valid_y1 = x_valid[y_valid == <span class="number">1</span>]</span><br></pre></td></tr></table></figure></p>
+<h3 id="6-Standardize"><a href="#6-Standardize" class="headerlink" title="6. Standardize"></a>6. Standardize</h3><p>각기 다른 데이터 특성의 표준화를 위해 z-score 정규화인 scikit-learn의 StandardScaler()를 적용하였다. 해당 함수를 적용하기 위해서는 2d 형태여야 하므로 Flatten 과정을 거친 후 스케일을 적용하였으며 이후 다시 3d 형태로 변환하였다.<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">flatten</span><span class="params">(X)</span>:</span></span><br><span class="line">    flattened_X = np.empty((X.shape[<span class="number">0</span>], X.shape[<span class="number">2</span>]))  <span class="comment"># sample x features array.</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(X.shape[<span class="number">0</span>]):</span><br><span class="line">        flattened_X[i] = X[i, (X.shape[<span class="number">1</span>]<span class="number">-1</span>), :]</span><br><span class="line">    <span class="keyword">return</span>(flattened_X)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">scale</span><span class="params">(X, scaler)</span>:</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(X.shape[<span class="number">0</span>]):</span><br><span class="line">        X[i, :, :] = scaler.transform(X[i, :, :])</span><br><span class="line">        </span><br><span class="line">    <span class="keyword">return</span> X</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">scaler = StandardScaler().fit(flatten(x_train_y0))</span><br><span class="line"></span><br><span class="line">x_train_y0_scaled = scale(x_train_y0, scaler)</span><br><span class="line">x_valid_scaled = scale(x_valid, scaler)</span><br><span class="line">x_valid_y0_scaled = scale(x_valid_y0, scaler)</span><br><span class="line">x_test_scaled = scale(x_test, scaler)</span><br></pre></td></tr></table></figure>
+<h3 id="7-Training-LSTM-Autoencoder"><a href="#7-Training-LSTM-Autoencoder" class="headerlink" title="7. Training LSTM Autoencoder"></a>7. Training LSTM Autoencoder</h3><p>대칭 구조의 Staked Autoencoder 형태로 LSTM Autoencoder를 구성하여 정상 데이터로만 구성 된 데이터를 통해 총 200 epoch 학습시켰다.<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">epochs = <span class="number">200</span></span><br><span class="line">batch = <span class="number">128</span></span><br><span class="line">lr = <span class="number">0.001</span></span><br></pre></td></tr></table></figure></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">lstm_ae = models.Sequential()</span><br><span class="line"><span class="comment"># Encoder</span></span><br><span class="line">lstm_ae.add(layers.LSTM(<span class="number">32</span>, activation=<span class="string">'relu'</span>, input_shape=(timesteps, n_features), return_sequences=<span class="keyword">True</span>))</span><br><span class="line">lstm_ae.add(layers.LSTM(<span class="number">16</span>, activation=<span class="string">'relu'</span>, return_sequences=<span class="keyword">False</span>))</span><br><span class="line">lstm_ae.add(layers.RepeatVector(timesteps))</span><br><span class="line"><span class="comment"># Decoder</span></span><br><span class="line">lstm_ae.add(layers.LSTM(<span class="number">16</span>, activation=<span class="string">'relu'</span>, return_sequences=<span class="keyword">True</span>))</span><br><span class="line">lstm_ae.add(layers.LSTM(<span class="number">32</span>, activation=<span class="string">'relu'</span>, return_sequences=<span class="keyword">True</span>))</span><br><span class="line">lstm_ae.add(layers.TimeDistributed(layers.Dense(n_features)))</span><br><span class="line"></span><br><span class="line">lstm_ae.summary()</span><br></pre></td></tr></table></figure>
+<p><img src="/image/lstm-autoencoder-code3.PNG"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># compile</span></span><br><span class="line">lstm_ae.compile(loss=<span class="string">'mse'</span>, optimizer=optimizers.Adam(lr))</span><br><span class="line"></span><br><span class="line"><span class="comment"># fit</span></span><br><span class="line">history = lstm_ae.fit(x_train_y0_scaled, x_train_y0_scaled,</span><br><span class="line">                     epochs=epochs, batch_size=batch,</span><br><span class="line">                     validation_data=(x_valid_y0_scaled, x_valid_y0_scaled))</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">Train on 11314 samples, validate on 2830 samples</span><br><span class="line">Epoch 1/200</span><br><span class="line">11314/11314 [==============================] - 4s 393us/sample - loss: 0.8505 - val_loss: 0.6345</span><br><span class="line">Epoch 2/200</span><br><span class="line">11314/11314 [==============================] - 1s 86us/sample - loss: 0.5249 - val_loss: 0.4738</span><br><span class="line">Epoch 3/200</span><br><span class="line">11314/11314 [==============================] - 1s 83us/sample - loss: 0.4049 - val_loss: 0.3784</span><br><span class="line"></span><br><span class="line">	:			:			:			:		</span><br><span class="line"></span><br><span class="line">Epoch 198/200</span><br><span class="line">11314/11314 [==============================] - 1s 94us/sample - loss: 0.1256 - val_loss: 0.1308</span><br><span class="line">Epoch 199/200</span><br><span class="line">11314/11314 [==============================] - 1s 97us/sample - loss: 0.1209 - val_loss: 0.1282</span><br><span class="line">Epoch 200/200</span><br><span class="line">11314/11314 [==============================] - 1s 96us/sample - loss: 0.1212 - val_loss: 0.1308</span><br></pre></td></tr></table></figure>
+<p>train loss와 valid loss 모두 0.1근처로 수렴하고 있다.<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">plt.plot(history.history[<span class="string">'loss'</span>], label=<span class="string">'train loss'</span>)</span><br><span class="line">plt.plot(history.history[<span class="string">'val_loss'</span>], label=<span class="string">'valid loss'</span>)</span><br><span class="line">plt.legend()</span><br><span class="line">plt.xlabel(<span class="string">'Epoch'</span>); plt.ylabel(<span class="string">'loss'</span>)</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure></p>
+<p><img src="/image/lstm-autoencoder-code4.PNG"></p>
+<h3 id="8-Threshold-by-Precision-Recall-Curve"><a href="#8-Threshold-by-Precision-Recall-Curve" class="headerlink" title="8. Threshold by Precision Recall Curve"></a>8. Threshold by Precision Recall Curve</h3><p>normal과 break를 구분하기 위한 threshold를 지정하기 위해 precision recall curve를 적용한다. 주의해야할 것은 디코딩 된 재구성 결과가 아닌 재구성 손실(reconstruction error)와 실제 라벨 값을 비교한다는 것이다.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">valid_x_predictions = lstm_ae.predict(x_valid_scaled)</span><br><span class="line">mse = np.mean(np.power(flatten(x_valid_scaled) - flatten(valid_x_predictions), <span class="number">2</span>), axis=<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">error_df = pd.DataFrame(&#123;<span class="string">'Reconstruction_error'</span>:mse, </span><br><span class="line">                         <span class="string">'True_class'</span>:list(y_valid)&#125;)</span><br><span class="line">precision_rt, recall_rt, threshold_rt = metrics.precision_recall_curve(error_df[<span class="string">'True_class'</span>], error_df[<span class="string">'Reconstruction_error'</span>])</span><br><span class="line"></span><br><span class="line">plt.figure(figsize=(<span class="number">8</span>,<span class="number">5</span>))</span><br><span class="line">plt.plot(threshold_rt, precision_rt[<span class="number">1</span>:], label=<span class="string">'Precision'</span>)</span><br><span class="line">plt.plot(threshold_rt, recall_rt[<span class="number">1</span>:], label=<span class="string">'Recall'</span>)</span><br><span class="line">plt.xlabel(<span class="string">'Threshold'</span>); plt.ylabel(<span class="string">'Precision/Recall'</span>)</span><br><span class="line">plt.legend()</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
+<p><img src="/image/lstm-autoencoder-code5.PNG"></p>
+<p>여기서 threshold의 경우 <strong>Recall과 Precision의 값이 교차되는 지점을 최적의 threshold 지점으로 잡았다.</strong><br>여기서 최적의 threshold는 0.407이다.<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># best position of threshold</span></span><br><span class="line">index_cnt = [cnt <span class="keyword">for</span> cnt, (p, r) <span class="keyword">in</span> enumerate(zip(precision_rt, recall_rt)) <span class="keyword">if</span> p==r][<span class="number">0</span>]</span><br><span class="line">print(<span class="string">'precision: '</span>,precision_rt[index_cnt],<span class="string">', recall: '</span>,recall_rt[index_cnt])</span><br><span class="line"></span><br><span class="line"><span class="comment"># fixed Threshold</span></span><br><span class="line">threshold_fixed = threshold_rt[index_cnt]</span><br><span class="line">print(<span class="string">'threshold: '</span>,threshold_fixed)</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">precision:  0.10752688172043011 , recall:  0.10752688172043011</span><br><span class="line">threshold:  0.40777142413843237</span><br></pre></td></tr></table></figure>
+<h3 id="9-Predict-Test"><a href="#9-Predict-Test" class="headerlink" title="9. Predict Test"></a>9. Predict Test</h3><p>이제 테스트 셋에 적용해볼 차례이다. 학습하였던 LSTM Autoencoder 모델을 통해 테스트 셋을 예측 후 재구성 손실을 계산한다. 그 후 위에서 찾은 threshold를 적용하여 Normal과 Break를 구분한다.<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">test_x_predictions = lstm_ae.predict(x_test_scaled)</span><br><span class="line">mse = np.mean(np.power(flatten(x_test_scaled) - flatten(test_x_predictions), <span class="number">2</span>), axis=<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">error_df = pd.DataFrame(&#123;<span class="string">'Reconstruction_error'</span>: mse,</span><br><span class="line">                         <span class="string">'True_class'</span>: y_test.tolist()&#125;)</span><br><span class="line"></span><br><span class="line">groups = error_df.groupby(<span class="string">'True_class'</span>)</span><br><span class="line">fig, ax = plt.subplots()</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> name, group <span class="keyword">in</span> groups:</span><br><span class="line">    ax.plot(group.index, group.Reconstruction_error, marker=<span class="string">'o'</span>, ms=<span class="number">3.5</span>, linestyle=<span class="string">''</span>,</span><br><span class="line">            label= <span class="string">"Break"</span> <span class="keyword">if</span> name == <span class="number">1</span> <span class="keyword">else</span> <span class="string">"Normal"</span>)</span><br><span class="line">ax.hlines(threshold_fixed, ax.get_xlim()[<span class="number">0</span>], ax.get_xlim()[<span class="number">1</span>], colors=<span class="string">"r"</span>, zorder=<span class="number">100</span>, label=<span class="string">'Threshold'</span>)</span><br><span class="line">ax.legend()</span><br><span class="line">plt.title(<span class="string">"Reconstruction error for different classes"</span>)</span><br><span class="line">plt.ylabel(<span class="string">"Reconstruction error"</span>)</span><br><span class="line">plt.xlabel(<span class="string">"Data point index"</span>)</span><br><span class="line">plt.show();</span><br></pre></td></tr></table></figure></p>
+<p><img src="/image/lstm-autoencoder-code6.PNG"></p>
+<h3 id="10-Evaluation"><a href="#10-Evaluation" class="headerlink" title="10. Evaluation"></a>10. Evaluation</h3><h4 id="confusion-matrix"><a href="#confusion-matrix" class="headerlink" title="confusion matrix"></a>confusion matrix</h4><p>테스트 셋에 대한 재구성 손실을 threshold를 기준으로 0/1로 나누고 이를 confusion matrix로 표현하였다.<br>Break에 대한 예측 결과가 실망스러울 수 있지만 이렇게 Sheet Break의 10%만 줄여도 엄청난 손실을 줄일 수 있다고 한다.<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># classification by threshold</span></span><br><span class="line">pred_y = [<span class="number">1</span> <span class="keyword">if</span> e &gt; threshold_fixed <span class="keyword">else</span> <span class="number">0</span> <span class="keyword">for</span> e <span class="keyword">in</span> error_df[<span class="string">'Reconstruction_error'</span>].values]</span><br><span class="line"></span><br><span class="line">conf_matrix = metrics.confusion_matrix(error_df[<span class="string">'True_class'</span>], pred_y)</span><br><span class="line">plt.figure(figsize=(<span class="number">7</span>, <span class="number">7</span>))</span><br><span class="line">sns.heatmap(conf_matrix, xticklabels=LABELS, yticklabels=LABELS, annot=<span class="keyword">True</span>, fmt=<span class="string">'d'</span>)</span><br><span class="line">plt.title(<span class="string">'Confusion Matrix'</span>)</span><br><span class="line">plt.xlabel(<span class="string">'Predicted Class'</span>); plt.ylabel(<span class="string">'True Class'</span>)</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure></p>
+<p><img src="/image/lstm-autoencoder-code7.PNG"></p>
+<h4 id="ROC-Curve-and-AUC"><a href="#ROC-Curve-and-AUC" class="headerlink" title="ROC Curve and AUC"></a>ROC Curve and AUC</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">false_pos_rate, true_pos_rate, thresholds = metrics.roc_curve(error_df[<span class="string">'True_class'</span>], error_df[<span class="string">'Reconstruction_error'</span>])</span><br><span class="line">roc_auc = metrics.auc(false_pos_rate, true_pos_rate,)</span><br><span class="line"></span><br><span class="line">plt.plot(false_pos_rate, true_pos_rate, linewidth=<span class="number">5</span>, label=<span class="string">'AUC = %0.3f'</span>% roc_auc)</span><br><span class="line">plt.plot([<span class="number">0</span>,<span class="number">1</span>],[<span class="number">0</span>,<span class="number">1</span>], linewidth=<span class="number">5</span>)</span><br><span class="line"></span><br><span class="line">plt.xlim([<span class="number">-0.01</span>, <span class="number">1</span>])</span><br><span class="line">plt.ylim([<span class="number">0</span>, <span class="number">1.01</span>])</span><br><span class="line">plt.legend(loc=<span class="string">'lower right'</span>)</span><br><span class="line">plt.title(<span class="string">'Receiver operating characteristic curve (ROC)'</span>)</span><br><span class="line">plt.ylabel(<span class="string">'True Positive Rate'</span>); plt.xlabel(<span class="string">'False Positive Rate'</span>)</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
+<p><img src="/image/lstm-autoencoder-code8.PNG"></p>
+<h3 id="11-Result"><a href="#11-Result" class="headerlink" title="11. Result"></a>11. Result</h3><p>최종적으로 테스트 셋에 대한 재구성 손실을 threshold를 통해 구분한 <code>pred_y</code>의 마지막 5번째(timestep만큼)을 출력하여 예측 결과를 확인할 수 있다.<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pred_y[<span class="number">-5</span>:]  <span class="comment"># [0, 0, 1, 0, 0]</span></span><br></pre></td></tr></table></figure></p>
+<p>위 결과를 해석하기가 애매모호한 부분이 있지만, 대략 넓게 잡았을 때 최소 10분 이내에는 Break가 발생할 것 같다고 해석할 수 있을 것이다.</p>
+<hr>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ul>
+<li><a href="https://towardsdatascience.com/extreme-rare-event-classification-using-autoencoders-in-keras-a565b386f098" target="_blank" rel="noopener">Extreme Rare Event Classification using Autoencoders in Keras</a></li>
+<li><a href="https://towardsdatascience.com/lstm-autoencoder-for-extreme-rare-event-classification-in-keras-ce209a224cfb" target="_blank" rel="noopener">LSTM Autoencoder for Extreme Rare Event Classification in Keras</a></li>
+<li><a href="http://colah.github.io/posts/2015-08-Understanding-LSTMs/" target="_blank" rel="noopener">Understanding LSTM Networks</a></li>
+<li><a href="https://m.blog.naver.com/PostView.nhn?blogId=chunjein&amp;logNo=221589624838&amp;proxyReferer=https%3A%2F%2Fwww.google.com%2F" target="_blank" rel="noopener">LSTM TimeDistributed layer</a></li>
+<li><a href="https://stackoverflow.com/questions/51749404/how-to-connect-lstm-layers-in-keras-repeatvector-or-return-sequence-true" target="_blank" rel="noopener">How to connect LSTM layers in Keras, RepeatVector or return_sequence=True?</a></li>
+</ul>
+
+  <p><a class="classtest-link" href="/tags/autoencoder/">autoencoder</a>, <a class="classtest-link" href="/tags/deeplearning/">deeplearning</a>, <a class="classtest-link" href="/tags/lstm/">lstm</a>, <a class="classtest-link" href="/tags/lstmautoencoder/">lstmautoencoder</a>, <a class="classtest-link" href="/tags/machinelearning/">machinelearning</a>, <a class="classtest-link" href="/tags/prediction/">prediction</a>, <a class="classtest-link" href="/tags/shifting/">shifting</a>, <a class="classtest-link" href="/tags/windowing/">windowing</a> — Feb 29, 2020</p>
+  
+  <hr>
+<section id="comments" class="mt-2 mb-3">
+
+  <div id="disqus_thread">
+    <a href="#" class="button button-primary" onclick="loadDisqus();return false;">View / Make Comments</a>
+  </div>
+
+  <script>
+    var disqus_config = function() {
+      this.page.url = 'https://jaehyeongan.github.io/2020/02/29/LSTM-Autoencoder-for-Anomaly-Detection/index.html';
+      this.page.identifier = '2020/02/29/LSTM-Autoencoder-for-Anomaly-Detection/index.html';
+      this.page.title = 'LSTM Autoencoder for Anomaly Detection';
+    };
+
+    var is_disqus_loaded = false;
+
+    function loadDisqus() {
+      if (!is_disqus_loaded) {
+        is_disqus_loaded = true;
+
+        var d = document,
+          s = d.createElement('script');
+        s.src = 'https://jaehyeongan.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+      }
+    }
+
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</section>
+
+
+
+          <div class="row mt-2">
+  
+    <div class="eight columns">
+      <p id="madewith">Made with ❤ and
+        <a class="footer-link icon" href="https://hexo.io" target="_blank" style="text-decoration: none;" rel="noreferrer" aria-label="Hexo.io">
+        <svg class="hexo svg-hov" width="14" role="img" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24"><title>Hexo.js</title><path d="M12 .007L1.57 6.056V18.05L12 23.995l10.43-6.049V5.952L12 .007zm4.798 17.105l-.939.521-.939-.521V12.94H9.08v4.172l-.94.521-.938-.521V6.89l.939-.521.939.521v4.172h5.84V6.89l.94-.521.938.521v10.222z"/></svg>
+        </a>
+        
+        at <a href="https://en.wikipedia.org/wiki/Earth" target="_blank" rel="noreferrer">Earth</a>.</p>
+        
+    </div>
+
+    <!-- Sepcial thanks to https://simpleicons.org/ for the icons -->
+    <div class="four columns mb-3 posisi">
+      
+      <a class="ml-0 footer-link icon" href="https://github.com/jaehyeongAN" target="_blank" style="text-decoration: none" rel="noreferrer" aria-label="GitHub">
+        <svg class="github svg-hov" width="18" role="img" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>GitHub</title><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+      </a>
+      
+
+      
+      <a class="ml-0 footer-link icon" href="https://www.linkedin.com/in/jaehyeong-an-005603160/" target="_blank" style="text-decoration: none" rel="noreferrer" aria-label="LinkedIn">
+        <svg class="linkedin svg-hov" width="18" role="img" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>LinkedIn</title><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+      </a>
+      
+
+      
+
+      
+      <a class="ml-0 footer-link icon" href="https://www.instagram.com/an_jh.ds/" target="_blank" style="text-decoration: none" rel="noreferrer" aria-label="Instagram">
+        <svg class="instagram svg-hov" width="18" role="img" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>Instagram</title><path d="M12 0C8.74 0 8.333.015 7.053.072 5.775.132 4.905.333 4.14.63c-.789.306-1.459.717-2.126 1.384S.935 3.35.63 4.14C.333 4.905.131 5.775.072 7.053.012 8.333 0 8.74 0 12s.015 3.667.072 4.947c.06 1.277.261 2.148.558 2.913.306.788.717 1.459 1.384 2.126.667.666 1.336 1.079 2.126 1.384.766.296 1.636.499 2.913.558C8.333 23.988 8.74 24 12 24s3.667-.015 4.947-.072c1.277-.06 2.148-.262 2.913-.558.788-.306 1.459-.718 2.126-1.384.666-.667 1.079-1.335 1.384-2.126.296-.765.499-1.636.558-2.913.06-1.28.072-1.687.072-4.947s-.015-3.667-.072-4.947c-.06-1.277-.262-2.149-.558-2.913-.306-.789-.718-1.459-1.384-2.126C21.319 1.347 20.651.935 19.86.63c-.765-.297-1.636-.499-2.913-.558C15.667.012 15.26 0 12 0zm0 2.16c3.203 0 3.585.016 4.85.071 1.17.055 1.805.249 2.227.415.562.217.96.477 1.382.896.419.42.679.819.896 1.381.164.422.36 1.057.413 2.227.057 1.266.07 1.646.07 4.85s-.015 3.585-.074 4.85c-.061 1.17-.256 1.805-.421 2.227-.224.562-.479.96-.899 1.382-.419.419-.824.679-1.38.896-.42.164-1.065.36-2.235.413-1.274.057-1.649.07-4.859.07-3.211 0-3.586-.015-4.859-.074-1.171-.061-1.816-.256-2.236-.421-.569-.224-.96-.479-1.379-.899-.421-.419-.69-.824-.9-1.38-.165-.42-.359-1.065-.42-2.235-.045-1.26-.061-1.649-.061-4.844 0-3.196.016-3.586.061-4.861.061-1.17.255-1.814.42-2.234.21-.57.479-.96.9-1.381.419-.419.81-.689 1.379-.898.42-.166 1.051-.361 2.221-.421 1.275-.045 1.65-.06 4.859-.06l.045.03zm0 3.678c-3.405 0-6.162 2.76-6.162 6.162 0 3.405 2.76 6.162 6.162 6.162 3.405 0 6.162-2.76 6.162-6.162 0-3.405-2.76-6.162-6.162-6.162zM12 16c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4zm7.846-10.405c0 .795-.646 1.44-1.44 1.44-.795 0-1.44-.646-1.44-1.44 0-.794.646-1.439 1.44-1.439.793-.001 1.44.645 1.44 1.439z"/></svg>
+      </a>
+      
+
+    </div>
+  
+</div>
+
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+  <script src="/js/nanobar.min.js"></script>
+  <script>
+    var options = {
+      classname: 'nanobar',
+      id: 'myNanobar'
+    };
+    var nanobar = new Nanobar(options);
+    nanobar.go(30);
+    nanobar.go(76);
+    nanobar.go(100);
+  </script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</body>
+
+</html>

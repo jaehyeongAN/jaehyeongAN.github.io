@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head><meta name="generator" content="Hexo 3.9.0">
+
+  <!-- Minima -->
+  <!-- Hexo theme created by @adisaktijrs -->
+
+  <!-- Basic Page Needs
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta charset="utf-8">
+
+  
+  <title>선형 모델(Linear Model)</title>
+  
+  <link rel="sitemap" href="https://jaehyeongan.github.iositemap.xml">
+  
+  <link rel="canonical" href="https://jaehyeongan.github.io/2019/04/25/Linear-Regression/">
+  
+  <meta name="description" content="Intro머신러닝을 원리를 이해하기 위해 가장 먼저 배우게 되는 선형 모델(linear models)에 대한 글이다. 선형 모델은 100여 년 전게 개발되었고, 지난 몇십 년 동안 폭넓게 연구되고 현재도 널리 쓰이고 있다. 기본적으로 선형 모델은 입력 특성에 대한 선형">
+  
+  
+  <meta name="author" content>
+  
+  <meta property="og:image" content="https://jaehyeongan.github.ioundefined">
+  
+  <meta property="og:site_name" content="jaehyeong&#39;s ds">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="선형 모델(Linear Model)">
+  
+  <meta property="og:description" content="Intro머신러닝을 원리를 이해하기 위해 가장 먼저 배우게 되는 선형 모델(linear models)에 대한 글이다. 선형 모델은 100여 년 전게 개발되었고, 지난 몇십 년 동안 폭넓게 연구되고 현재도 널리 쓰이고 있다. 기본적으로 선형 모델은 입력 특성에 대한 선형">
+  
+  <meta property="og:url" content="https://jaehyeongan.github.io/2019/04/25/Linear-Regression/">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="선형 모델(Linear Model)">
+  
+  <meta name="twitter:description" content="Intro머신러닝을 원리를 이해하기 위해 가장 먼저 배우게 되는 선형 모델(linear models)에 대한 글이다. 선형 모델은 100여 년 전게 개발되었고, 지난 몇십 년 동안 폭넓게 연구되고 현재도 널리 쓰이고 있다. 기본적으로 선형 모델은 입력 특성에 대한 선형">
+  
+  
+  <meta name="twitter:image" content="https://jaehyeongan.github.ioundefined">
+  
+  <meta name="twitter:url" content="https://jaehyeongan.github.io/2019/04/25/Linear-Regression/">
+
+  <!-- Mobile Specific Metas
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Preload fonts
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="preload" href="../fonts/dm-serif-display-v4-latin-regular.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="../fonts/inter-v2-latin-regular.woff2" as="font" type="font/woff2" crossorigin>
+
+  <!-- CSS
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="stylesheet" href="/css/normalize.css">
+  <link rel="stylesheet" href="/css/skeleton.css">
+  <link rel="stylesheet" href="/css/custom.css">
+  <link rel="stylesheet" href="/css/prism-dark.css">
+  <link rel="stylesheet" href="/css/prism-line-numbers.css">
+  <!-- User css -->
+  
+  <link rel="stylesheet" href="/css/user.css">
+  
+
+  <!-- Favicon
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="icon" type="image/png" href="/images/astronaut.png">
+
+  <!-- Custom Theme Color Style
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <style>
+  a:not(.icon) {
+    text-decoration-color: #0FA0CE;
+    background-image: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0) 50%,
+      #0FA0CE 50%
+    );
+  }
+  blockquote {
+    border-left: 8px solid #0FA0CE;
+  }
+  .nanobar .bar {
+    background: #0FA0CE;
+  }
+  .button.button-primary:hover,
+  button.button-primary:hover,
+  input[type="submit"].button-primary:hover,
+  input[type="reset"].button-primary:hover,
+  input[type="button"].button-primary:hover,
+  .button.button-primary:focus,
+  button.button-primary:focus,
+  input[type="submit"].button-primary:focus,
+  input[type="reset"].button-primary:focus,
+  input[type="button"].button-primary:focus {
+    background-color: #0FA0CE;
+    border-color: #0FA0CE;
+  }
+  input[type="email"]:focus,
+  input[type="number"]:focus,
+  input[type="search"]:focus,
+  input[type="text"]:focus,
+  input[type="tel"]:focus,
+  input[type="url"]:focus,
+  input[type="password"]:focus,
+  textarea:focus,
+  select:focus {
+    border: 1px solid #0FA0CE;
+  }
+</style>
+
+  <!-- Google Analytics (With Privacy Settings On)
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  
+
+</head>
+
+<body>
+  <div class="container">
+    <div class="row">
+      <div>
+
+        <div class="row">
+  <div class="two columns" style="max-width: 50px">
+    <h1 class="mt-2 mode">
+      <div onclick="setDarkMode(true)" id="darkBtn">🌑</div>
+      <div onclick="setDarkMode(false)" id="lightBtn" class="hidden">☀️</div>
+      <script>
+        if (localStorage.getItem('preferredTheme') == 'dark') {
+          setDarkMode(true)
+        }
+        function setDarkMode(isDark) {
+          var darkBtn = document.getElementById('darkBtn')
+          var lightBtn = document.getElementById('lightBtn')
+          if (isDark) {
+            lightBtn.style.display = "block"
+            darkBtn.style.display = "none"
+            localStorage.setItem('preferredTheme', 'dark');
+          } else {
+            lightBtn.style.display = "none"
+            darkBtn.style.display = "block"
+            localStorage.removeItem('preferredTheme');
+          }
+          document.body.classList.toggle("darkmode");
+        }
+      </script>
+    </h1>
+  </div>
+
+  <div class="six columns ml-1">
+    <h1 class="mt-2">
+      ⬅ Click this.
+    </h1>
+  </div>
+
+  <div class="twelve columns">
+    <div class="row">
+      <div class="nine columns left">
+        <a href="/">Home</a>
+        
+          
+          <a href="/about" class="ml">About</a>
+          
+        
+        
+          
+            <a href="mailto:nonamed000000@gmail.com" target="_blank" class="ml">Email</a>
+          
+        
+      </div>
+    </div>
+    <hr style="margin-bottom: 2.6rem">
+  </div>
+</div>
+
+        <div class="trans">
+            <h2>선형 모델(Linear Model)</h2>
+
+  <h2 id="Intro"><a href="#Intro" class="headerlink" title="Intro"></a>Intro</h2><p>머신러닝을 원리를 이해하기 위해 가장 먼저 배우게 되는 선형 모델(linear models)에 대한 글이다. 선형 모델은 100여 년 전게 개발되었고, 지난 몇십 년 동안 폭넓게 연구되고 현재도 널리 쓰이고 있다. 기본적으로 선형 모델은 입력 특성에 대한 선형 함수를 만들어 예측을 수행한다.</p>
+<hr>
+<h2 id="Linear-Regression-선형-회귀"><a href="#Linear-Regression-선형-회귀" class="headerlink" title="Linear Regression(선형 회귀)"></a>Linear Regression(선형 회귀)</h2><p>회귀의 경우 선형 모델을 위한 일반화된 예측 함수는 아래와 같다. </p>
+<p><img src="/image/linear_.JPG" width="500" height="400"></p>
+<p>위 식에서 x[0]부터 x[n]까지는 하나의 데이터 포인트에 대한 특성을 나타내며(특성의 개수는 n+1), w와 b는 모델이 학습할 파라미터이다.그리고 y^은 모델이 만들어낸 예측값이다.<br>위 식은 특성이 하나인 데이터 셋이라면 아래와 같이 1차 방정식으로 단순하게 나타낼 수 있다. </p>
+<p><img src="/image/linear_2.JPG" width="130" height="400"></p>
+<p>w[0]는 기울기이고, b는 y축과 만나는 절편(또는 편향)이다. 특성이 많아지면 w는 각 특성에 해당하는 기울기를 모두 가진다. </p>
+<p><img src="/image/linear_regression.png" width="400" height="400"><br>[선형 회귀]</p>
+<p></p><p></p><br>선형 회귀는 가장 간단하고 오래된 회귀용 선형 알고리즘이다. 선형 회귀는 예측 값 y^과 실제 값 y 사이의 평균제곱오차(mean squared error)를 최소화 하는 파라미터 w와 b를 찾는다. 평균제곱 오차는 예측값(y^)과 실제값(y)의 차이를 제곱하여 더한 후에 샘플 개수로 나눈 값이다.<p></p>
+<p><img src="/image/mse.JPG" width="350" height="400"></p>
+<p></p><p></p><br>아래는 scikit-learn의 LinearRegression을 통해 boston house price를 통한 집 값 예측을 수행하는 코드이다.<p></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">from</span> sklearn.datasets <span class="keyword">import</span> load_boston</span><br><span class="line"><span class="keyword">from</span> sklearn.model_selection <span class="keyword">import</span> train_test_split</span><br><span class="line"><span class="keyword">from</span> sklearn.metrics <span class="keyword">import</span> mean_squared_error</span><br><span class="line"></span><br><span class="line"><span class="comment"># dataset</span></span><br><span class="line">X, y = load_boston(<span class="keyword">True</span>)</span><br><span class="line">X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">####### Linear Regression #######</span></span><br><span class="line">lin_reg = LinearRegression().fit(X_train, y_train)</span><br><span class="line">train_pred = lin_reg.predict(X_train)</span><br><span class="line">test_pred = lin_reg.predict(X_test)</span><br><span class="line"></span><br><span class="line">print(<span class="string">'MSE of train set: '</span>, mean_squared_error(y_train, train_pred)) <span class="comment"># 19.640</span></span><br><span class="line">print(<span class="string">'MSE of test set: '</span>, mean_squared_error(y_test, test_pred))    <span class="comment"># 29.782</span></span><br></pre></td></tr></table></figure>
+<p>training set과 test set에 대한 MSE가 각각 19.6, 29.7로 나타났다. 이는 모델이 training set에 과대적합(Overfitting)되었다는 이야기다. 하지만 선형회귀에서는 이런 과대적합을 방지할 규제(regularization)방안이 없다. 때문에 규제 방안이 포함되어 있는 알고리즘(Ridge, Lasso, ElasticNet 등)을 이용하는 것이 효율적일 수 있다. 이는 좀 더 아래에서 살펴볼 것이다.<br><br> </p>
+<h2 id="Polynomial-Regression-다항-회귀"><a href="#Polynomial-Regression-다항-회귀" class="headerlink" title="Polynomial Regression(다항 회귀)"></a>Polynomial Regression(다항 회귀)</h2><p>가지고 있는 데이터가 단순한 직선보다 복잡한 형태라면 어떻게 선형회귀를 적용해야 할까? 신기하게도 비선형(Non-lieaner) 데이터를 학습하는 데 선형 모델을 사용할 수 있다. 바로 각 특성의 거듭제곱을 새로운 특성으로 추가하고, 이 확장된 특성을 포함한 데이터셋에 선형 모델을 훈련시키는 것이다. 이런 기법을 다항 회귀(Polynomial Regression)이라고 한다.</p>
+<p>만약 아래와 같이 임의로 만든 2차 방정식의 비선형 데이터가 있다고 해보자.<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">m = <span class="number">100</span></span><br><span class="line">X = <span class="number">6</span> * np.random.rand(m,<span class="number">1</span>)<span class="number">-3</span></span><br><span class="line">y = <span class="number">0.5</span>*X**<span class="number">2</span>+X+<span class="number">2</span>+np.random.randn(m,<span class="number">1</span>)</span><br></pre></td></tr></table></figure></p>
+<p><img src="/image/polynomial_data.png" width="400" height="400"></p>
+<p>위와 같은 데이터가 non-linear 데이터인데 선형회귀 모델을 위 데이터에 적용해보면,<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">lin_reg = LinearRegression()</span><br><span class="line">lin_reg.fit(X, y)</span><br><span class="line">pred = lin_reg.predict(X)</span><br></pre></td></tr></table></figure></p>
+<p><img src="/image/predict_poly.JPG" width="400" height="400"></p>
+<p>위 그림과 같이 데이터의 비선형적 패턴을 전혀 파악하지 못한 채 1차 직선으로만 예측을 하게 된다.<br>이제 이러한 비선형 데이터를 선형 예측하기 위해 위 데이터에 각 특성을 제곱하여 새로운 특성을 추가한다. </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> sklearn.preprocessing <span class="keyword">import</span> PolynomialFeatures</span><br><span class="line">poly_features = PolynomialFeatures(degree=<span class="number">2</span>, include_bias=<span class="keyword">False</span>)</span><br><span class="line">X_poly = poly_features.fit_transform(X)</span><br><span class="line"></span><br><span class="line">lin_reg = LinearRegression()</span><br><span class="line">lin_reg.fit(X_poly, y)</span><br><span class="line">pred = lin_reg.predict(X_poly)</span><br></pre></td></tr></table></figure>
+<p><img src="/image/poly_predict.png" width="400" height="400"><br>데이터에 새로운 다항 특성을 추가하였을 때 선형 모델이 데이터의 패턴을 파악하여 예측하는 특성을 보여주고 있다.<br>위 데이터의 실제 함수는,<br><img src="/image/p_li_1.JPG" width="230" height="400"><br>이고, 예측 모델의 함수는,<br><img src="/image/p_li_2.JPG" width="250" height="400"><br>이므로 실제 값과 예측 값의 차이가 많지 않음을 알 수 있다.<br><br> </p>
+<h2 id="Regularized-Linear-Regression-규제가-있는-선형-모델"><a href="#Regularized-Linear-Regression-규제가-있는-선형-모델" class="headerlink" title="Regularized Linear Regression(규제가 있는 선형 모델)"></a>Regularized Linear Regression(규제가 있는 선형 모델)</h2><p>위에서 살펴보았듯 이 선형 모델의 경우 모델이 훈련 데이터 셋에 과대적합(overfitting)되더라도 모델을 규제할 방안이 없다. 따라서, 과대적합을 감소시키기 위해서는 모델의 가중치(weight)를 규제(제한)함으로써 과대적합되기 어렵게 만들어야 한다.</p>
+<p>이렇게 가중치를 제한하는 알고리즘으로 릿지(Ridge), 라쏘(Lasso), 엘라스팃넷(ElasticNet) 회귀에 대해 살펴보려고 한다. </p>
+<h4 id="1-Ridge-Regression-릿지-회귀"><a href="#1-Ridge-Regression-릿지-회귀" class="headerlink" title="1. Ridge Regression(릿지 회귀)"></a>1. Ridge Regression(릿지 회귀)</h4><p>선형 회귀에 규제가 추가된 회귀 모델이다. 규제항이 비용함수에 추가 되며 이는 학습 알고리즘을 데이터에 맞추는 것뿐만 아니라 모델의 가중치가 가능한 한 작게 유지되도록 한다. 규제항은 훈련하는 동안에만 비용함수에 추가되고, 훈련이 끝나면 모델의 성능을 규제가 없는 성능 지표로 평가한다.</p>
+<ul>
+<li>선형회귀에 규제(L2: 가중치들의 제곱합을 최소화)를 걸어 과대적합을 방지</li>
+<li>하이퍼파라미터 a(alpha)는 모델을 얼마나 규제할지 조절 </li>
+<li>a = 0 이면, 릿지 회쉬는 선형회귀와 같음</li>
+<li><p>a 가 아주 크면 모든 가중치가 거의 0에 가까워지고 결국 데이터의 평균을 지나는 수평선이 됨<br><br><br>릿지 회귀의 비용함수는 아래 수식과 같다.<br><img src="/image/ridge_mse.JPG" width="350" height="400"></p>
+<p>위에서 보았던 boston house price 예측에 ridge 회귀를 적용할 경우 선형 회귀보다 더 나은 성능을 얻을 수 있다.</p>
+</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">####### Ridge Regression ####### </span></span><br><span class="line"><span class="keyword">from</span> sklearn.linear_model <span class="keyword">import</span> Ridge</span><br><span class="line"></span><br><span class="line">ridge = Ridge(alpha=<span class="number">0.1</span>).fit(X_train, y_train)</span><br><span class="line">train_pred = ridge.predict(X_train)</span><br><span class="line">test_pred = ridge.predict(X_test)</span><br><span class="line"></span><br><span class="line">print(<span class="string">'MSE of train set: '</span>, mean_squared_error(y_train, train_pred)) <span class="comment"># 19.645</span></span><br><span class="line">print(<span class="string">'MSE of test set: '</span>, mean_squared_error(y_test, test_pred))    <span class="comment"># 29.878</span></span><br></pre></td></tr></table></figure>
+<p><br> </p>
+<h4 id="2-Lasso-Regression-라쏘-회귀"><a href="#2-Lasso-Regression-라쏘-회귀" class="headerlink" title="2. Lasso Regression(라쏘 회귀)"></a>2. Lasso Regression(라쏘 회귀)</h4><p>라쏘 회귀 역시 선형 회귀에 규제가 추가된 모델이며, 릿지 회귀에서 사용된 L2 규제가 아닌 가중치 벡터의 L1 노름을 사용한다. 라쏘 회귀의 가장 중효한 특징은 덜 중요한 특성의 가중치를 완전히 제거하려고 한다는 것이다. </p>
+<ul>
+<li>자동으로 덜 중요한 특성을 제거하는 특성 선택(feature selection)을 수행하고 희소 모델(spare model)을 만듬(즉, 0이아닌 특성의 가중치가 작음)</li>
+<li><p>이를 통해 모델을 이해하기 쉬워지고 모델의 가장 중요한 특성이 무엇인지 파악 가능<br></p><p></p><br>라쏘 회귀의 비용함수는 아래 수식과 같다.<br><img src="/image/lasso_mse.JPG" width="350" height="400"><p></p>
+<p>마찬가지로 boston house에 Lasso 모델을 적용한다.  lasso모델의 coef_ 파라미터를 이용하면 몇 개의 특성이 제외되고 사용되었는지 알 수 있다.</p>
+</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">####### Lasso Regression #######</span></span><br><span class="line"><span class="keyword">from</span> sklearn.linear_model <span class="keyword">import</span> Lasso</span><br><span class="line"></span><br><span class="line">lasso = Lasso(alpha=<span class="number">0.01</span>, max_iter=<span class="number">100000</span>).fit(X_train, y_train)</span><br><span class="line">train_pred = lasso.predict(X_train)</span><br><span class="line">test_pred = lasso.predict(X_test)</span><br><span class="line"></span><br><span class="line">print(<span class="string">'MSE of train set: '</span>, mean_squared_error(y_train, train_pred)) <span class="comment"># 19.678</span></span><br><span class="line">print(<span class="string">'MSE of test set: '</span>, mean_squared_error(y_test, test_pred))    <span class="comment"># 30.091</span></span><br><span class="line">print(<span class="string">'사용한 특성의 수 : '</span>,np.sum(lasso.coef_ != <span class="number">0</span>))					 <span class="comment"># 13</span></span><br></pre></td></tr></table></figure>
+<p><br> </p>
+<h4 id="3-Elastic-Net-엘라스틱넷"><a href="#3-Elastic-Net-엘라스틱넷" class="headerlink" title="3. Elastic Net(엘라스틱넷)"></a>3. Elastic Net(엘라스틱넷)</h4><p>엘라스틱넷은 릿지 회귀와 라쏘 회귀를 절충한 모델이다. 규제항은 릿지와 회귀의 규제항을 단순히 더해서 사용하며, 혼합 정도는 혼합 비율 r을 사용해 조절한다. </p>
+<ul>
+<li>r = 0이면, 엘라스틱넷은 릿지 회귀와 같고,</li>
+<li><p>r = 1이면, 라쏘 회귀와 같아짐</p>
+<p></p><p></p><br>엘라스틱넷의 비용함수는 아래 수식과 같다.<br><img src="/image/elasticnet_mse.JPG" width="350" height="400"><p></p>
+<p>elastic net도 boston house price에 적용.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">####### ElasticNet #######</span></span><br><span class="line"><span class="keyword">from</span> sklearn.linear_model <span class="keyword">import</span> ElasticNet</span><br><span class="line"></span><br><span class="line">elastic = ElasticNet(alpha=<span class="number">0.001</span>, max_iter=<span class="number">10000000</span>).fit(X_train, y_train)</span><br><span class="line">train_pred = elastic.predict(X_train)</span><br><span class="line">test_pred = elastic.predict(X_test)</span><br><span class="line"></span><br><span class="line">print(<span class="string">'MSE of train set: '</span>, mean_squared_error(y_train, train_pred)) <span class="comment"># 19.657</span></span><br><span class="line">print(<span class="string">'MSE of test set: '</span>, mean_squared_error(y_test, test_pred))    <span class="comment"># 29.974</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="Outro"><a href="#Outro" class="headerlink" title="Outro"></a>Outro</h2><p>그렇다면 선형회귀, 릿지, 라쏘, 엘라스틱넷을 각각 언제, 어떤 상황에 사용해야 좋을까?<br>적어도 규제가 있는 모델이 대부분의 상황에서 좋으므로 일반적으로 선형회귀 모델을 사용하는 것은 피하는 것이 좋다.</p>
+<ul>
+<li>기본적으로 ridge 회귀가 기본이 되어 사용 됨</li>
+<li>하지만, 특성이 많고 그 중 일부분만 중요하다면 lasso나 elastic net이 더 좋은 선택일 수 있음</li>
+<li>또한, 특성 수가 훈련 샘플 수보다 많거나 특성 몇 개가 강하게 연관되어 있을 때는 lasso보다는 elastic net이 선호 됨</li>
+</ul>
+
+  <p><a class="classtest-link" href="/tags/elsasticnet/">elsasticnet</a>, <a class="classtest-link" href="/tags/lasso/">lasso</a>, <a class="classtest-link" href="/tags/linear/">linear</a>, <a class="classtest-link" href="/tags/regression/">regression</a>, <a class="classtest-link" href="/tags/ridge/">ridge</a> — Apr 25, 2019</p>
+  
+  <hr>
+<section id="comments" class="mt-2 mb-3">
+
+  <div id="disqus_thread">
+    <a href="#" class="button button-primary" onclick="loadDisqus();return false;">View / Make Comments</a>
+  </div>
+
+  <script>
+    var disqus_config = function() {
+      this.page.url = 'https://jaehyeongan.github.io/2019/04/25/Linear-Regression/index.html';
+      this.page.identifier = '2019/04/25/Linear-Regression/index.html';
+      this.page.title = '선형 모델(Linear Model)';
+    };
+
+    var is_disqus_loaded = false;
+
+    function loadDisqus() {
+      if (!is_disqus_loaded) {
+        is_disqus_loaded = true;
+
+        var d = document,
+          s = d.createElement('script');
+        s.src = 'https://jaehyeongan.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+      }
+    }
+
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</section>
+
+
+
+          <div class="row mt-2">
+  
+    <div class="eight columns">
+      <p id="madewith">Made with ❤ and
+        <a class="footer-link icon" href="https://hexo.io" target="_blank" style="text-decoration: none;" rel="noreferrer" aria-label="Hexo.io">
+        <svg class="hexo svg-hov" width="14" role="img" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24"><title>Hexo.js</title><path d="M12 .007L1.57 6.056V18.05L12 23.995l10.43-6.049V5.952L12 .007zm4.798 17.105l-.939.521-.939-.521V12.94H9.08v4.172l-.94.521-.938-.521V6.89l.939-.521.939.521v4.172h5.84V6.89l.94-.521.938.521v10.222z"/></svg>
+        </a>
+        
+        at <a href="https://en.wikipedia.org/wiki/Earth" target="_blank" rel="noreferrer">Earth</a>.</p>
+        
+    </div>
+
+    <!-- Sepcial thanks to https://simpleicons.org/ for the icons -->
+    <div class="four columns mb-3 posisi">
+      
+      <a class="ml-0 footer-link icon" href="https://github.com/jaehyeongAN" target="_blank" style="text-decoration: none" rel="noreferrer" aria-label="GitHub">
+        <svg class="github svg-hov" width="18" role="img" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>GitHub</title><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+      </a>
+      
+
+      
+      <a class="ml-0 footer-link icon" href="https://www.linkedin.com/in/jaehyeong-an-005603160/" target="_blank" style="text-decoration: none" rel="noreferrer" aria-label="LinkedIn">
+        <svg class="linkedin svg-hov" width="18" role="img" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>LinkedIn</title><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+      </a>
+      
+
+      
+
+      
+      <a class="ml-0 footer-link icon" href="https://www.instagram.com/an_jh.ds/" target="_blank" style="text-decoration: none" rel="noreferrer" aria-label="Instagram">
+        <svg class="instagram svg-hov" width="18" role="img" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>Instagram</title><path d="M12 0C8.74 0 8.333.015 7.053.072 5.775.132 4.905.333 4.14.63c-.789.306-1.459.717-2.126 1.384S.935 3.35.63 4.14C.333 4.905.131 5.775.072 7.053.012 8.333 0 8.74 0 12s.015 3.667.072 4.947c.06 1.277.261 2.148.558 2.913.306.788.717 1.459 1.384 2.126.667.666 1.336 1.079 2.126 1.384.766.296 1.636.499 2.913.558C8.333 23.988 8.74 24 12 24s3.667-.015 4.947-.072c1.277-.06 2.148-.262 2.913-.558.788-.306 1.459-.718 2.126-1.384.666-.667 1.079-1.335 1.384-2.126.296-.765.499-1.636.558-2.913.06-1.28.072-1.687.072-4.947s-.015-3.667-.072-4.947c-.06-1.277-.262-2.149-.558-2.913-.306-.789-.718-1.459-1.384-2.126C21.319 1.347 20.651.935 19.86.63c-.765-.297-1.636-.499-2.913-.558C15.667.012 15.26 0 12 0zm0 2.16c3.203 0 3.585.016 4.85.071 1.17.055 1.805.249 2.227.415.562.217.96.477 1.382.896.419.42.679.819.896 1.381.164.422.36 1.057.413 2.227.057 1.266.07 1.646.07 4.85s-.015 3.585-.074 4.85c-.061 1.17-.256 1.805-.421 2.227-.224.562-.479.96-.899 1.382-.419.419-.824.679-1.38.896-.42.164-1.065.36-2.235.413-1.274.057-1.649.07-4.859.07-3.211 0-3.586-.015-4.859-.074-1.171-.061-1.816-.256-2.236-.421-.569-.224-.96-.479-1.379-.899-.421-.419-.69-.824-.9-1.38-.165-.42-.359-1.065-.42-2.235-.045-1.26-.061-1.649-.061-4.844 0-3.196.016-3.586.061-4.861.061-1.17.255-1.814.42-2.234.21-.57.479-.96.9-1.381.419-.419.81-.689 1.379-.898.42-.166 1.051-.361 2.221-.421 1.275-.045 1.65-.06 4.859-.06l.045.03zm0 3.678c-3.405 0-6.162 2.76-6.162 6.162 0 3.405 2.76 6.162 6.162 6.162 3.405 0 6.162-2.76 6.162-6.162 0-3.405-2.76-6.162-6.162-6.162zM12 16c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4zm7.846-10.405c0 .795-.646 1.44-1.44 1.44-.795 0-1.44-.646-1.44-1.44 0-.794.646-1.439 1.44-1.439.793-.001 1.44.645 1.44 1.439z"/></svg>
+      </a>
+      
+
+    </div>
+  
+</div>
+
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+  <script src="/js/nanobar.min.js"></script>
+  <script>
+    var options = {
+      classname: 'nanobar',
+      id: 'myNanobar'
+    };
+    var nanobar = new Nanobar(options);
+    nanobar.go(30);
+    nanobar.go(76);
+    nanobar.go(100);
+  </script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</body>
+
+</html>

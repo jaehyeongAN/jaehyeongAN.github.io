@@ -188,13 +188,13 @@
 </blockquote>
 <hr>
 <h2 id="1-Flask-설치"><a href="#1-Flask-설치" class="headerlink" title="1. Flask 설치"></a>1. Flask 설치</h2><h4 id="1-flask-프로젝트-폴더-생성"><a href="#1-flask-프로젝트-폴더-생성" class="headerlink" title="1) flask 프로젝트 폴더 생성"></a>1) flask 프로젝트 폴더 생성</h4><p>우선 flask 프로젝트를 수행할 폴더를 본인의 임의 경로에 설치해준다. 나는 아래와 같은 경로에 폴더를 만들었다.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd workspace</span><br><span class="line">workspace &gt; mkdir pyflask</span><br></pre></td></tr></table></figure></p>
-<p><img src="/image/flask_dir.JPG" width="500" height="200"></p>
+<p><img src="/image/flask_dir.JPG" width="500"></p>
 <h4 id="2-가상환경"><a href="#2-가상환경" class="headerlink" title="2) 가상환경"></a>2) 가상환경</h4><p>flask 환경을 위한 virtualenv 가상환경 라이브러리를 설치한다.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install virtualenv</span><br></pre></td></tr></table></figure></p>
 <p>설치 완료 후 본인의 flask 경로 내에서 가상환경을 생성해준다.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">workspace\pyflask &gt; virtualenv venv</span><br></pre></td></tr></table></figure></p>
 <p>정상적으로 실행 시 flask 폴더 내에 venv 폴더가 생성되는데 venv/Scripts 폴더로 이동하여 가상환경을 활성화(active) 한다.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">workspace\pyflask &gt; cd venv/Scripts</span><br><span class="line">workspace\pyflask\venv\Scripts &gt; activate</span><br></pre></td></tr></table></figure></p>
 <h4 id="3-Flask-설치"><a href="#3-Flask-설치" class="headerlink" title="3) Flask 설치"></a>3) Flask 설치</h4><p>위에서 active한 가상환경 내에서 flask를 설치해준다.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(venv) pip install flask</span><br></pre></td></tr></table></figure></p>
 <p>설치완료 된 flask의 버전은 아래처럼 확인할 수 있다.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">flask --version</span><br></pre></td></tr></table></figure></p>
-<p><img src="/image/flask_version.JPG" width="400" height="200"></p>
+<p><img src="/image/flask_version.JPG" width="400"></p>
 <p><br></p>
 <h2 id="2-웹-구성"><a href="#2-웹-구성" class="headerlink" title="2. 웹 구성"></a>2. 웹 구성</h2><p>이제 Flask를 개발할 환경은 구축하였으니, 웹 애플리케이션의 구조를 설계해 볼 것이다.<br>여기서 프로토타입으로 구성해 볼 웬 애플리케이션은 간단하게 메인 페이지로 구성되고, 각 기능을 수행하는 서브 페이지로 이동하게 된다. 이후 사용자로 부터 입력값을 받아 딥러닝 기능 수행 후 그 결과값을 다시 웹으로 출력해주는 구조를 가진다.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">index 		(메인 페이지)</span><br><span class="line">├── nst_get 	(user input 받는 페이지)</span><br><span class="line">└── nst_post	(결과 출력 페이지)</span><br></pre></td></tr></table></figure></p>
 <p><br></p>
@@ -235,13 +235,13 @@
 <p><br></p>
 <h2 id="3-웹-실행"><a href="#3-웹-실행" class="headerlink" title="3. 웹 실행"></a>3. 웹 실행</h2><h4 id="1-Flask-서버-실행"><a href="#1-Flask-서버-실행" class="headerlink" title="1) Flask 서버 실행"></a>1) Flask 서버 실행</h4><p>Flask 서버 실행을 위해 프로젝트 폴더 상위에 아래와 같은 파이썬 코드를 생성하였다.<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pyflask <span class="keyword">import</span> app</span><br><span class="line"></span><br><span class="line">app.run(host=<span class="string">'127.0.0.1'</span>)</span><br></pre></td></tr></table></figure></p>
 <p>위 코드는 _<em>init_</em>.py에서 app 애플리케이션을 실행하게 해주며, 위 파이썬 파일 실행 시 아래와 같이 flask 서버가 실행되게 된다. 이후 브라우저에서 <a href="http://127.0.0.1:5000" target="_blank" rel="noopener">http://127.0.0.1:5000</a> 입력 시 위에서 만든 화면을 확인할 수 있다.</p>
-<p><img src="/image/flask_run.JPG" width="650" height="200"></p>
+<p><img src="/image/flask_run.JPG" width="650"></p>
 <h4 id="2-웹-화면"><a href="#2-웹-화면" class="headerlink" title="2) 웹 화면"></a>2) 웹 화면</h4><ul>
-<li><p>메인 페이지<br><img src="/image/flask_index.JPG" width="1000" height="200"></p>
+<li><p>메인 페이지<br><img src="/image/flask_index.JPG" width="1000"></p>
 </li>
-<li><p>사용자 입력 페이지<br><img src="/image/flask_get.JPG" width="1000" height="200"></p>
+<li><p>사용자 입력 페이지<br><img src="/image/flask_get.JPG" width="1000"></p>
 </li>
-<li><p>결과 출력 페이지<br><img src="/image/flask_result.JPG" width="1000" height="200"></p>
+<li><p>결과 출력 페이지<br><img src="/image/flask_result.JPG" width="1000"></p>
 </li>
 </ul>
 <h2 id="Outro"><a href="#Outro" class="headerlink" title="Outro"></a>Outro</h2><p>Flask는 이번에 간단한 애플리케이션을 적용해보기 위해서 처음 사용해보았다. 이전에 Spring 프레임워크를 통해 프로젝트를 해본 적은 있는데 사용안하지 너무 오래되다보니 까먹기도 했고 환경 구성하는 것도 일이어서 좀 가벼운 Flask를 사용해보게 되었다.</p>

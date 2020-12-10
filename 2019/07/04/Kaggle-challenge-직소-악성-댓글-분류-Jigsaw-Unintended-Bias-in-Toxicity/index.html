@@ -177,7 +177,7 @@
         <div class="trans">
             <h2>[Kaggle challenge] 직소 악성 대화 분류(Jigsaw Unintended Bias in Toxicity Classification)</h2>
 
-  <h2 id="Intro"><a href="#Intro" class="headerlink" title="Intro"></a>Intro</h2><p>얼마 전 캐글에서 구글 Jigsaw/Conversation AI팀에 의해 <a href="https://www.kaggle.com/c/jigsaw-unintended-bias-in-toxicity-classification" target="_blank" rel="noopener">‘Jigsaw Unintended Bias in Toxicity Classification’</a>라는 주제로 competition이 개최되어 호기심에 도전해보았다.<br><img src="/image/jigsaw_competition.JPG" width="700" height="400"> </p>
+  <h2 id="Intro"><a href="#Intro" class="headerlink" title="Intro"></a>Intro</h2><p>얼마 전 캐글에서 구글 Jigsaw/Conversation AI팀에 의해 <a href="https://www.kaggle.com/c/jigsaw-unintended-bias-in-toxicity-classification" target="_blank" rel="noopener">‘Jigsaw Unintended Bias in Toxicity Classification’</a>라는 주제로 competition이 개최되어 호기심에 도전해보았다.<br><img src="/image/jigsaw_competition.JPG" width="700"> </p>
 <p>Jigsaw라는 곳을 처음 들어봤는데 알아보니 구글의 자회사로 온라인 상의 욕설이나 선동적, 폭력적 대화를 잡아내는 기술을 연구하는 곳이었고,<br>Description상에 의한 이 Competition의 주요문제는 다음과 같았다. </p>
 <blockquote>
 <p><strong>현재 Jigsaw의 Conversation AI팀은 Perspective라는 제품을 통해 온라인 상의 악성 대화(위협, 외설, 모욕 등)를 잡아내고 있는데, 모델을 좀 더 정교하게 하여 낮은 에러율의 다양한 악성 대화를 잡아내는 모델을 만드는 것.</strong></p>
@@ -422,7 +422,7 @@ Name: comment_text, dtype: object
        [   0,    0,    0, ..., 1027,  164, 6388],
        [   0,    0,    0, ...,  586,  998, 2593]])
 </code></pre><p>max_len 값은 방금 위에서 sequence로 변환한 데이터 중 가장 많은 word 수를 가지는 데이터의 길이를 받은 것이고,<br>모든 데이터를 그 길이 만큼 맞춰주기 위하여 <strong>pad_seqences()</strong>함수를 통해 0값을 채워주게 된다.<br><br></p>
-<h2 id="6-Embedding-LSTM-model"><a href="#6-Embedding-LSTM-model" class="headerlink" title="6. Embedding + LSTM model"></a>6. Embedding + LSTM model</h2><p><img src="/image/embedding_lstm.png" width="850" height="400"> </p>
+<h2 id="6-Embedding-LSTM-model"><a href="#6-Embedding-LSTM-model" class="headerlink" title="6. Embedding + LSTM model"></a>6. Embedding + LSTM model</h2><p><img src="/image/embedding_lstm.png" width="850"> </p>
 <ul>
 <li>예측을 위해서 embedding 레이어와 lstm 레이어를 연결하여 딥러닝 모델을 구축하였다.</li>
 <li><strong>Embedding 레이어</strong>는 텍스트 데이터의 단어 사이의 의미관계를 학습하는데 효과적이므로 텍스트 데이터 학습시 많이 사용되며,</li>

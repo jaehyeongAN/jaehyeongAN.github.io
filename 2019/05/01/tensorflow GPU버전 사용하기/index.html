@@ -182,24 +182,24 @@
 <hr>
 <h2 id="tensorflow-gpu-설치"><a href="#tensorflow-gpu-설치" class="headerlink" title="tensorflow-gpu 설치"></a>tensorflow-gpu 설치</h2><h4 id="1-CUDA-설치"><a href="#1-CUDA-설치" class="headerlink" title="1. CUDA 설치"></a>1. CUDA 설치</h4><p>우선 CUDA를 설치해야 한다. 현재 CUDA의 경우 최신 버전이 10.2이지만, 확인 결과 아직까지는 공식적으로 tensorflow가 CUDA 10.0버전까지만 지원한다. </p>
 <p><a href="https://developer.nvidia.com/cuda-toolkit-archive" target="_blank" rel="noopener">CUDA Toolkit Arcive(https://developer.nvidia.com/cuda-toolkit-archive)</a>로 이동하여 아래 화면과 같이 <strong>CUDA Toolkit 10.0</strong>버전을 클릭한다. </p>
-<p><img src="/image/cuda_toolkit.JPG" width="1000" height="400"></p>
+<p><img src="/image/cuda_toolkit.JPG" width="1000"></p>
 <p><br><br>클릭 후 아래와 같이 자신의 운영체제 맞는 것을 선택한 후 다운로드를 실시하고 다운로드 된 설치파일을 다른 조건 변경없이 그대로 설치하면 된다. </p>
-<p><img src="/image/cuda_toolkit2.JPG" width="1000" height="400"></p>
+<p><img src="/image/cuda_toolkit2.JPG" width="1000"></p>
 <h4 id="2-cuDNN-다운로드"><a href="#2-cuDNN-다운로드" class="headerlink" title="2. cuDNN 다운로드"></a>2. cuDNN 다운로드</h4><p>CUDA 설치를 완료하였다면 이제 <a href="https://developer.nvidia.com/rdp/cudnn-download" target="_blank" rel="noopener">cuDNN(https://developer.nvidia.com/rdp/cudnn-download)</a>을 다운로드하여 CUDA 디렉토리에 넣어줘야 한다.<br>cuDNN을 설치하기 위해서는 nvidia에 로그인을 해야하므로 가입이 안되어있다면 가입을 한 후 접속하면 된다. </p>
 <p>주의할 점은 위에서 설치한 CUDA버전에 호환되는 cuDNN을 다운로드 해야 한다는 것이다. 위에서 CUDA 10.0버전을 설치해주었기 때문에 cuDNN도 CUDA 10.0에 호환되는 버전(for CUDA 10.0)으로 다운받는다.</p>
-<p><img src="/image/cudnn.JPG" width="1000" height="400"></p>
+<p><img src="/image/cudnn.JPG" width="1000"></p>
 <p>위 파일을 다운로드 하면 <strong>cudnn-10.0-windows10-x64-v7.5.1.10</strong> 라는 압축파일이 다운로드 되는데, 압축파일을 풀게 되면 그 안에 아래와 같은 파일이 들어있다.</p>
-<p><img src="/image/cudnn2.JPG" width="800" height="400"><br><br></p>
+<p><img src="/image/cudnn2.JPG" width="800"><br><br></p>
 <h4 id="3-cuDNN파일-CUDA-폴더로-복사"><a href="#3-cuDNN파일-CUDA-폴더로-복사" class="headerlink" title="3. cuDNN파일 CUDA 폴더로 복사"></a>3. cuDNN파일 CUDA 폴더로 복사</h4><p>이제부터가 중요한데,<br>방금 전 압축해제 한 폴더의 파일을 모두 복사하여 그대로 처음 설치한 CUDA 폴더로 전부 복사해주어야 한다.<br>우선 압축해제 한 파일들을 전부 복사한 후, <strong>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.0</strong> 이 경로로 가서 복사한 파일을 그대로 붙여 넣기 해준다.(안에 동일한 파일이 있는데 그냥 덮어씌워주는 것이다.)</p>
-<p><img src="/image/cudnn3.JPG" width="800" height="400"><br>(위 경로에 그대로 복사한 파일을 덮어씌운다.)<br><br></p>
-<h4 id="4-환경변수-지정"><a href="#4-환경변수-지정" class="headerlink" title="4. 환경변수 지정"></a>4. 환경변수 지정</h4><p>보통 다른 설정을 건드리지 않고 진행하였을 경우, 환경변수에 아래와 같은 CUDA 경로가 들어있을 것이다. 없다면 아래와 같은 경로를 그대로 환경변수에 지정해준다.<br><img src="/image/path.JPG" width="500" height="400"><br><br></p>
+<p><img src="/image/cudnn3.JPG" width="800"><br>(위 경로에 그대로 복사한 파일을 덮어씌운다.)<br><br></p>
+<h4 id="4-환경변수-지정"><a href="#4-환경변수-지정" class="headerlink" title="4. 환경변수 지정"></a>4. 환경변수 지정</h4><p>보통 다른 설정을 건드리지 않고 진행하였을 경우, 환경변수에 아래와 같은 CUDA 경로가 들어있을 것이다. 없다면 아래와 같은 경로를 그대로 환경변수에 지정해준다.<br><img src="/image/path.JPG" width="500"><br><br></p>
 <h4 id="5-tensorflow-gpu-버전-설치"><a href="#5-tensorflow-gpu-버전-설치" class="headerlink" title="5. tensorflow-gpu 버전 설치"></a>5. tensorflow-gpu 버전 설치</h4><p>이후 Anacoda prompt 혹은 CMD 창을 열어 아래와 같은 명령어로 tensorflow-gpu버전을 설치한다.</p>
 <p><strong>&gt; pip install tensorflow-gpu</strong><br>혹은<br><strong>&gt; conda install tensorflow-gpu</strong></p>
-<p><img src="/image/install_tensorflow_gpu.JPG" width="700" height="400"><br>(이미 설치되어 있어서 위와 같이 나옴.)<br><br></p>
+<p><img src="/image/install_tensorflow_gpu.JPG" width="700"><br>(이미 설치되어 있어서 위와 같이 나옴.)<br><br></p>
 <h4 id="6-tensorflow-실행-및-확인"><a href="#6-tensorflow-실행-및-확인" class="headerlink" title="6. tensorflow 실행 및 확인"></a>6. tensorflow 실행 및 확인</h4><p>promt창을 열어 아래와 같이 tensorflow를 import하였을 때  error가 나지 않는다면 우선 tensorflow 설치에 성공한 것이다.<br>설치 된 tensorflow 버전을 확인하고 싶을 때는 tf._<em>version_</em> 을 통해 확인할 수 있다.<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> tensorflow <span class="keyword">as</span> tf </span><br><span class="line">tf.__version__</span><br></pre></td></tr></table></figure></p>
-<p><img src="/image/tensorflow-version.JPG" width="900" height="400"></p>
+<p><img src="/image/tensorflow-version.JPG" width="900"></p>
 <p>tensorflow가 GPU버전으로 잘 설치되었고, 나의 GPU를 잘 인식하고 있는지 확인하고 싶다면 아래와 같은 코드를 통해 확인할 수 있다. tensorflow가 인식하는 로컬 device 목록을 보여주게 된다.<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> tensorflow.python.client <span class="keyword">import</span> device_lib</span><br><span class="line">device_lib.list_local_devices()</span><br></pre></td></tr></table></figure></p>
-<p><img src="/image/check-tensorflow-gpu.JPG" width="1100" height="400"></p>
+<p><img src="/image/check-tensorflow-gpu.JPG" width="1100"></p>
 <p>내 컴퓨터의 GPU의 경우 GeForce GTX 1050 with MAX-Q인 것을 확인할 수 있다. </p>
 
   <p><a class="classtest-link" href="/tags/cuda/">cuda</a>, <a class="classtest-link" href="/tags/cudnn/">cudnn</a>, <a class="classtest-link" href="/tags/keras/">keras</a>, <a class="classtest-link" href="/tags/nvidia/">nvidia</a>, <a class="classtest-link" href="/tags/python/">python</a>, <a class="classtest-link" href="/tags/tensorflow/">tensorflow</a> — May 1, 2019</p>

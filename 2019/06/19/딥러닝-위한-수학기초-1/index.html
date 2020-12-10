@@ -179,47 +179,47 @@
 
   <h2 id="Intro"><a href="#Intro" class="headerlink" title="Intro"></a>Intro</h2><p>본 글은 ‘처음 배우는 딥러닝 수학(한빛미디어)’이라는 책의 ‘chap.02 신경망을 위한 수학기초’ 를 정리한 글입니다.</p>
 <hr>
-<h3 id="1-1차-함수"><a href="#1-1차-함수" class="headerlink" title="1. 1차 함수"></a>1. 1차 함수</h3><p><img src="/image/1차함수.JPG" width="300" height="400"></p>
+<h3 id="1-1차-함수"><a href="#1-1차-함수" class="headerlink" title="1. 1차 함수"></a>1. 1차 함수</h3><p><img src="/image/1차함수.JPG" width="300"></p>
 <ul>
 <li>a를 기울기, b를 절편이라고 하며 두 변수 x, y가 위 식의 관계를 만족할 때 변수 y는 변수 x와 ‘1차 함수 관계’라고 함</li>
-<li>1차함수를 그래프로 그리면 아래와 같은 직선으로 나타남<br><img src="/image/1차함수그래프.JPG" width="300" height="400"></li>
+<li>1차함수를 그래프로 그리면 아래와 같은 직선으로 나타남<br><img src="/image/1차함수그래프.JPG" width="300"></li>
 </ul>
 <ul>
 <li>y = 2x+1의 그래프라면, 절편은 1, 기울기는 2(아래 왼쪽)</li>
-<li>y = -2x-1의 그래프라면, 절편은 -1, 기울기는 -2(아래 오른쪽)<br><img src="/image/1차함수그래프2.JPG" width="550" height="400"></li>
+<li>y = -2x-1의 그래프라면, 절편은 -1, 기울기는 -2(아래 오른쪽)<br><img src="/image/1차함수그래프2.JPG" width="550"></li>
 </ul>
-<p>1차 함수는 독립변수가 여러 개일 때도 있음<br><img src="/image/1차함수2.JPG" width="500" height="400"></p>
-<p>신경망에서 유닛이 받는 ‘가중 입력’은 1차 함수 관계로 표현. 예를 들어 아래층에서 3개의 입력 신호를 받은 유닛의 가중 입력 z는 아래와 같이 표현.<br><img src="/image/유닛가중입력.JPG" width="310" height="400"></p>
+<p>1차 함수는 독립변수가 여러 개일 때도 있음<br><img src="/image/1차함수2.JPG" width="500"></p>
+<p>신경망에서 유닛이 받는 ‘가중 입력’은 1차 함수 관계로 표현. 예를 들어 아래층에서 3개의 입력 신호를 받은 유닛의 가중 입력 z는 아래와 같이 표현.<br><img src="/image/유닛가중입력.JPG" width="310"></p>
 <ul>
 <li>가중치 w1, w2, w3와 편향 b를 상수 파라미터라고 생각하면 가중 입력 z는 입력 x1, x2, x3과 1차함수 관계</li>
 <li>또한 유닛이 받는 x1, x2, x3을 입력 데이터값으로 확정했다면 가중 입력 z는 가중치 w1, w2, w3 및 편향 b와 1차 함수 관계<br><br></li>
 </ul>
-<h3 id="2-2차-함수"><a href="#2-2차-함수" class="headerlink" title="2. 2차 함수"></a>2. 2차 함수</h3><p><img src="/image/2차함수.JPG" width="400" height="400"></p>
-<p>2차 함수 그래프에서 중요한 것은 a가 양수일 때는 아래로 볼록한 그래프고, 최솟값이 존재한다는 점.<br> <img src="/image/2차함수그래프.JPG" width="310" height="400"><br><br></p>
-<h3 id="3-단위-계단-함수"><a href="#3-단위-계단-함수" class="headerlink" title="3. 단위 계단 함수"></a>3. 단위 계단 함수</h3><p><img src="/image/단위계단함수.JPG" width="600" height="400"></p>
+<h3 id="2-2차-함수"><a href="#2-2차-함수" class="headerlink" title="2. 2차 함수"></a>2. 2차 함수</h3><p><img src="/image/2차함수.JPG" width="400"></p>
+<p>2차 함수 그래프에서 중요한 것은 a가 양수일 때는 아래로 볼록한 그래프고, 최솟값이 존재한다는 점.<br> <img src="/image/2차함수그래프.JPG" width="310"><br><br></p>
+<h3 id="3-단위-계단-함수"><a href="#3-단위-계단-함수" class="headerlink" title="3. 단위 계단 함수"></a>3. 단위 계단 함수</h3><p><img src="/image/단위계단함수.JPG" width="600"></p>
 <ul>
 <li>u(-1) = 0, u(1) = 1, u(0) = 1</li>
 <li>단위 계단 함수는 원점에서 불연속 즉, ‘미분 불가능’</li>
 <li>미분 불가능한 특성으로 인해 신경망의 활성화 함수로 잘 사용되지 않음.<br><br></li>
 </ul>
-<h3 id="4-지수함수와-시그모이드-함수"><a href="#4-지수함수와-시그모이드-함수" class="headerlink" title="4. 지수함수와 시그모이드 함수"></a>4. 지수함수와 시그모이드 함수</h3><p><img src="/image/지수함수.JPG" width="300" height="400"></p>
+<h3 id="4-지수함수와-시그모이드-함수"><a href="#4-지수함수와-시그모이드-함수" class="headerlink" title="4. 지수함수와 시그모이드 함수"></a>4. 지수함수와 시그모이드 함수</h3><p><img src="/image/지수함수.JPG" width="300"></p>
 <ul>
 <li>위와 같은 식을 지수함수라고 함.</li>
 <li>상수 a는 지수함수의 밑(base)라고 하며, 밑의 값으로 특히 중요한 것은 자연상수 e</li>
 <li>e = 2.718281828…</li>
 </ul>
-<p><img src="/image/시그모이드식.JPG" width="380" height="400"></p>
+<p><img src="/image/시그모이드식.JPG" width="380"></p>
 <ul>
 <li>자연상수를 포함하는 지수함수를 분모로 갖는 함수가 시그모이드 함수</li>
 <li>신경망에서 사용되는 대표적인 활성화 함수</li>
-<li>시그모이드 함수는 아래와 같이 S자형태의 그래프로 그려짐<br><img src="/image/시그모이드그래프.JPG" width="400" height="400"><br><br></li>
+<li>시그모이드 함수는 아래와 같이 S자형태의 그래프로 그려짐<br><img src="/image/시그모이드그래프.JPG" width="400"><br><br></li>
 </ul>
 <h3 id="5-정규분포의-확률밀도함수"><a href="#5-정규분포의-확률밀도함수" class="headerlink" title="5. 정규분포의 확률밀도함수"></a>5. 정규분포의 확률밀도함수</h3><ul>
 <li>신경망을 컴퓨터에서 설정할 때 가중치 및 편향의 초깃값을 설정해야 하는데 이 초기값을 구할 때 도움이 되는 것이 정규 분포임.</li>
 <li>이 분포를 따르는 정규분포 난수를 초깃값으로 사용하면 신경망 계산 시 좋은 결과를 얻는다고 알려져 있음.</li>
-<li><p>정규분포는 확률밀도함수 f(x)를 따르는 확률분포를 말함(아래 식)<br><img src="/image/정규분포식.JPG" width="300" height="400"></p>
+<li><p>정규분포는 확률밀도함수 f(x)를 따르는 확률분포를 말함(아래 식)<br><img src="/image/정규분포식.JPG" width="300"></p>
 </li>
-<li><p>mu은 기댓값(평균값), sigma는 표준편차라고 하며 모두 상수임. 그래프는 종 모양<br><img src="/image/정규분포그래프.gif" width="350" height="400"></p>
+<li><p>mu은 기댓값(평균값), sigma는 표준편차라고 하며 모두 상수임. 그래프는 종 모양<br><img src="/image/정규분포그래프.gif" width="350"></p>
 </li>
 </ul>
 

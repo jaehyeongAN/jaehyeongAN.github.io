@@ -179,22 +179,22 @@
 
   <h2 id="Intro"><a href="#Intro" class="headerlink" title="Intro"></a>Intro</h2><p>많은 경우 머신러닝 문제는 훈련 샘플이 수천 심지어 수백만 개의 특성을 가지고 있다. 이는 모델의 학습을 느리게 할 뿐만 아니라 정교한 모델을 만들기 어렵게 하는데 이러한 문제를 차원의 저주(curse of dimensionality)라고 한다.<br>그리고 이러한 차원의 저주를 해결하기 위해 차원 축소 기법이 이용된다. </p>
 <hr>
-<h2 id="차원의-저주-curse-of-dimensionality"><a href="#차원의-저주-curse-of-dimensionality" class="headerlink" title="차원의 저주(curse of dimensionality)"></a>차원의 저주(curse of dimensionality)</h2><p>현재 우리는 3차원의 공간에 살고 있어 그 보다 큰 4차원, 5차원 이상의 공간을 머리속으로 떠올리기 힘들다.<br><img src="/image/curse_d.png" width="600" height="400"></p>
+<h2 id="차원의-저주-curse-of-dimensionality"><a href="#차원의-저주-curse-of-dimensionality" class="headerlink" title="차원의 저주(curse of dimensionality)"></a>차원의 저주(curse of dimensionality)</h2><p>현재 우리는 3차원의 공간에 살고 있어 그 보다 큰 4차원, 5차원 이상의 공간을 머리속으로 떠올리기 힘들다.<br><img src="/image/curse_d.png" width="600"></p>
 <p>즉, 차원(Dimensionality)이라는 것은 공간을 뜻하고 위 그림과 같이 1개의 점인 0차원 부터 시작하여 4차원까지 공간은 몇 개의 점과 선을 그리느냐에 따라 무수히 많은 차원을 가지게 된다.</p>
 <p>예를 들어, 단위 면적에서 임의의 두 점을 선택하였을 경우 두 점 사이의 거리는 대략 0.52가 된다. 이를 3차원 큐브에 나타낼 경우 두 점사이의 거리는 0.66정도가 된다. 하지만 만약 1,000,000차원의 초입방체에서 두 점을 무작위로 선택할 경우는 어떨까? 평균 거리는 대략 428.25가 된다. </p>
 <p>차원의 높아짐으로써 두 점 사이를 표현하는 거리가 고무줄처럼 늘어나버렸는데, 이렇듯 고차원의 공간은 사실상 데이터 간 거리가 먼 굉장히 희박한 상태라 할 수 있다. 이것을 데이터 관점에서 보자면 데이터의 사이즈와 크기가 바로 차원이 되며, 데이터의 변수의 크기가 차원의 크기가 되며 변수가 많으면 많을수록 데이터의 차원은 계속해서 커지는 것이다.<br><br></p>
 <h4 id="고차원-데이터-셋의-모델-학습-문제"><a href="#고차원-데이터-셋의-모델-학습-문제" class="headerlink" title="고차원 데이터 셋의 모델 학습 문제"></a>고차원 데이터 셋의 모델 학습 문제</h4><p>데이터를 표현하는 특징과 수가 많을 경우 모델이 더 잘 학습하는 것이 아닐까라는 생각이 들지만, 위에서 말했듯이 차원의 정도가 너무 클 경우 오히려 데이터의 주요 특징들이 희박해지는 현상이 발생하게 되어 모델이 과대적합하게 되는 문제가 발생한다. </p>
 <p>이를 해결하기 위한 한가지 해결책은 훈련 샘플의 밀도가 충분히 높아질 때까지 훈련 세트를 키우는 것인데, 실제로는 일정 밀도에 도달하기 위해 필요한 훈련 샘플 수는 차원 수가 커짐에 따라 기하급수적으로 늘어나게되는 문제가 있다. </p>
 <p>따라서, 다른 해결책으로 차원을 저차원 공간에 펼치는 투영(projection)이나 차원을 축소하는 주성분 분석(PCA)등이 이용된다.<br><br></p>
-<h2 id="차원-축소를-위한-방법"><a href="#차원-축소를-위한-방법" class="headerlink" title="차원 축소를 위한 방법"></a>차원 축소를 위한 방법</h2><h4 id="1-투영-projection"><a href="#1-투영-projection" class="headerlink" title="1. 투영(projection)"></a>1. 투영(projection)</h4><p>고차원 공간에 있는 훈렴 샘플을 저차원 공간으로 그대로 수직으로 투영하는 방법이며, 아래 그림과 같이 3차원 공간에 있는 샘플들은 사실 2차원 공간에 놓아도 데이터들의 특성이 많이 뭉개지지 않게 된다.<br><img src="/image/projection.png" width="700" height="400"><br><br></p>
-<p>하지만, 투영하는 것이 모든 상황에 최적인 것은 아니다.<br><img src="/image/swiss_roll.png" width="350" height="400"><br>위 그림과 같이 데이터가 말려있을 경우 데이터를 그대로 투영하게 되면 어떻게 될까? 위 데이터 샘플을 그대로 수직으로 투영할 경우, 아래 왼쪽과 같은 그림이 된다.<br><img src="/image/swiss_roll_projection.png" width="600" height="400"></p>
+<h2 id="차원-축소를-위한-방법"><a href="#차원-축소를-위한-방법" class="headerlink" title="차원 축소를 위한 방법"></a>차원 축소를 위한 방법</h2><h4 id="1-투영-projection"><a href="#1-투영-projection" class="headerlink" title="1. 투영(projection)"></a>1. 투영(projection)</h4><p>고차원 공간에 있는 훈렴 샘플을 저차원 공간으로 그대로 수직으로 투영하는 방법이며, 아래 그림과 같이 3차원 공간에 있는 샘플들은 사실 2차원 공간에 놓아도 데이터들의 특성이 많이 뭉개지지 않게 된다.<br><img src="/image/projection.png" width="700"><br><br></p>
+<p>하지만, 투영하는 것이 모든 상황에 최적인 것은 아니다.<br><img src="/image/swiss_roll.png" width="350"><br>위 그림과 같이 데이터가 말려있을 경우 데이터를 그대로 투영하게 되면 어떻게 될까? 위 데이터 샘플을 그대로 수직으로 투영할 경우, 아래 왼쪽과 같은 그림이 된다.<br><img src="/image/swiss_roll_projection.png" width="600"></p>
 <p>검정, 빨강, 노랑 샘플이 뭉개져버렸기 때문에 2차원에서는 표현을 잘 나타내지를 못하고 있다. 하지만 우리가 원하는 것은 바로 오른쪽과 같이 특성이 뭉개지지 않게 펼쳐진 그림일 것이다. 그리고 이렇게 구부려져 있는 데이터를 반듯이 펴기위해 사용되는 것이 바로 매니폴드 학습이다<br><br></p>
-<h5 id="2-매니폴드-학습-manifold-learning"><a href="#2-매니폴드-학습-manifold-learning" class="headerlink" title="2. 매니폴드 학습(manifold learning)"></a>2. 매니폴드 학습(manifold learning)</h5><p>위에서 보았던 스위스 롤(swiss roll)데이터는 2D 매니폴드의 한 예였다. 한 가지 예를 더 들어 아래와 같은 데이터가 있다고 해보자.<br><img src="/image/manifold1.png" width="300" height="400"></p>
-<p>위 데이터들 간의 거리를 직선상의 거리로 보았을 때 A와 C가 서로 가까울까, 아니면 A와 G가 서로 가까울까?<br>위 그림대로 보았을 때는 A와 C보다는 A와 G사이의 거리가 더 가까워 보인다. 하지만 위 데이터가 실은 아래의 그림을 구부려 놓은 그림이었다면 어떨까? 실제로는 어떤 점이 더 가까운가?<br><img src="/image/manifold2.png" width="350" height="400"></p>
+<h5 id="2-매니폴드-학습-manifold-learning"><a href="#2-매니폴드-학습-manifold-learning" class="headerlink" title="2. 매니폴드 학습(manifold learning)"></a>2. 매니폴드 학습(manifold learning)</h5><p>위에서 보았던 스위스 롤(swiss roll)데이터는 2D 매니폴드의 한 예였다. 한 가지 예를 더 들어 아래와 같은 데이터가 있다고 해보자.<br><img src="/image/manifold1.png" width="300"></p>
+<p>위 데이터들 간의 거리를 직선상의 거리로 보았을 때 A와 C가 서로 가까울까, 아니면 A와 G가 서로 가까울까?<br>위 그림대로 보았을 때는 A와 C보다는 A와 G사이의 거리가 더 가까워 보인다. 하지만 위 데이터가 실은 아래의 그림을 구부려 놓은 그림이었다면 어떨까? 실제로는 어떤 점이 더 가까운가?<br><img src="/image/manifold2.png" width="350"></p>
 <p>위와 같이, 저차원의 데이터가 고차원의 공간에서 휘어지거나 뒤틀려 있는 것을 매니폴드(manifold)라고 하며, 고차원 공간내에서 뒤틀려있는 데이터를 곧게 펴 유클리디안 거리(euclidean distance) 계산을 통해 데이터들 간의 거리를 찾는 학습을 매니폴드 학습(manifold learning)이라고 한다.<br><br></p>
 <h5 id="3-주성분-분석-PCA"><a href="#3-주성분-분석-PCA" class="headerlink" title="3. 주성분 분석(PCA)"></a>3. 주성분 분석(PCA)</h5><p>주성분 분석(Principal Component Analysis)은 데이터의 차원을 축소하고자 할 떄 가장 인기 있게 사용되는 알고리즘이다. </p>
 <p>주성분 분석이란 데이터를 가장 잘 표현하는 초평면을 찾아 분산을 최대로 보존하는 축을 찾는 것이다. 즉, 데이터를 가장 잘 표현하는 n개의 구간을 찾아 그것을 n개의 차원으로 축소하여 표현하는 방법이다.</p>
-<p><img src="/image/pca.png" width="600" height="400"></p>
+<p><img src="/image/pca.png" width="600"></p>
 <blockquote>
 <p>주성분을 찾는 과정</p>
 <ol>

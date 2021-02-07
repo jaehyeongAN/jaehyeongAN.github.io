@@ -11,36 +11,36 @@
   <meta charset="utf-8">
 
   
-  <title>[딥러닝을 위한 수학기초 02] 수열, 시그마, 벡터, 행렬</title>
+  <title>Posts Related to self-attention</title>
   
   <link rel="sitemap" href="https://jaehyeongan.github.iositemap.xml">
   
-  <link rel="canonical" href="https://jaehyeongan.github.io/2019/06/20/딥러닝을-위한-수학기초-2/">
+  <link rel="canonical" href="https://jaehyeongan.github.io/tags/self-attention/">
   
-  <meta name="description" content="Intro본 글은 ‘처음 배우는 딥러닝 수학(한빛미디어)’이라는 책의 ‘chap.02 신경망을 위한 수학기초’ 를 정리한 글입니다.  1. 수열 수열은 ‘숫자 열’을 의미, 예를 들어 2,4,6,8,10,.. 로 진행되면 짝수열이라는 수열임 수열에서 정렬하는 숫자 하나">
+  <meta name="description" content="null">
   
   
   <meta name="author" content>
   
-  <meta property="og:image" content="https://jaehyeongan.github.ioundefined">
+  <meta property="og:image" content="https://jaehyeongan.github.io/images/thumbnail.jpg">
   
   <meta property="og:site_name" content="jaehyeong&#39;s ds">
   <meta property="og:type" content="article">
-  <meta property="og:title" content="[딥러닝을 위한 수학기초 02] 수열, 시그마, 벡터, 행렬">
+  <meta property="og:title" content="Posts Related to self-attention">
   
-  <meta property="og:description" content="Intro본 글은 ‘처음 배우는 딥러닝 수학(한빛미디어)’이라는 책의 ‘chap.02 신경망을 위한 수학기초’ 를 정리한 글입니다.  1. 수열 수열은 ‘숫자 열’을 의미, 예를 들어 2,4,6,8,10,.. 로 진행되면 짝수열이라는 수열임 수열에서 정렬하는 숫자 하나">
+  <meta property="og:description" content="null">
   
-  <meta property="og:url" content="https://jaehyeongan.github.io/2019/06/20/딥러닝을-위한-수학기초-2/">
+  <meta property="og:url" content="https://jaehyeongan.github.io/tags/self-attention/">
 
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="[딥러닝을 위한 수학기초 02] 수열, 시그마, 벡터, 행렬">
+  <meta name="twitter:title" content="Posts Related to self-attention">
   
-  <meta name="twitter:description" content="Intro본 글은 ‘처음 배우는 딥러닝 수학(한빛미디어)’이라는 책의 ‘chap.02 신경망을 위한 수학기초’ 를 정리한 글입니다.  1. 수열 수열은 ‘숫자 열’을 의미, 예를 들어 2,4,6,8,10,.. 로 진행되면 짝수열이라는 수열임 수열에서 정렬하는 숫자 하나">
+  <meta name="twitter:description" content="null">
   
   
-  <meta name="twitter:image" content="https://jaehyeongan.github.ioundefined">
+  <meta name="twitter:image" content="https://jaehyeongan.github.io/images/thumbnail.jpg">
   
-  <meta name="twitter:url" content="https://jaehyeongan.github.io/2019/06/20/딥러닝을-위한-수학기초-2/">
+  <meta name="twitter:url" content="https://jaehyeongan.github.io/tags/self-attention/">
 
   <!-- Mobile Specific Metas
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
@@ -175,102 +175,36 @@
 </div>
 
         <div class="trans">
-            <h2>[딥러닝을 위한 수학기초 02] 수열, 시그마, 벡터, 행렬</h2>
+          
 
-  <h2 id="Intro"><a href="#Intro" class="headerlink" title="Intro"></a>Intro</h2><p>본 글은 ‘처음 배우는 딥러닝 수학(한빛미디어)’이라는 책의 ‘chap.02 신경망을 위한 수학기초’ 를 정리한 글입니다.</p>
-<hr>
-<h3 id="1-수열"><a href="#1-수열" class="headerlink" title="1. 수열"></a>1. 수열</h3><ul>
-<li>수열은 ‘숫자 열’을 의미, 예를 들어 2,4,6,8,10,.. 로 진행되면 짝수열이라는 수열임</li>
-<li>수열에서 정렬하는 숫자 하나하나를 항이라고 함. 첫번째 항은 1항, 두번째 항은 2항, n번째 항은 n항</li>
-<li>신경망의 수열은 유한개의 항 수를 갖는 수열로서 유한수열이라고 함</li>
-</ul>
-<h4 id="수열과-점화식"><a href="#수열과-점화식" class="headerlink" title="수열과 점화식"></a>수열과 점화식</h4><ul>
-<li>점화식이란 이웃에 있는 항의 관계로 표현하는 수열의 귀납적 정의.</li>
-<li>일반적으로 1항 A1과 인접한 2개의 항 An, An+1의 관계식으로 수열 {An}을 표현<br><p><br><img src="/image/점화식1.JPG" width="400"> </p></li>
-</ul>
-<h4 id="연립-점화식"><a href="#연립-점화식" class="headerlink" title="연립 점화식"></a>연립 점화식</h4><ul>
-<li>여러 수열이 몇 가지 관계식으로 연결된 것을 연립 점화식이라고 함.</li>
-<li>신경망에서는 모든 유닛의 입력과 출력이 연립 점화식으로 연결되어 있음<br><p><br><img src="/image/연립점화식.JPG" width="350"><br><br></p></li>
-</ul>
-<h3 id="2-시그마-기호"><a href="#2-시그마-기호" class="headerlink" title="2. 시그마 기호"></a>2. 시그마 기호</h3><ul>
-<li>위에서 살펴본 수열의 합을 간결하게 표현하는 것이 시그마 기호.</li>
-<li>1항부터 n항까지의 수열의 합을 시그마 기호로 나타내면 아래와 같음<br><img src="/image/시그마수열의합.JPG" width="350"> </li>
-<li>시그마 기호에 있는 문자 k는 항 숫자를 의미.<br><br></li>
-</ul>
-<h4 id="시그마-기호의-특징-선형성"><a href="#시그마-기호의-특징-선형성" class="headerlink" title="시그마 기호의 특징 - 선형성"></a>시그마 기호의 특징 - 선형성</h4><ul>
-<li>시그마 기호는 ‘선형성’이라는 특징을 가지고 있음.<br><img src="/image/시그마선형성.JPG" width="350"></li>
-<li>위 식을 실제 수열로 전개하면 아래와 같음.<br><img src="/image/수열전개.JPG" width="550"><br><br></li>
-</ul>
-<h3 id="3-행렬"><a href="#3-행렬" class="headerlink" title="3. 행렬"></a>3. 행렬</h3><p>행렬(matrix)은 수와 식을 사각 형태로 나열한 것으로 다음과 같이 표현<br><img src="/image/행렬.JPG" width="150"></p>
-<ul>
-<li>가로줄은 행, 세로줄은 열</li>
-<li>위 그림과 같이 3행, 3열로 구성된 행렬은 3x3행렬</li>
-<li>정사각행렬이란 행과 열 수가 같은 행렬 </li>
-<li>아래와 같이 하나의 열이나 행으로 구성된 행렬 X, Y를 차례로 열벡터, 행백터라고 함.<br><img src="/image/행열벡터.JPG" width="250"><br><br></li>
-</ul>
-<h4 id="행렬의-상등"><a href="#행렬의-상등" class="headerlink" title="행렬의 상등"></a>행렬의 상등</h4><ul>
-<li>두 행렬 A, B는 대응하는 각 성분이 같을 때 상등이라고 하며, 기호로는 A = B로 표현</li>
-<li>예를 들어, 행렬 A와 B가 아래와 같을 때,<br><img src="/image/행렬의상등.JPG" width="250"></li>
-<li>이때 A = B가 되는 x, y, u, v는 2, 7, 1, 8<br><br></li>
-</ul>
-<h4 id="행렬의-합과-차-상수-배"><a href="#행렬의-합과-차-상수-배" class="headerlink" title="행렬의 합과 차, 상수 배"></a>행렬의 합과 차, 상수 배</h4><ul>
-<li>두 행렬 A, B의 합 A+B, 차 A-B는 같은 위치 성분끼리의 합과 차로 정의</li>
-<li>행렬의 상수 배는 각 성분에 해당 상수를 곱한 것으로 정의<br><img src="/image/행렬의합과차.JPG" width="500"><br><br></li>
-</ul>
-<h4 id="행렬의-곱셈"><a href="#행렬의-곱셈" class="headerlink" title="행렬의 곱셈"></a>행렬의 곱셈</h4><ul>
-<li>행렬의 곱셈은 신경망 층 사이의 신호의 합 등을 계산할 때 이용되기 때문에 특히 중요</li>
-<li><p>행렬의 곱셈은 다음과 같이 정의</p>
-<blockquote>
-<p><em>두 행렬 A, B의 곱 AB는 i행을 행벡터로, B의 j열을 열벡터로 생각했을 때, 행벡터와 열벡터의 내적을 i행 j열의 성분으로 하는 행렬</em></p>
-</blockquote>
-</li>
-<li><p>행렬 곱셈의 예<br><img src="/image/행렬의곱.JPG" width="450"></p>
-</li>
-<li>위 예처럼 행렬 곱셈에서는 교환법칙이 성립하지 않음(AB ≠ BA)<br><br></li>
-</ul>
-<h4 id="아다마르-곱"><a href="#아다마르-곱" class="headerlink" title="아다마르 곱"></a>아다마르 곱</h4><ul>
-<li>같은 행과 열 수를 갖는 행렬 A, B에서 같은 위치의 성분을 곱한 행렬을 ‘행렬 A, B의 아다마르 곱’이라고 함 </li>
-<li>기호 AㅇB로 표현<br><img src="/image/아다마르곱.JPG" width="350"><br><br></li>
-</ul>
-<h4 id="전치행렬"><a href="#전치행렬" class="headerlink" title="전치행렬"></a>전치행렬</h4><ul>
-<li>행렬 A의 i행 j열 값을 j행 i열로 바꿔 얻는 행렬을 행렬 A의 전치행렬(Transposed Matrix)라고 함<br><img src="/image/전치행렬.JPG" width="300"></li>
-<li>행렬 A와 B가 아래와 같을 때 전치행렬 A와 행렬B의 곱셈구하는 식<br><img src="/image/전치행렬곱.JPG" width="600"></li>
-</ul>
 
-  <p><a class="classtest-link" href="/tags/deeplearning/">deeplearning</a>, <a class="classtest-link" href="/tags/matrix/">matrix</a>, <a class="classtest-link" href="/tags/neuralnetwork/">neuralnetwork</a>, <a class="classtest-link" href="/tags/sigma/">sigma</a>, <a class="classtest-link" href="/tags/vector/">vector</a> — Jun 20, 2019</p>
-  
-  <hr>
-<section id="comments" class="mt-2 mb-3">
+   <h3 class>Posts Related to — self-attention</h3>
 
-  <div id="disqus_thread">
-    <a href="#" class="button button-primary" onclick="loadDisqus();return false;">View / Make Comments</a>
-  </div>
 
-  <script>
-    var disqus_config = function() {
-      this.page.url = 'https://jaehyeongan.github.io/2019/06/20/딥러닝을-위한-수학기초-2/index.html';
-      this.page.identifier = '2019/06/20/딥러닝을-위한-수학기초-2/index.html';
-      this.page.title = '[딥러닝을 위한 수학기초 02] 수열, 시그마, 벡터, 행렬';
-    };
 
-    var is_disqus_loaded = false;
+  <article>
+    <div class="row">
 
-    function loadDisqus() {
-      if (!is_disqus_loaded) {
-        is_disqus_loaded = true;
+      <div class="three columns left lit">
+        <p class="bottom">Feb 7, 2021</p>
+      </div>
+      <div class="nine columns left mb-3">
+        <a href="/2021/02/07/Transformer/" class>
+          
+            [Basic NLP_2] Transformer model
+          
+        </a>
+      </div>
+    </div>
+  </article>
 
-        var d = document,
-          s = d.createElement('script');
-        s.src = 'https://jaehyeongan.disqus.com/embed.js';
-        s.setAttribute('data-timestamp', +new Date());
-        (d.head || d.body).appendChild(s);
-      }
-    }
 
-  </script>
-  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-</section>
-
+<div class="pagination-bar">
+  <ul class="pagination">
+    
+    
+  </ul>
+</div>
 
 
           <div class="row mt-2">

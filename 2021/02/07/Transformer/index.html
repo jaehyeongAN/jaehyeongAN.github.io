@@ -11,13 +11,13 @@
   <meta charset="utf-8">
 
   
-  <title>[Basic NLP_1] Sequence-to-Sequence with Attention</title>
+  <title>[Basic NLP_2] Transformer model</title>
   
   <link rel="sitemap" href="https://jaehyeongan.github.iositemap.xml">
   
-  <link rel="canonical" href="https://jaehyeongan.github.io/2021/02/06/Sequence-to-Sequence-with-Attention/">
+  <link rel="canonical" href="https://jaehyeongan.github.io/2021/02/07/Transformer/">
   
-  <meta name="description" content="Intro최근 몇 년간 Transformer 모델의 등장 이후 BERT, GPT, RoBERTa, XLNet, ELECTRA, BART 등과 같은 언어 모델(Language Model)이 매해 새로운 SOTA를 달성하며 등장하고 있다.특히 언어모델의 경우 self-su">
+  <meta name="description" content="Intro지난 포스트인 Sequence-to-Sequence with Attention에서 sequence-to-sequence 모델의 경우 RNN 계열의 순환 신경망을 사용함으로 인해 입력 시퀀스가 길어질 수 록 하나의 Context Vector에 모든 정보를 담기 ">
   
   
   <meta name="author" content>
@@ -26,21 +26,21 @@
   
   <meta property="og:site_name" content="jaehyeong&#39;s ds">
   <meta property="og:type" content="article">
-  <meta property="og:title" content="[Basic NLP_1] Sequence-to-Sequence with Attention">
+  <meta property="og:title" content="[Basic NLP_2] Transformer model">
   
-  <meta property="og:description" content="Intro최근 몇 년간 Transformer 모델의 등장 이후 BERT, GPT, RoBERTa, XLNet, ELECTRA, BART 등과 같은 언어 모델(Language Model)이 매해 새로운 SOTA를 달성하며 등장하고 있다.특히 언어모델의 경우 self-su">
+  <meta property="og:description" content="Intro지난 포스트인 Sequence-to-Sequence with Attention에서 sequence-to-sequence 모델의 경우 RNN 계열의 순환 신경망을 사용함으로 인해 입력 시퀀스가 길어질 수 록 하나의 Context Vector에 모든 정보를 담기 ">
   
-  <meta property="og:url" content="https://jaehyeongan.github.io/2021/02/06/Sequence-to-Sequence-with-Attention/">
+  <meta property="og:url" content="https://jaehyeongan.github.io/2021/02/07/Transformer/">
 
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="[Basic NLP_1] Sequence-to-Sequence with Attention">
+  <meta name="twitter:title" content="[Basic NLP_2] Transformer model">
   
-  <meta name="twitter:description" content="Intro최근 몇 년간 Transformer 모델의 등장 이후 BERT, GPT, RoBERTa, XLNet, ELECTRA, BART 등과 같은 언어 모델(Language Model)이 매해 새로운 SOTA를 달성하며 등장하고 있다.특히 언어모델의 경우 self-su">
+  <meta name="twitter:description" content="Intro지난 포스트인 Sequence-to-Sequence with Attention에서 sequence-to-sequence 모델의 경우 RNN 계열의 순환 신경망을 사용함으로 인해 입력 시퀀스가 길어질 수 록 하나의 Context Vector에 모든 정보를 담기 ">
   
   
   <meta name="twitter:image" content="https://jaehyeongan.github.ioundefined">
   
-  <meta name="twitter:url" content="https://jaehyeongan.github.io/2021/02/06/Sequence-to-Sequence-with-Attention/">
+  <meta name="twitter:url" content="https://jaehyeongan.github.io/2021/02/07/Transformer/">
 
   <!-- Mobile Specific Metas
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
@@ -175,50 +175,29 @@
 </div>
 
         <div class="trans">
-            <h2>[Basic NLP_1] Sequence-to-Sequence with Attention</h2>
+            <h2>[Basic NLP_2] Transformer model</h2>
 
-  <h2 id="Intro"><a href="#Intro" class="headerlink" title="Intro"></a>Intro</h2><p>최근 몇 년간 Transformer 모델의 등장 이후 BERT, GPT, RoBERTa, XLNet, ELECTRA, BART 등과 같은 언어 모델(Language Model)이 매해 새로운 SOTA를 달성하며 등장하고 있다.<br>특히 언어모델의 경우 self-supervised learning으로 영어 뿐만 아니라 최근 다양한 언어로 학습된 모델이 등장하고 있고, 그 덕에 다양한 자연어 처리 태스크들에서 fine-tuning시 데이터가 많지 않더라도 좋은 성능을 보여주고 있다. 이러한 트렌드를 이끈 것은 Transformer의 역할이 크지만 그 전에 Transformer의 전신인 <strong>Sequence-to-Sequnce모델</strong>과 <strong>Attention mechanism</strong>에 대해 먼저 간단하게 살펴보려고 한다.</p>
+  <h2 id="Intro"><a href="#Intro" class="headerlink" title="Intro"></a>Intro</h2><p>지난 포스트인 <a href="https://jaehyeongan.github.io/2021/02/06/Sequence-to-Sequence-with-Attention/">Sequence-to-Sequence with Attention</a>에서 sequence-to-sequence 모델의 경우 RNN 계열의 순환 신경망을 사용함으로 인해 입력 시퀀스가 길어질 수 록 하나의 Context Vector에 모든 정보를 담기 부족하다는 한계가 있음을 확인하였다. 그로 인해 Attention mechanism이 적용되었지만 이 또한 결국 문장에 가중치만 줄 뿐 하나의 Context Vector에 문맥 정보를 압축한다는 점에서 같은 문제가 있었고, 이러한 시퀀스 순서를 유지하며 학습하는 RNN의 한계가 지적되었다.<br>이후 이러한 문제를 해결하기 위해 RNN셀이 전부 제거되고 Attention기법을 중점으로 학습하는 모델이 등장하였으니 그것이 바로 트랜스포머(Transformer) 모델이다.</p>
+<p style="text-align: center;"><img src="/image/Transformer_movie.png"></p>
+<p style="text-align: center; font-size:12px;">(우리가 아는 그 영화는 뒤에 's'가 붙는다. Transformers...)</p>
+
 <hr>
-<h2 id="Sequnece-to-Sequence"><a href="#Sequnece-to-Sequence" class="headerlink" title="Sequnece-to-Sequence"></a>Sequnece-to-Sequence</h2><p><img src="/image/sequence-to-sequence.PNG" width="800"><br>Sequence-to-Sequence(이하 seq2seq)모델은 2014년 구글에 의해 제안된 모델로서 이름 그대로 시퀀스 형태의 입력값을 받아 시퀀스 형태의 출력값을 만드는 모델이며, 기존 DNN모델이 입력과 출력 벡터의 차원이 고정되어있다는 한계를 극복하여 가변 길이의 출력을 가능하게 한 모델이다.<br>seq2seq모델은 기본적으로 RNN 모델을 기반으로 하며, 크게 인코더(Encoder)와 디코더(Decoder)로 구분된다.</p>
-<h3 id="1-Encoder"><a href="#1-Encoder" class="headerlink" title="1. Encoder"></a>1. Encoder</h3><p>Encoder에서는 각 시퀀스마다 embedding vector를 입력으로 받아 입력 시퀀스의 마지막까지 순차적으로 weight을 업데이트한다.(RNN 학습 방법과 동일) 그렇게 되면 마지막 시퀀스의 hidden states는 이전 입력 시퀀스들을 정보를 순차적으로 반영하여 업데이트 된 상태이며, 입력 시퀀스의 전반적인 문맥을 반영하고 있다고 하여 <strong>컨텍스트 벡터(Context vector)</strong>라고 부른다.</p>
-<h3 id="2-Decoder"><a href="#2-Decoder" class="headerlink" title="2. Decoder"></a>2. Decoder</h3><p>Decoder는 우선 Encoder의 전체적인 문맥이 학습된 context vector와 &lt; SOS &gt; (Start of Sentence) 토큰을 첫 입력으로 받아 출력 토큰을 예측한다. </p>
-<p align="center"><img src="/image/seq2seq_probability.PNG" width="400"></p>
+<h2 id="Transformer"><a href="#Transformer" class="headerlink" title="Transformer"></a>Transformer</h2><p>트랜스포머(Transformer)모델은 2017년 구글에 의해 소개된 논문인 <a href="https://arxiv.org/abs/1706.03762" target="_blank" rel="noopener">“Attention is all you need”</a>에서 등장한 모델이다. 기본적으로 트랜스포머 모델은 앞서 살펴보았던 Sequence-to-Sequence의 인코더(Encoder), 디코더(Decoder)의 구조를 가지고 있지만 RNN셀을 사용하지 않고 단순히 어텐션(Attention)구조만으로 이루어져 있다는 것, 그리고 이러한 인코더-디코더 구조가 n개(논문에서는 6개) 존재한다는 것이 큰 특징이다.</p>
+<p style="text-align: center;"><img src="/image/transformer-model-architecture.png"></p>
 
-<p>Decoder의 현재 시점(t)의 출력결과는 이전 시점(t1,…,t-1) 출력 결과의 조건부 확률로서, 이전 시점의 결과에 따라 현재 시점의 출력 결가 영향을 받게 되는 구조이며, 이렇게 예측된 출력값은 다시 다음 시퀀스의 예측을 위해 입력값으로 사용되고 이러한 과정이 &lt; EOS &gt; (End of Sentence) 토큰이 등장할 때 까지 반복된다.</p>
-<h3 id="Example-Machine-Translation"><a href="#Example-Machine-Translation" class="headerlink" title="Example (Machine Translation)"></a>Example (Machine Translation)</h3><p><img src="/image/seq2seq_gif.gif" width="800"><br>seq2seq를 기계번역에 적용할 시 위와 같이 프랑스어에 해당하는 입력 시퀀스들이 순차적으로 Encoder로 입력되어 마지막 시퀀스까지 weight을 업데이트하고 그렇게 업데이트 된 마지막 입력 시퀀스 즉, Context Vector를 Decoder의 입력으로 넘겨주어 영어로 출력하게 된다.</p>
-<h3 id="seq2seq의-한계"><a href="#seq2seq의-한계" class="headerlink" title="seq2seq의 한계"></a>seq2seq의 한계</h3><p>seq2seq는 출력 시퀀스의 가변 길이 출력이 가능해짐으로써 언어 모델의 발전을 가져왔지만 입력 시퀀스가 길어질 수 록 초기 입력 시퀀스의 정보를 잃게 되는 gradient vanishing 문제가 제기되었다. 아무래도 하나의 context vector에 입력 시퀀스의 모든 정보를 담다보니 전체 문맥 정보가 희미해질 수 밖에 없고 이는 RNN 계열의 모델(RNN, LSTM, GRU 등)에서 고질적으로 발생하는 문제이다.<br><br></p>
-<h2 id="Attention-Mechanism"><a href="#Attention-Mechanism" class="headerlink" title="Attention Mechanism"></a>Attention Mechanism</h2><p>Attention mechanism은 위에서 언급한 seq2seq의 한계를 극복하기 위해 제안된 개념이다. Attention의 기본적인 아이디어는 Decoder에서 출력 토큰 예측 시 매 시점(time step)마다 입력 시퀀스의 토큰을 참조하여 <strong>연관성이 높은 토큰에 가중치를 높여 학습</strong>한다는 것이다.<br><img src="/image/attention_mechanism.png"></p>
-<h3 id="1-Query-Key-Value"><a href="#1-Query-Key-Value" class="headerlink" title="1. Query, Key, Value"></a>1. Query, Key, Value</h3><p>Attention 계산은 Decoder 출력 토큰 예측 시 수행되며 아래와 같이 Query, Key, Value라는 개념이 사용된다.</p>
-<blockquote>
-<p>Q(Query) : t 시점의 decoder셀의 hidden states<br>K(Key) : 모든 시점의 encoder셀의 hidden states<br>V(Value) : 모든 시점의 encoder셀의 hidden states</p>
-</blockquote>
-<h3 id="2-Attention-Score"><a href="#2-Attention-Score" class="headerlink" title="2. Attention Score"></a>2. Attention Score</h3><p>Attention Score란 Decoder에서 출력 토큰 예측 시 Encoder의 모든 시퀀스 정보를 참조(attention)하여 각각의 시퀀스가 얼마나 출력 토큰과 유사한지를 판단한 유사도 값이다.<br>이 과정에서 Decoder의 현재 t시점은 Query가 되고, 참조하고자 하는 Encoder의 모든 hidden states는 Key가 된다. 이때 Query는 전치(transpose) 후 모든 key에 대해 각각 <strong>내적(dot-product)연산</strong>을 수행하여 Encoder의 Key 갯수만큼의 Attention score를 계산한다.</p>
-<p align="center"><img src="/image/attention_score.PNG" width="350"></p>
+<p>위 그림은 트랜스포머 모델의 전체적인 아키텍처이다. <strong>크게 왼쪽 부분을 인코더(Encoder)로 구분하고, 오른쪽을 디코더(Decoder)로 구분하며 이러한 구조가 n개 존재한다.</strong> 학습 방법은 seq2seq모델과 같이 인코더에서 입력 시퀀스의 특징을 학습하고 이를 디코더의 입력 벡터로 넘겨주어 하나의 토큰씩 출력하게 된다. 하지만 seq2seq와 크게 다른 점은 시퀀스 순서를 학습하기 위한 RNN셀을 사용하지 않는다는 것인데 그것을 대체하기 위해 <strong>Positinal Encoding</strong>이라는 기법을 사용하였으며, 기존 Attention과 비슷하면서도 조금 다른 <strong>Self-Attention</strong>과 <strong>Multi-Head Attention</strong>이라는 기법을 적용하였다. 아래에서 각 부분에 대해 자세히 살펴보도록 하자.<br><br></p>
+<h3 id="Positional-Encoding"><a href="#Positional-Encoding" class="headerlink" title="Positional Encoding"></a>Positional Encoding</h3><p><br></p>
+<h3 id="Self-Attention-amp-Multi-Head-Attention"><a href="#Self-Attention-amp-Multi-Head-Attention" class="headerlink" title="Self-Attention &amp; Multi-Head Attention"></a>Self-Attention &amp; Multi-Head Attention</h3><p><br></p>
+<h3 id="Masked-Multi-Head-Attention"><a href="#Masked-Multi-Head-Attention" class="headerlink" title="Masked Multi-Head Attention"></a>Masked Multi-Head Attention</h3><p><br></p>
+<h3 id="Residual-Connection-amp-Layer-Nomalization"><a href="#Residual-Connection-amp-Layer-Nomalization" class="headerlink" title="Residual Connection &amp; Layer Nomalization"></a>Residual Connection &amp; Layer Nomalization</h3><p><br></p>
+<h3 id="Position-Wise-Feed-Forward-Networks"><a href="#Position-Wise-Feed-Forward-Networks" class="headerlink" title="Position-Wise Feed-Forward Networks"></a>Position-Wise Feed-Forward Networks</h3><p><br></p>
+<p style="text-align: center;">작성 中..</p>
 
-<h3 id="3-Attention-Distribution"><a href="#3-Attention-Distribution" class="headerlink" title="3. Attention Distribution"></a>3. Attention Distribution</h3><p>입력 시퀀스 갯수만큼 나온 Attention Score 리스트에 <strong>Softmax 함수</strong>를 적용한다. Softmax를 적용하게 되면 합이 1이되는 확률분포가 되는데 여기서 각각의 값들을 Attention weight라고 한다.</p>
-<p align="center"><img src="/image/attention_distribution.PNG" width="330"></p>
 
-<h3 id="4-Attention-Value"><a href="#4-Attention-Value" class="headerlink" title="4. Attention Value"></a>4. Attention Value</h3><p>위에서 구한 Attention weight을 다시 각각의 Encoder의 hidden state와 곱셈연산을 하고, 이후 모든 값들을 더해주는 <strong>가중합(weighted sum)</strong>을 하여 최종 Attention Value(혹은 Context Value)를 구하여 이를 Decoder의 현재 t시점의 입력값으로 사용한다. </p>
-<p align="center"><img src="/image/attention_value.PNG" width="150"></p>
-
-<p>위의 과정을 거쳐 나온 최종 Attention value는 Decoder의 예측하려는 t 시점의 입력값으로 사용되고 매 시점 예측 시 마다 위와 같은 과정이 반복된다. </p>
-<p>아래는 Attention 과정을 애니메이션으로 표현한 것이다.<br><img src="/image/attention-process.gif" width="800"></p>
 <p><br></p>
-<h2 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h2><p>사실 Transformer는 Sequence-to-Sequence와 같은 Encoder-Decoder 구조를 여러개 사용한 것이고, Transformer에서 사용되는 self-attention 및 multi-head attention 또한 기존 Attention mechanism을 응용한 것이기 때문에 Sequence-to-Sequence모델과 Attention 개념만 알아도 Transformer 아키텍처를 이해하는데 어렵지 않을 것이다. 또한 이후 등장한 모델들도 대부분 이와 같은 구조를 응용한 모델이라고 할 수 있기 때문에 확실히 이해하고 넘어가는 것이 좋을 듯 하다.</p>
-<p>Tensorflow, Pytorch 공식 doc에서 seq-to-seq with attention모델 구현 tutorial이 준비되어 있으니 참고!</p>
-<ul>
-<li><a href="https://www.tensorflow.org/tutorials/text/nmt_with_attention" target="_blank" rel="noopener">NLP FROM SCRATCH: TRANSLATION WITH A SEQUENCE TO SEQUENCE NETWORK AND ATTENTION</a></li>
-<li><a href="https://pytorch.org/tutorials/intermediate/seq2seq_translation_tutorial.html" target="_blank" rel="noopener">어텐션을 사용한 인공 신경망 기계 번역</a></li>
-</ul>
-<hr>
-<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
-<li><a href="https://arxiv.org/abs/1409.3215" target="_blank" rel="noopener">Sequence to Sequence Learning with Neural Networks</a></li>
-<li><a href="https://arxiv.org/abs/1409.0473" target="_blank" rel="noopener">Neural Machine Translation by Jointly Learning to Align and Translate
-</a></li>
-<li><a href="https://jalammar.github.io/visualizing-neural-machine-translation-mechanics-of-seq2seq-models-with-attention/" target="_blank" rel="noopener">https://jalammar.github.io/visualizing-neural-machine-translation-mechanics-of-seq2seq-models-with-attention/</a></li>
-</ul>
-
-  <p><a class="classtest-link" href="/tags/attention/">attention</a>, <a class="classtest-link" href="/tags/context/">context</a>, <a class="classtest-link" href="/tags/nlp/">nlp</a>, <a class="classtest-link" href="/tags/seq2seq/">seq2seq</a>, <a class="classtest-link" href="/tags/transformer/">transformer</a> — Feb 6, 2021</p>
+<h2 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h2><hr>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2>
+  <p><a class="classtest-link" href="/tags/attention/">attention</a>, <a class="classtest-link" href="/tags/nlp/">nlp</a>, <a class="classtest-link" href="/tags/positional-encoding/">positional-encoding</a>, <a class="classtest-link" href="/tags/self-attention/">self-attention</a>, <a class="classtest-link" href="/tags/transformer/">transformer</a> — Feb 7, 2021</p>
   
   <hr>
 <section id="comments" class="mt-2 mb-3">
@@ -229,9 +208,9 @@
 
   <script>
     var disqus_config = function() {
-      this.page.url = 'https://jaehyeongan.github.io/2021/02/06/Sequence-to-Sequence-with-Attention/index.html';
-      this.page.identifier = '2021/02/06/Sequence-to-Sequence-with-Attention/index.html';
-      this.page.title = '[Basic NLP_1] Sequence-to-Sequence with Attention';
+      this.page.url = 'https://jaehyeongan.github.io/2021/02/07/Transformer/index.html';
+      this.page.identifier = '2021/02/07/Transformer/index.html';
+      this.page.title = '[Basic NLP_2] Transformer model';
     };
 
     var is_disqus_loaded = false;

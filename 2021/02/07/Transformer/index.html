@@ -195,8 +195,30 @@
 <p style="text-align: center;"><img src="/image/positional_encoding_matrix.png"></p>
 
 <p>이렇게 계산된 포지션 임베딩 행렬(Positional Embedding Matrix)은 입력 원본 문장의 임베딩 행렬(Input Embedding Matrix)에 단순 덧셈연산을 통해 더해져 인코더의 input으로 사용되게 된다.<br><br></p>
-<h3 id="Self-Attention-amp-Multi-Head-Attention"><a href="#Self-Attention-amp-Multi-Head-Attention" class="headerlink" title="Self-Attention &amp; Multi-Head Attention"></a>Self-Attention &amp; Multi-Head Attention</h3><p><br></p>
-<h3 id="Masked-Multi-Head-Attention"><a href="#Masked-Multi-Head-Attention" class="headerlink" title="Masked Multi-Head Attention"></a>Masked Multi-Head Attention</h3><p><br></p>
+<h3 id="Self-Attention"><a href="#Self-Attention" class="headerlink" title="Self-Attention"></a>Self-Attention</h3><p style="text-align: center;"><img src="/image/scaled_dot_product_attention.png"></p>
+
+<p>Self-Attention은 기존 Attention개념과 크게 다르지 않다. 기존 Attention은 디코더에서 예측하고자 하는 시퀀스(Query)를 인코더의 모든 시퀀스(Keys)와 내적연산을 통해 계산하였었는데,<br><em>(참고 :  <a href="https://jaehyeongan.github.io/2021/02/06/Sequence-to-Sequence-with-Attention/">Seq2Seq with Attention 모델에서의 Attention</a>)</em></p>
+<p>Self-Attention은 말 그대로 Attention 연산을 해당 문장 시퀀스 자체에서 수행하는 것을 말하며 다른 점은 기존에는 내적(Dot-Product) 연산을 수행하였는데 트랜스포머 모델에서는 <strong>스케일 내적(scaled Dot-Product) 연산</strong>을 통해 Attention을 수행한다는 것이다. </p>
+<p style="text-align: center;"><img src="/image/scaled_dot_product_attention_expression.png" width="400"></p>
+
+<p>위 수식을 보면 key를 전치 후 query와 내적 연산을 한 후, Dk(key의 차원(dimension))를 제곱근한 값으로로 나눠주는 것을 알 수 있다. Scaling을 해주는 이유는 query와 key의 차원이 클 수 록 내적 연산을 통한 값도 계속해서 폭증하게 되는데 이렇게 되면 후에 Softmax함수에서 학습이 잘 안되기 때문에 이러한 경우를 위해 차원의 루트값으로 나눠주는 것이다. </p>
+<p style="text-align: center;"><img src="/image/scaled_dot_product_attention_matrix.png"></p>
+
+<p>그리고 주의할 점은 self-attention 연산이 각각의 벡터마다 한번씩 이루어지는 게 아니라 <strong>행렬(maxtrix) 연산</strong>으로 이루어진다는 것이다. 이것을 <strong>외적(Outer-Product) 연산</strong>이라고 하는데, 각각의 벡터에 내적 연산을 하나 벡터 매트릭스 자체에 외적 연산을 하나 결국 동일한 연산이고, 한번에 외적 연산을 수행하는 것이 더 컴퓨팅 연산 상 효율적이다.<br><br></p>
+<h3 id="Multi-Head-Attention"><a href="#Multi-Head-Attention" class="headerlink" title="Multi-Head Attention"></a>Multi-Head Attention</h3><p style="text-align: center;"><img src="/image/multi-head-attention.png"></p>
+
+<p>그리고 위에서 살펴 본 self-attention을 한번만 수행하는 것이 아니라 Query, Key, Value의 특징값을 헤드 수만큼 나눠서 여러번 Self-Attention을 수행한 후 각각의 값을 합산하는 것을 Multi-Head Attention이라고 한다.</p>
+<p><strong>아래는 Multi-Head Self-Attention의 전체적인 프로세스이다.</strong></p>
+<p style="text-align: center;"><img src="/image/transformer_multi-headed_self-attention-recap.png"></p>
+
+
+
+<p><br></p>
+<h3 id="Masked-Multi-Head-Attention"><a href="#Masked-Multi-Head-Attention" class="headerlink" title="Masked Multi-Head Attention"></a>Masked Multi-Head Attention</h3><p>Masked Multi-Head Attention은 디코더 단에서 수행되는 것으로 Multi-Head Attention과 근본적으로 동일하나 다른 점은 Self-Attention 계산 수행 시 현재 시점보다 앞에 있는 시퀀스들과만 Attention을 수행하고 뒤에 오는 시퀀스는 참조하지 않는 것을 말한다. </p>
+<p style="text-align: center;"><img src="/image/masked-self-attention.svg"></p>
+
+<p>기존 seq2seq와 같은 순환 신경망 모델은 시퀀스가 순차적으로 입력되기 때문에 앞쪽부터 순차적으로 업데이트 되어온 hidden state을 다음 시퀀스 예측을 위해 사용하게된다. 하지만 언급했다시피 트랜스포머 모델은 입력 시퀀스가 한번에 들어가기 때문에 현재 시점보다 뒤에 올 시퀀스의 정보까지 알 수 있게 된다. 현재 시점의 값도 알지못하는데 뒤에 올 정보를 참조한다는 것은 직관적으로도 틀리다.<br>그래서 현재 시점보다 뒤에 있는 시퀀스를 참조하지 않기 위해 Masking을 한 후 Self-Attention을 수행하게 된다.</p>
+<p><br></p>
 <h3 id="Residual-Connection-amp-Layer-Nomalization"><a href="#Residual-Connection-amp-Layer-Nomalization" class="headerlink" title="Residual Connection &amp; Layer Nomalization"></a>Residual Connection &amp; Layer Nomalization</h3><p><br></p>
 <h3 id="Position-Wise-Feed-Forward-Networks"><a href="#Position-Wise-Feed-Forward-Networks" class="headerlink" title="Position-Wise Feed-Forward Networks"></a>Position-Wise Feed-Forward Networks</h3><p><br></p>
 <p style="text-align: center;">작성 中..</p>
